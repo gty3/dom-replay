@@ -17,7 +17,7 @@ export default {
         routes: {
           $connect: {
             function: {
-              handler: "rust-connect/src/main.rs",
+              handler: "websocket/src/main.rs",
               runtime: "rust",
               environment: {
                 DATABENTO_API_KEY: process.env.DATABENTO_API_KEY?? "",
