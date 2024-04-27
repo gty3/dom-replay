@@ -4,10 +4,8 @@ use lambda_http::Body;
 use lambda_runtime::{run, service_fn, tracing, Error, LambdaEvent};
 
 async fn function_handler(
-    event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
+    _event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-    println!("Received event: {:?}", event.payload);
-
     let resp = ApiGatewayProxyResponse {
         status_code: 200,
         headers: {
@@ -16,7 +14,7 @@ async fn function_handler(
             headers
         },
         multi_value_headers: Default::default(),
-        body: Some(Body::from("Hello AWS Lambda HTTP request".to_string())),
+        body: Some(Body::from("Connected".to_string())),
         is_base64_encoded: false,
     };
 

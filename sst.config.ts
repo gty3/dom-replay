@@ -1,8 +1,5 @@
 import { SSTConfig } from "sst"
 import { WebSocketApi } from "sst/constructs"
-import dotenv from "dotenv"
-
-dotenv.config()
 
 export default {
   config(_input) {
@@ -19,9 +16,6 @@ export default {
             function: {
               handler: "websocket/src/main.rs",
               runtime: "rust",
-              environment: {
-                DATABENTO_API_KEY: process.env.DATABENTO_API_KEY?? "",
-              },
             },
           },
         },
