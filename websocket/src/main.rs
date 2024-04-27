@@ -1,19 +1,26 @@
-use aws_lambda_events::event::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
-
-
-use aws_lambda_events::event::connect::ConnectEvent;
+use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
+use http::HeaderMap;
+use lambda_http::Body;
 use lambda_runtime::{run, service_fn, tracing, Error, LambdaEvent};
 
+async fn function_handler(
+    event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
+) -> Result<ApiGatewayProxyResponse, Error> {
+    println!("Received event: {:?}", event.payload);
 
-/// This is the main body for the function.
-/// Write your code inside it.
-/// There are some code example in the following URLs:
-/// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
-/// - https://github.com/aws-samples/serverless-rust-demo/
-async fn function_handler(event: LambdaEvent<ConnectEvent>) -> Result<(), Error> {
-    // Extract some useful information from the request
+    let resp = ApiGatewayProxyResponse {
+        status_code: 200,
+        headers: {
+            let mut headers = HeaderMap::new();
+            headers.insert("Content-Type", "text/html".parse().unwrap());
+            headers
+        },
+        multi_value_headers: Default::default(),
+        body: Some(Body::from("Hello AWS Lambda HTTP request".to_string())),
+        is_base64_encoded: false,
+    };
 
-    Ok(())
+    Ok(resp)
 }
 
 #[tokio::main]
