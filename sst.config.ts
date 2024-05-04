@@ -14,7 +14,7 @@ export default {
         routes: {
           $connect: {
             function: {
-              handler: "websocket/src/main.rs",
+              handler: "testrust/src/main.rs",
               runtime: "rust",
             },
           },
