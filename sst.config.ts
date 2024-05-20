@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst"
-import { WebSocketApi } from "sst/constructs"
+import { StaticSite, WebSocketApi } from "sst/constructs"
 
 export default {
   config(_input) {
@@ -14,12 +14,25 @@ export default {
         routes: {
           $connect: {
             function: {
-              handler: "testrust/src/main.rs",
+              handler: "websocket/src/main.rs",
               runtime: "rust",
+              timeout: 300,
+              environment: {
+                DATABENTO_API_KEY: process.env.DATABENTO_API_KEY ?? "",
+              },
             },
           },
         },
+
       })
+
+      new StaticSite(stack, "Site", {
+        path: "dom-frontend",
+        environment: {
+          VITE_WS_URL: websocketApi.url,
+        },
+      })
+
       stack.addOutputs({
         websocketApi: websocketApi.url,
       })
