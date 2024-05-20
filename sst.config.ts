@@ -14,7 +14,13 @@ export default {
         routes: {
           $connect: {
             function: {
-              handler: "websocket/src/main.rs",
+              handler: "websocket/connect/src/main.rs",
+              runtime: "rust",
+            },
+          },
+          $default: {
+            function: {
+              handler: "websocket/default/src/main.rs",
               runtime: "rust",
               timeout: 300,
               environment: {
@@ -22,8 +28,13 @@ export default {
               },
             },
           },
+          $disconnect: {
+            function: {
+              handler: "websocket/disconnect/src/main.rs",
+              runtime: "rust",
+            },
+          },
         },
-
       })
 
       new StaticSite(stack, "Site", {

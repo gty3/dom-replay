@@ -7,7 +7,7 @@ const useWebSocketConnection = (
   WS_URL: string,
   dispatch: Dispatch<ReducerAction>,
 ) => {
-  const { lastJsonMessage, readyState } = useWebSocket(
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     WS_URL,
     {
       share: false,
@@ -21,6 +21,14 @@ const useWebSocketConnection = (
   function isMBP10(message: any): message is MBP10 {
     return (message as MBP10).hd?.rtype === 10;
   }
+
+  useEffect(() => {
+    if (readyState === ReadyState.OPEN) {
+      sendJsonMessage({
+        event: "subscribe",
+      })
+    }
+  }, [readyState, sendJsonMessage])
 
   useEffect(() => {
     console.log(lastJsonMessage)

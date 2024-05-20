@@ -47,16 +47,15 @@ pub async fn send_data(
         tasks.push(task);
         previous_mbp_ts = Some(current_ts);
     }
-
     for task in tasks {
-      match task.await {
-          Ok(result) => match result {
-              Ok(_) => println!("Message sent successfully"),
-              Err(e) => println!("Error sending message: {}", e),
-          },
-          Err(e) => println!("Task panicked: {:?}", e),
-      }
-  }
+        match task.await {
+            Ok(result) => match result {
+                Ok(_) => log::info!("Message sent successfully"),
+                Err(e) => log::error!("Error sending message: {:?}", e),
+            },
+            Err(e) => log::error!("Task panicked: {:?}", e),
+        }
+    }
 
     Ok(())
 }

@@ -1,6 +1,6 @@
-use aws_config::meta::region::RegionProviderChain;
+// use aws_config::meta::region::RegionProviderChain;
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
-use aws_sdk_apigatewaymanagement::{config::{self, Region}, primitives::Blob, Client};
+use aws_sdk_apigatewaymanagement::{config::{self, Region},  Client};
 use databento::HistoricalClient;
 
 use http::HeaderMap;
@@ -10,13 +10,14 @@ use lambda_runtime::{service_fn, Error, LambdaEvent};
 mod get_data;
 use get_data::get_data;
 mod send_data;
-// use send_data::send_data;
+use send_data::send_data;
+use simple_logger::SimpleLogger;
 
 async fn function_handler(
     event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let (event, _context) = event.into_parts();
-
+    // SimpleLogger::new().init().unwrap();
     let domain_name = event
         .request_context
         .domain_name
@@ -29,9 +30,9 @@ async fn function_handler(
         .unwrap_or_default();
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
-    println!("{:?}", connection_id);
-    println!("{:?}", &domain_name);
-    println!("{:?}", &stage);
+    // println!("{:?}", connection_id);
+    // println!("{:?}", &domain_name);
+    // println!("{:?}", &stage);
 
     let instrument = "CLM4";
     let dataset = "GLBX.MDP3";
@@ -42,7 +43,7 @@ async fn function_handler(
     let replay_end = replay_start + time::Duration::seconds(1);
 
     let endpoint_url = format!("https://{}/{}", domain_name, stage);
-    println!("{:?}", endpoint_url);
+    // println!("{:?}", endpoint_url);
     let shared_config = aws_config::from_env()
         .region(Region::new("us-east-1"))
         .load()
@@ -63,22 +64,22 @@ async fn function_handler(
     )
     .await?;
 
-    let result = apigateway_client
-        .post_to_connection()
-        .connection_id(connection_id)
-        .data(Blob::new(r#"{"test": "test data"}"#))
-        .send()
-        .await;
+    // let result = apigateway_client
+    //     .post_to_connection()
+    //     .connection_id(connection_id)
+    //     .data(Blob::new(r#"{"test": "test data"}"#))
+    //     .send()
+    //     .await;
 
-    match result {
-        Ok(_) => println!("Message sent successfully"),
-        Err(e) => {
-            println!("Error sending message: {}", e);
-            log::error!("Error details: {:?}", e);
-        }
-    }
+    // match result {
+    //     Ok(_) => println!("Message sent successfully"),
+    //     Err(e) => {
+    //         println!("Error sending message: {}", e);
+    //         log::error!("Error details: {:?}", e);
+    //     }
+    // }
 
-    // send_data(&apigateway_client, connection_id, messages, replay_start).await?;
+    send_data(&apigateway_client, connection_id, messages, replay_start).await?;
 
     Ok(ApiGatewayProxyResponse {
         status_code: 200,
