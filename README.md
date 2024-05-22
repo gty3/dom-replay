@@ -21,9 +21,9 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/gty3/dom-img/dom-wide2">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
+  <!-- <a href="https://github.com/gty3/dom-img/dom-wide2.png"> -->
+    <img src="https://github.com/gty3/dom-img/dom-wide2.png" alt="Logo" width="80" height="80">
+  <!-- </a> -->
 
 <h3 align="center">DOM Replay</h3>
 
