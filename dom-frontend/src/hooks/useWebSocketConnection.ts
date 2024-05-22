@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { Dispatch } from "react"
 import { ReducerAction, MBO, MBP10 } from "../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
@@ -38,8 +38,7 @@ const useWebSocketConnection = (
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
       let mbo = lastJsonMessage as MBO
-      const fullTimestamp = lastJsonMessage.hd?.ts_event.toString();
-      const last11Digits = fullTimestamp.slice(-9);
+
       console.log(lastJsonMessage)
       /* if mbo.action === "T" */
       if (mbo.action === 84) {
@@ -50,8 +49,7 @@ const useWebSocketConnection = (
     } else if (isMBP10(lastJsonMessage)) {
       let mbp10 = lastJsonMessage as MBP10
       console.log(mbp10)
-      const fullTimestamp = lastJsonMessage.hd?.ts_event.toString();
-      const last11Digits = fullTimestamp.slice(-9);
+
       dispatch({ type: "UPDATE_DEPTH", payload: mbp10 })
     }
 

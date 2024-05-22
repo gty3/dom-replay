@@ -1,34 +1,29 @@
-import { initialState } from "@/app/App"
-import { MBO, ReducerAction } from "@/app/types"
+import { initialState } from "../App"
+import { MBO, ReducerAction } from "../types"
 
 type UpdateMboAction = ReducerAction & { type: "UPDATE_MBO" }
 
 const updateBuys = (state: typeof initialState, mbo: MBO) => ({
   ...state,
-  buys: {
-    ...state.buys,
-    now: {
-      ...state.buys.now,
-      [mbo.price]: state.buys.now[mbo.price]
-        ? state.buys.now[mbo.price] + mbo.size
+  marketBuys: {
+    ...state.marketBuys,
+      ...state.marketBuys,
+      [mbo.price]: state.marketBuys[mbo.price]
+        ? state.marketBuys[mbo.price] + mbo.size
         : mbo.size,
-    },
   },
 })
 
 const updateSells = (state: typeof initialState, mbo: MBO) => ({
   ...state,
-  sells: {
-    ...state.sells,
-    now: {
-      ...state.sells.now,
-      [mbo.price]: state.sells.now[mbo.price]
-        ? state.sells.now[mbo.price] + mbo.size
+  marketSells: {
+    ...state.marketSells,
+      ...state.marketSells,
+      [mbo.price]: state.marketSells[mbo.price]
+        ? state.marketSells[mbo.price] + mbo.size
         : mbo.size,
-    },
   },
 })
-
 
 const updateMbo = (
   state: typeof initialState,

@@ -1,6 +1,5 @@
 import { getProfit } from "../lib/functions"
-import { initialState, instrument } from "../App"
-
+import { initialState } from "../App"
 
 type PartialState = Partial<typeof initialState>
 
@@ -17,7 +16,7 @@ const executeTrade = (
     bids: state.bids,
     offers: state.offers,
     trades: state.trade,
-    increment: instrument.priceTick,
+    increment: 10000000,
   })
   if (isNotInMarket) {
     return {

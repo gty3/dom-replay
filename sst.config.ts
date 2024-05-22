@@ -1,6 +1,8 @@
 import { SSTConfig } from "sst"
 import { StaticSite, WebSocketApi } from "sst/constructs"
 
+const DATABENTO_API_KEY = process.env.DATABENTO_API_KEY ?? "db-key-error"
+
 export default {
   config(_input) {
     return {
@@ -14,24 +16,30 @@ export default {
         routes: {
           $connect: {
             function: {
-              handler: "websocket/connect/src/main.rs",
+              handler: "websocket/src/main.rs",
               runtime: "rust",
+              environment: {
+                DATABENTO_API_KEY: DATABENTO_API_KEY,
+              },
             },
           },
           $default: {
             function: {
-              handler: "websocket/default/src/main.rs",
+              handler: "websocket/src/main.rs",
               runtime: "rust",
-              timeout: 300,
+              timeout: 310,
               environment: {
-                DATABENTO_API_KEY: process.env.DATABENTO_API_KEY ?? "",
+                DATABENTO_API_KEY: DATABENTO_API_KEY,
               },
             },
           },
           $disconnect: {
             function: {
-              handler: "websocket/disconnect/src/main.rs",
+              handler: "websocket/src/main.rs",
               runtime: "rust",
+            },
+            environment: {
+              DATABENTO_API_KEY: DATABENTO_API_KEY,
             },
           },
         },
@@ -42,10 +50,6 @@ export default {
         environment: {
           VITE_WS_URL: websocketApi.url,
         },
-      })
-
-      stack.addOutputs({
-        websocketApi: websocketApi.url,
       })
     })
   },

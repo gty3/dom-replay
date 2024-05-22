@@ -5,7 +5,8 @@ import sellLimit from "./sellLimit"
 import { instrument } from "../App"
 import updateMbo from "./updateMbo"
 import { generateArray } from "../utils/generatePriceArray"
-
+import executeTrade from "./executeTrade"
+  
 const reducer = (
   state: typeof initialState,
   action: ReducerAction
@@ -27,7 +28,7 @@ const reducer = (
       }
       return {
         ...state,
-        prices: state.prices.map((price) => price - instrument.priceTick),
+        prices: state.prices.map((price) => price - 10000000),
       }
 
     case "SCROLL_UP":
@@ -36,7 +37,7 @@ const reducer = (
       }
       return {
         ...state,
-        prices: state.prices.map((price) => price + instrument.priceTick),
+        prices: state.prices.map((price) => price + 10000000),
       }
 
     case "UPDATE_DEPTH":

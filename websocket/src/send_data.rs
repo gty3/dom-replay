@@ -3,7 +3,6 @@ use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
 // use log;
 
-
 pub async fn send_data(
     apigateway_client: &Client,
     connection_id: &str,
@@ -35,7 +34,6 @@ pub async fn send_data(
 
         let client = apigateway_client.clone();
         let conn_id = connection_id.to_string();
-        println!("{:?}", message);
         let task = tokio::spawn(async move {
             client
                 .post_to_connection()
@@ -51,7 +49,7 @@ pub async fn send_data(
         match task.await {
             Ok(result) => match result {
                 Ok(_) => log::info!("Message sent successfully"),
-                Err(e) => log::error!("Error sending message: {:?}", e),
+                Err(e) => println!("Error sending message: {:?}", e),
             },
             Err(e) => log::error!("Task panicked: {:?}", e),
         }

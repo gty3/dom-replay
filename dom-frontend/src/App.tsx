@@ -42,5 +42,5 @@ export default function App() {
     [dispatch, state]
   )
 
-  return <div className="">{MemoizedDom}</div>
+  return <div className="flex justify-center mt-5">{MemoizedDom}</div>
 }
