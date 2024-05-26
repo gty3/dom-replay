@@ -1,5 +1,5 @@
 import { getProfit } from "../lib/functions"
-import { initialState } from "../App"
+import { initialState } from "../state"
 
 type PartialState = Partial<typeof initialState>
 

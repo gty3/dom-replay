@@ -1,6 +1,6 @@
 
 import { getLowestHighest } from "../utils/getLowestHighest"
-import { initialState } from "../App"
+import { initialState } from "../state"
 import { ReducerAction } from "../types"
 
 type TypeBidLimit = ReducerAction & { type: "BID_LIMIT" }

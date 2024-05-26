@@ -1,6 +1,7 @@
 import { useEffect } from "react"
+import { ReducerAction } from "../types"
 
-const useDomScroll = (dispatch: Function) => {
+const useDomScroll = (dispatch: React.Dispatch<ReducerAction>) => {
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
       if (event.deltaY < 0) {

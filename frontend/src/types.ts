@@ -6,7 +6,7 @@ interface Header {
   ts_event: number
 }
 
-interface Level {
+export interface Level {
   bid_px: number
   ask_px: number
   bid_sz: number

@@ -1,17 +1,17 @@
-
-import { initialState } from "../../App"
+import { initialState } from "../../state"
 import { priceDecimalFn } from "../../lib/functions"
-import Depth from "../priceRow/depth"
-import Price from "../priceRow/price"
+import Depth from "./depth"
+import Price from "./price"
 import { useCallback } from "react"
 import { getLowestHighest } from "../../utils/getLowestHighest"
+import { ReducerAction } from "../../types"
 export const PriceRow = ({
   state,
   dispatch,
   number: priceNumber,
 }: {
   state: typeof initialState
-  dispatch: React.Dispatch<any>
+  dispatch: React.Dispatch<ReducerAction>
   number: number
 }) => {
   const limitOrder =

@@ -1,8 +1,8 @@
-import { initialState } from "../App"
-import { MBP10, ReducerAction } from "../types"
+import { initialState } from "../state"
+import { Level, MBP10, ReducerAction,  } from "../types"
 import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
-import { instrument } from "../App"
+import { instrument } from "../instrument"
 import updateMbo from "./updateMbo"
 import { generateArray } from "../utils/generatePriceArray"
 import executeTrade from "./executeTrade"
@@ -53,11 +53,11 @@ export default reducer
 
 const updateDepth = (
   state: typeof initialState,
-  action: any
+  action: { type: "UPDATE_DEPTH"; payload: MBP10 }
 ): typeof initialState => {
   let newState: typeof initialState | null = null
 
-  const mbp10 = action.payload as MBP10
+  const mbp10 = action.payload
 
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
@@ -91,7 +91,7 @@ const updateDepth = (
 
 
   if (bidLimitPrice) {
-    action.payload.levels.forEach((level) => {
+    action.payload.levels.forEach((level: Level) => {
       if (level.ask_px === bidLimitPrice) {
         newState = {
           ...state,
@@ -100,7 +100,7 @@ const updateDepth = (
       }
     })
   } else if (offerLimitPrice) {
-    action.payload.levels.forEach((level) => {
+    action.payload.levels.forEach((level: Level) => {
       /* if there is an bid that exists at the same price i have an open offer */
       if (level.bid_px === offerLimitPrice) {
         newState = {

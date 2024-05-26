@@ -1,4 +1,4 @@
-import { initialState } from "../App"
+import { initialState } from "../state"
 import { MBO, ReducerAction } from "../types"
 
 type UpdateMboAction = ReducerAction & { type: "UPDATE_MBO" }

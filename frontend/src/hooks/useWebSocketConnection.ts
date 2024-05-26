@@ -15,10 +15,11 @@ const useWebSocketConnection = (
     }
   )
     console.log(readyState, lastJsonMessage)
-  function isMBO(message: any): message is MBO {
+
+  function isMBO(message: unknown): message is MBO {
     return (message as MBO).hd?.rtype === 160;
   }
-  function isMBP10(message: any): message is MBP10 {
+  function isMBP10(message: unknown): message is MBP10 {
     return (message as MBP10).hd?.rtype === 10;
   }
 
@@ -37,7 +38,7 @@ const useWebSocketConnection = (
     }
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
-      let mbo = lastJsonMessage as MBO
+      const mbo = lastJsonMessage as MBO
 
       console.log(lastJsonMessage)
       /* if mbo.action === "T" */
@@ -47,7 +48,7 @@ const useWebSocketConnection = (
 
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
-      let mbp10 = lastJsonMessage as MBP10
+      const mbp10 = lastJsonMessage as MBP10
       console.log(mbp10)
 
       dispatch({ type: "UPDATE_DEPTH", payload: mbp10 })

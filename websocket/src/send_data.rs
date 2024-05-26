@@ -1,7 +1,6 @@
 use aws_sdk_apigatewaymanagement::primitives::Blob;
 use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
-// use log;
 
 pub async fn send_data(
     apigateway_client: &Client,

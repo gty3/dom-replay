@@ -1,7 +1,7 @@
 import PriceRow from "./priceRow/priceRow"
 import { getProfit } from "../lib/functions"
 import AccountValue from "./accountValue"
-import { initialState } from "../App"
+import { initialState } from "../state"
 import { ReducerAction } from "../types"
 
 

@@ -1,4 +1,4 @@
-import { initialState } from "../App"
+import { initialState } from "../state"
 import { getLowestHighest } from "../utils/getLowestHighest"
 
 const calculateIncrements = (bids: Record<string, number>): number[] => {
