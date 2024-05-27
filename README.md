@@ -9,7 +9,7 @@
 <h3 align="center">DOM Replay</h3>
 
   <p align="center">
-    A depth of market replay built with React and Rust
+A depth of market tool to provide a replay of buy and sell orders for a specific financial instrument at particular times.
     <br />
     <a href="https://github.com/gty3/dom-replay"><strong>Read the guide »</strong></a>
     <br />
@@ -55,9 +55,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![Product Screenshot](https://github.com/gty3/dom-img/dom-wide2.png)
+![Product Screenshot](https://raw.githubusercontent.com/gty3/dom-img/main/dom-wide2.png)
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `gty3`, `dom-replay`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
+This project exists as a guide to getting into Rust
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -69,6 +69,7 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 * [![Rust](https://img.shields.io/badge/Rust-DEA584?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 * [![Vite](https://img.shields.io/badge/Vite-42b883?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 * [![SST](https://img.shields.io/badge/SST-4A90E2?style=for-the-badge&logo=serverless-stack)](https://sst.dev/)
+* ![Databento](https://img.shields.io/badge/Databento-DEA584?style=for-the-badge&logo=custom&logoColor=white)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -77,32 +78,36 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This project is built with SST.
 
 ### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get an API Key at [https://databento.com/](https://databento.com/)
 2. Clone the repo
    ```sh
    git clone https://github.com/gty3/dom-replay.git
    ```
-3. Install NPM packages
+3. Install backend and frontend NPM packages
    ```sh
-   npm install
+   pnpm install
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
+4. Rename `env.example` to `.env` and add your DATABENTO_API_KEY
+
+5. Run the backend locally
+    ```sh
+    npx sst dev
+    ```
+
+6. Run the frontend
+    ```sh
+    cd frontend
+    pnpm dev
+    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -122,12 +127,9 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Move mbo and mbp10 value conversions from JS to Rust.
+- [ ] Add an instrument/dataset/time modal to frontend to send to websocket. 
 
-See the [open issues](https://github.com/gty3/dom-replay/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -163,23 +165,11 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Geoff Young - [@_gty__](https://x.com/_gty__)
 
 Project Link: [https://github.com/gty3/dom-replay](https://github.com/gty3/dom-replay)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-* []()
-* []()
-* []()
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
