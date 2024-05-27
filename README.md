@@ -59,7 +59,6 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
 
 This project exists as a guide to getting into Rust
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -69,9 +68,8 @@ This project exists as a guide to getting into Rust
 * [![Rust](https://img.shields.io/badge/Rust-DEA584?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
 * [![Vite](https://img.shields.io/badge/Vite-42b883?style=for-the-badge&logo=vite)](https://vitejs.dev/)
 * [![SST](https://img.shields.io/badge/SST-4A90E2?style=for-the-badge&logo=serverless-stack)](https://sst.dev/)
-* ![Databento](https://img.shields.io/badge/Databento-DEA584?style=for-the-badge&logo=custom&logoColor=white)
+* [![Databento](https://img.shields.io/badge/Databento-DEA584?style=for-the-badge&logo=custom&logoColor=white)](https://databento.com/)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -86,7 +84,7 @@ This is an example of how to list things you need to use the software and how to
 
 
 ### Installation
-
+You can 
 1. Get an API Key at [https://databento.com/](https://databento.com/)
 2. Clone the repo
    ```sh
@@ -109,7 +107,6 @@ This is an example of how to list things you need to use the software and how to
     pnpm dev
     ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -120,7 +117,6 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -129,9 +125,9 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 - [ ] Move mbo and mbp10 value conversions from JS to Rust.
 - [ ] Add an instrument/dataset/time modal to frontend to send to websocket. 
+- [ ] Aggregate data to 1ms increments.
 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -149,7 +145,6 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -158,7 +153,6 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -168,8 +162,6 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 Geoff Young - [@_gty__](https://x.com/_gty__)
 
 Project Link: [https://github.com/gty3/dom-replay](https://github.com/gty3/dom-replay)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 <!-- MARKDOWN LINKS & IMAGES -->

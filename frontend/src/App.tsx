@@ -1,3 +1,4 @@
+import './index.css';
 import { useMemo, useReducer } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
