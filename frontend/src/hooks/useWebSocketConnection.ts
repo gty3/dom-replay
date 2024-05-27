@@ -14,7 +14,6 @@ const useWebSocketConnection = (
       shouldReconnect: () => true,
     }
   )
-    console.log(readyState, lastJsonMessage)
 
   function isMBO(message: unknown): message is MBO {
     return (message as MBO).hd?.rtype === 160;
@@ -32,15 +31,12 @@ const useWebSocketConnection = (
   }, [readyState, sendJsonMessage])
 
   useEffect(() => {
-    console.log(lastJsonMessage)
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
       return
     }
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
-      const mbo = lastJsonMessage as MBO
-
-      console.log(lastJsonMessage)
+      const mbo = lastJsonMessage
       /* if mbo.action === "T" */
       if (mbo.action === 84) {
         dispatch({ type: "UPDATE_MBO", payload: mbo })
@@ -48,8 +44,7 @@ const useWebSocketConnection = (
 
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
-      const mbp10 = lastJsonMessage as MBP10
-      console.log(mbp10)
+      const mbp10 = lastJsonMessage
 
       dispatch({ type: "UPDATE_DEPTH", payload: mbp10 })
     }

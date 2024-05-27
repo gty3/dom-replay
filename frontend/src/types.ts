@@ -49,19 +49,6 @@ export interface InstrumentFile {
   increment: number
   ohlc: string
 }
-
-export type FlatOhlcData = {
-  close: string
-  high: string
-  instrument_id: string
-  low: string
-  open: string
-  publisher_id: string
-  rtype: string
-  ts_event: string
-  volume: string
-}
-
 export interface BidsOffersTime {
   offers: Record<string, number>
   bids: Record<string, number>
