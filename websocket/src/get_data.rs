@@ -52,11 +52,7 @@ pub async fn get_data(
     }
 
     while let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
-        let mut cloned_mbp = mbp.clone();
-        cloned_mbp.levels[0].bid_px /= 1000000000; //this number is not a decimal!
-        
-        cloned_mbp.levels[0].ask_px /= 1000000000;
-        messages.push((mbp.hd.ts_event, serde_json::to_string(&cloned_mbp)?));
+        messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp)?));
     }
 
     messages.sort_by_key(|k| k.0);
