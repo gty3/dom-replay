@@ -1,6 +1,6 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
 use aws_sdk_apigatewaymanagement::{config::{self, Region}, Client};
-use databento::HistoricalClient;
+// use databento::HistoricalClient;
 use http::HeaderMap;
 use lambda_runtime::{service_fn, Error, LambdaEvent};
 use time::{Duration, OffsetDateTime};
@@ -33,10 +33,7 @@ async fn handle_default(
     let api_management_config = config::Builder::from(&shared_config).endpoint_url(endpoint_url).build();
     let apigateway_client = Client::from_conf(api_management_config);
 
-    let mut databento_client = HistoricalClient::builder().key_from_env()?.build()?;
-
     let messages = get_data::get_data(
-        &mut databento_client,
         replay_start,
         replay_end,
         instrument,
