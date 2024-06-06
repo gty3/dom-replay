@@ -14,7 +14,7 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
     <a href="https://github.com/gty3/dom-replay"><strong>Read the guide »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/gty3/dom-replay">View Demo</a>
+    <a href="https://ddi98zxd5bxtp.cloudfront.net/">View Demo</a>
     ·
     <a href="https://github.com/gty3/dom-replay/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·

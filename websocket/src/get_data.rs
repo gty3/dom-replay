@@ -4,6 +4,7 @@ use databento::{
     HistoricalClient,
 };
 use lambda_runtime::Error;
+use std::time::Instant;
 
 pub async fn get_data(
     replay_start: time::OffsetDateTime,
@@ -11,6 +12,8 @@ pub async fn get_data(
     instrument: &str,
     dataset: &str,
 ) -> Result<Vec<(u64, String)>, Error> {
+    let start_time = Instant::now();
+    
     let mut client = HistoricalClient::builder().key_from_env()?.build()?;
 
     let mut mbo_decoder = client
@@ -57,7 +60,10 @@ pub async fn get_data(
 
     messages.sort_by_key(|k| k.0);
 
-    println!("{:?}", messages);
+    let duration = start_time.elapsed(); // Calculate elapsed time
+    println!("Execution time: {:?}", duration); // Print execution time
+
+    // println!("{:?}", messages);
 
     Ok(messages)
 }

@@ -8,17 +8,17 @@ const AccountValue = ({
   profit: number
   side: string
 }) => {
-  const accountProfit = profit / 10000  + ( accountValue / 10000)
+  const accountProfit = profit / 1000000  + ( accountValue / 1000000)
   const position = side === "B" ? "LONG" : side === "S" ? "SHORT" : ""
 
   return (
-    <div className="flex flex-row ">
+    <div className="flex flex-row">
       <div className="px-5 pt-3 w-36">
-        <div className="text-xs ">POSITION</div>
+        <div className="text-xs">POSITION</div>
         <div>{position}</div>
       </div>
 
-      <div className="w-32 px-3 pt-3 ml-8 text-xs">
+      <div className="px-3 pt-3 ml-8 w-32 text-xs">
         UNREALIZED PNL
         <div
           className={`text-xl`}
