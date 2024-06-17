@@ -1,5 +1,5 @@
 import { initialState } from "../../state"
-import { priceDecimalFn } from "../../lib/functions"
+// import { priceDecimalFn } from "../../lib/functions"
 import Depth from "./depth"
 import Price from "./price"
 import { useCallback } from "react"
@@ -21,9 +21,9 @@ export const PriceRow = ({
       ? "S"
       : ""
 
-  const priceLength = 2
-  const decimalPrice = priceDecimalFn(priceNumber)
-  const fixedString = decimalPrice.toFixed(priceLength)
+  // const priceLength = 2
+  // const decimalPrice = priceDecimalFn(priceNumber)
+  // const fixedString = decimalPrice.toFixed(priceLength)
 
   const bidClick = useCallback(() => {
     dispatch({ type: "BID_LIMIT", payload: priceNumber })
@@ -47,7 +47,7 @@ export const PriceRow = ({
 
   return (
     <div className={`grid grid-flow-col ${tradeBorder}`}>
-      <Price fixedStringPrice={fixedString} />
+      <Price fixedStringPrice={"" + priceNumber} />
       <Depth
         limits={state.bids[priceNumber]}
         limitOrder={limitOrder}

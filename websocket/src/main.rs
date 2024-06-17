@@ -26,7 +26,7 @@ async fn handle_default(
     let instrument = "CLM4";
     let dataset = "GLBX.MDP3";
     let replay_start = OffsetDateTime::parse("2024-05-01T14:00:00Z", &time::format_description::well_known::Rfc3339)?;
-    let replay_end = replay_start + Duration::minutes(5);
+    let replay_end = replay_start + Duration::minutes(1);
 
     let endpoint_url = format!("https://{}/{}", domain_name, stage);
     let shared_config = aws_config::from_env().region(Region::new("us-east-1")).load().await;

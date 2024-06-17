@@ -51,11 +51,13 @@ pub async fn get_data(
     let mut messages = Vec::new();
 
     while let Some(mbo) = mbo_decoder.decode_record::<MboMsg>().await? {
-        messages.push((mbo.hd.ts_event, serde_json::to_string(&mbo)?));
+        let adjusted_mbo = adjust_price(mbo);
+        messages.push((adjusted_mbo.hd.ts_event, serde_json::to_string(&adjusted_mbo)?));
     }
 
     while let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
-        messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp)?));
+        let adjusted_mbp = adjust_price_mbp10(mbp.clone());
+        messages.push((adjusted_mbp.hd.ts_event, serde_json::to_string(&adjusted_mbp)?));
     }
 
     messages.sort_by_key(|k| k.0);
@@ -66,4 +68,48 @@ pub async fn get_data(
     // println!("{:?}", messages);
 
     Ok(messages)
+}
+
+fn adjust_price<T: HasPrice + Clone>(msg: &T) -> T {
+    let mut new_msg = msg.clone();
+    let adjusted_price = (new_msg.get_price() as f64) / 1_000_000_000.0;
+    new_msg.set_price(adjusted_price as i64);
+    new_msg
+}
+
+fn adjust_price_mbp10(mut msg: Mbp10Msg) -> Mbp10Msg {
+    let adjusted_price = (msg.get_price() as f64) / 1_000_000_000.0;
+    msg.set_price(adjusted_price as i64);
+
+    for level in &mut msg.levels {
+        level.bid_px = (level.bid_px as f64 / 1_000_000_000.0) as i64;
+        level.ask_px = (level.ask_px as f64 / 1_000_000_000.0) as i64;
+    }
+
+    msg
+}
+
+trait HasPrice {
+    fn get_price(&self) -> i64;
+    fn set_price(&mut self, price: i64);
+}
+
+impl HasPrice for MboMsg {
+    fn get_price(&self) -> i64 {
+        self.price
+    }
+
+    fn set_price(&mut self, price: i64) {
+        self.price = price;
+    }
+}
+
+impl HasPrice for Mbp10Msg {
+    fn get_price(&self) -> i64 {
+        self.price
+    }
+
+    fn set_price(&mut self, price: i64) {
+        self.price = price;
+    }
 }
