@@ -47,7 +47,7 @@ export default {
 
       const api = new Api(stack, "restApi", {
         routes: {
-          "GET /definition/{symbol}": {
+          "GET /definitions": {
             function: {
               handler: "api/src/main.rs",
               runtime: "rust",

@@ -1,47 +1,40 @@
-function Page({ params }: { params: any }) {
+import getDefinition from "./getDefinition"
+import ModalButton from "./modal"
+import { Button } from "@/components/ui/button"
+
+function Page({
+  params,
+  searchParams,
+}: {
+  params: { symbol: string }
+  searchParams: { [key: string]: string | undefined }
+}) {
   // Access the dynamic part of the URL
+  console.log(searchParams.start)
 
-  const sendPostRequest = async () => {
-    try {
-      const response = await fetch(
-        (process.env.NEXT_PUBLIC_API_URL ?? "") +
-          "/definition/" +
-          params.symbol ,
-          // +
-          // "?start=2024-05-01T14:00:00Z",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP error! status: ${response.status}, ${
-            process.env.NEXT_PUBLIC_API_URL ??
-            "" + "/definition/" + params.symbol
-          }`
-        )
-      }
-
-      const data = await response.json()
-      console.log("Response data:", data)
-    } catch (error) {
-      console.error(
-        "Error sending request:",
-        process.env.NEXT_PUBLIC_API_URL + "/definition/" + params.symbol
-      )
-    }
-  }
-  sendPostRequest()
-
+  getDefinition(params.symbol, "2024-05-01T14:00:00Z")
   return (
     <div>
-      <p>Data: {JSON.stringify(params)}</p>
+      <div className="mt-4 mb-3 ml-4">
+        {" "}
+      {/* <Button>
+        {params.symbol} {searchParams.start}
+      </Button> */}
+      </div>
+      <div className="mb-4 ml-4">
+        <ModalButton symbol={params.symbol} start={new Date("2024-05-01T14:00:00Z")}/>
+      </div>
     </div>
   )
 }
 
 export default Page
+
+export async function generateStaticParams() {
+  const definitionsUrl = process.env.NEXT_PUBLIC_API_URL + "/definitions"
+  const symbols = await fetch(definitionsUrl).then((res) => res.json())
+  console.log(symbols)
+  return symbols.map((symbol: { symbol: string }) => ({
+    symbol: symbol.symbol,
+  }))
+}
