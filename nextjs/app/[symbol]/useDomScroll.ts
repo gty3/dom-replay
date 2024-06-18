@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { ReducerAction } from "../../../frontend/src/types"
+import { ReducerAction } from "../types"
 
 const useDomScroll = (dispatch: React.Dispatch<ReducerAction>) => {
   useEffect(() => {

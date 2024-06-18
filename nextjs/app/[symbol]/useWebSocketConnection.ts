@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { Dispatch } from "react"
-import { ReducerAction, MBO, MBP10 } from "../../../frontend/src/types"
+import { ReducerAction, MBO, MBP10 } from "../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
 const useWebSocketConnection = (
