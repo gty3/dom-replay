@@ -1,4 +1,4 @@
-"u"
+"use client"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
 import { useReducer } from "react"
@@ -38,7 +38,7 @@ export default function Dom({
     instrument: instrument,
   })
 
-  useWebSocketConnection(exchange, instrument, start, dispatch)
+  // useWebSocketConnection(exchange, instrument, start, dispatch)
 
   useDomScroll(dispatch)
 

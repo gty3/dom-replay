@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["src", "src/types.ts", "../nextjs/app/[symbol]/reducer/reducer"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

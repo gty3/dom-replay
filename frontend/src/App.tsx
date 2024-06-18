@@ -1,6 +1,6 @@
 import './index.css';
 import { useMemo, useReducer } from "react"
-import reducer from "./reducer/reducer"
+import reducer from "../../nextjs/app/[symbol]/reducer/reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 import Dom from "./dom/dom"

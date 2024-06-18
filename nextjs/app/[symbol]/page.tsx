@@ -1,7 +1,5 @@
 import Dom from "./dom"
-import getDefinition from "./getDefinition"
 import ModalButton from "./modal"
-import { Button } from "@/components/ui/button"
 
 function Page({
   params,
@@ -13,15 +11,8 @@ function Page({
   // Access the dynamic part of the URL
   console.log(searchParams.start)
 
-  getDefinition(params.symbol, "2024-05-01T14:00:00Z")
   return (
     <div>
-      <div className="mt-4 mb-3 ml-4">
-        {" "}
-        {/* <Button>
-        {params.symbol} {searchParams.start}
-      </Button> */}
-      </div>
       <div className="mb-4 ml-4">
         <ModalButton
           symbol={params.symbol}
@@ -44,10 +35,23 @@ function Page({
 export default Page
 
 export async function generateStaticParams() {
-  const definitionsUrl = process.env.NEXT_PUBLIC_API_URL + "/definitions"
-  const symbols = await fetch(definitionsUrl).then((res) => res.json())
-  console.log(symbols)
-  return symbols.map((symbol: { symbol: string }) => ({
-    symbol: symbol.symbol,
-  }))
+  const definitionsUrl = process.env.NEXT_PUBLIC_API_URL + "/definitions";
+  console.log(definitionsUrl);
+  try {
+    const response = await fetch(definitionsUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const symbols = await response.json();
+    console.log("response", symbols);
+    return symbols; // Assuming you want to return the fetched data
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    return []; // Return an empty array in case of error
+  }
 }

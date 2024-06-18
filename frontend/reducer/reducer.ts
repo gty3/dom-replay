@@ -1,16 +1,15 @@
-import { initialState } from "../state"
-import { Level, MBP10, ReducerAction,  } from "../types"
+
+import { Level, MBP10, ReducerAction, State } from "../../../../frontend/src/types"
 import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
-import { instrument } from "../instrument"
 import updateMbo from "./updateMbo"
-import { generateArray } from "../utils/generatePriceArray"
+// import { generateArray } from "../utils/generatePriceArray"
 import executeTrade from "./executeTrade"
   
 const reducer = (
-  state: typeof initialState,
+  state: State,
   action: ReducerAction
-): typeof initialState => {
+): State => {
 
   switch (action.type) {
     case "UPDATE_MBO":
@@ -69,21 +68,23 @@ const updateDepth = (
     return acc
   }, {} as Record<number, number>)
 
-  if (JSON.stringify(state.prices) === JSON.stringify(instrument.array)) {
-    /* prices have not been updated, return new price array */
-    newState = {
-      ...state,
-      prices: generateArray(mbp10.levels[9].bid_px),
-      offers: offers,
-      bids: bids,
-    }
-  } else {
+  // if (JSON.stringify(state.prices) === JSON.stringify(instrument.array)) {
+  //   /* prices have not been updated, return new price array */
+  //   newState = {
+  //     ...state,
+  //     prices: generateArray(mbp10.levels[9].bid_px),
+  //     offers: offers,
+  //     bids: bids,
+  //   }
+  // } else {
     /* update depth */
     newState = {
       ...state,
       offers: offers,
       bids: bids,
-    }
+      lowest: mbp10.levels[0].ask_px,
+      highest: mbp10.levels[0].bid_px
+    // }
   }
 
   const bidLimitPrice = state.bidLimitOrder

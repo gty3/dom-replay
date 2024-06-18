@@ -1,10 +1,10 @@
 import { getProfit } from "../lib/functions"
-import { State } from "../../../types"
+import { initialState } from "../state"
 
-type PartialState = Partial<State>
+type PartialState = Partial<typeof initialState>
 
 const executeTrade = (
-  state: State,
+  state: typeof initialState,
   tradePrice: number,
   tradeType: "B" | "S"
 ): PartialState => {

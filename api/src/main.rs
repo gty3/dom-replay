@@ -20,7 +20,7 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
         &time::format_description::well_known::Rfc3339,
     )?;
 
-    let replay_end = replay_start + Duration::days(1);
+    let replay_end = replay_start + Duration::days(2);
 
     let mut client = HistoricalClient::builder().key_from_env()?.build()?;
 
@@ -45,9 +45,9 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
     let mut messages = Vec::new();
 
     while let Some(definition) = definitions.decode_record::<InstrumentDefMsg>().await? {
-        messages.push((definition.hd.instrument_id, serde_json::to_string(&definition.min_price_increment)?));
+        messages.push((definition.hd.instrument_id, serde_json::to_string(&definition)?));
     }
-    println!("Number of messages: {}", messages.len());  // This line prints the length of messages
+    println!("{:?}", messages);  // This line prints the length of messages
 
     let resp = Response::builder()
         .status(200)
