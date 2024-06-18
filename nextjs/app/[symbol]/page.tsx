@@ -1,3 +1,4 @@
+import Dom from "./dom"
 import getDefinition from "./getDefinition"
 import ModalButton from "./modal"
 import { Button } from "@/components/ui/button"
@@ -17,12 +18,24 @@ function Page({
     <div>
       <div className="mt-4 mb-3 ml-4">
         {" "}
-      {/* <Button>
+        {/* <Button>
         {params.symbol} {searchParams.start}
       </Button> */}
       </div>
       <div className="mb-4 ml-4">
-        <ModalButton symbol={params.symbol} start={new Date("2024-05-01T14:00:00Z")}/>
+        <ModalButton
+          symbol={params.symbol}
+          start={new Date("2024-05-01T14:00:00Z")}
+        />
+      </div>
+      <div>
+        <Dom
+          exchange="CME"
+          instrument={params.symbol}
+          start={new Date("2024-05-01T14:00:00Z")}
+          prices={[]}
+          increment={10}
+        />
       </div>
     </div>
   )
