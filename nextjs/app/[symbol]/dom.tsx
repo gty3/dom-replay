@@ -1,4 +1,4 @@
-"use client"
+"u"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
 import { useReducer } from "react"

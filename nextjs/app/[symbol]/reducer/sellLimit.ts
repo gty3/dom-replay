@@ -1,6 +1,5 @@
 
-import { getLowestHighest } from "../../../../../frontend/src/utils/getLowestHighest"
-import { ReducerAction, State } from "../../../../../frontend/src/types"
+import { ReducerAction, State } from "../../types"
 
 type TypeSellLimit = ReducerAction & { type: "SELL_LIMIT" }
 
@@ -25,7 +24,7 @@ const sellLimit = (
     return {
       ...state,
     }
-  } else if (action.payload === getLowestHighest(state.bids).highest) {
+  } else if ("" + action.payload === state.highest) {
     /* market sell */
     return {
       ...state,

@@ -1,4 +1,4 @@
-import { State, MBO, ReducerAction } from "../../../../../frontend/src/types"
+import { State, MBO, ReducerAction } from "../../types"
 
 type UpdateMboAction = ReducerAction & { type: "UPDATE_MBO" }
 

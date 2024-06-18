@@ -76,7 +76,7 @@ export interface State {
     price: number | null,
     side: string,
   },
-  prices: Number[],
+  prices: number[],
   bids: Record<string, number>,
   offers: Record<string, number>,
   lowest: string,
