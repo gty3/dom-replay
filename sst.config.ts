@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst"
-import { StaticSite, WebSocketApi } from "sst/constructs"
+import { Api, NextjsSite, StaticSite, WebSocketApi } from "sst/constructs"
 
 const DATABENTO_API_KEY = process.env.DATABENTO_API_KEY ?? "db-key-error"
 
@@ -45,16 +45,42 @@ export default {
         },
       })
 
+      const api = new Api(stack, "restApi", {
+        routes: {
+          "GET /definition/{symbol}": {
+            function: {
+              handler: "api/src/main.rs",
+              runtime: "rust",
+            },
+            environment: {
+              DATABENTO_API_KEY: DATABENTO_API_KEY,
+            },
+          },
+        },
+      });
+
       const site = new StaticSite(stack, "react", {
         path: "frontend",
         buildCommand: "pnpm run build",
         buildOutput: "dist",
         environment: {
           VITE_WS_URL: websocketApi.url,
+          VITE_API_URL: api.url,
         },
       })
+
+      const nextjs = new NextjsSite(stack, "nextjs", {
+        path: "nextjs",
+        environment: {
+          NEXT_PUBLIC_WS_URL: websocketApi.url,
+          NEXT_PUBLIC_API_URL: api.url,
+        },
+      })
+
       stack.addOutputs({
         Site: site.url,
+        Nextjs: nextjs.url,
+        api: api.url,
       })
     })
   },
