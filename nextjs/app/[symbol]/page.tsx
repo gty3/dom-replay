@@ -9,7 +9,7 @@ function Page({
   searchParams: { [key: string]: string | undefined }
 }) {
   // Access the dynamic part of the URL
-  console.log(searchParams.start)
+  console.log(searchParams)
 
   return (
     <div>
