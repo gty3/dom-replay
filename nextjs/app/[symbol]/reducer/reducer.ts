@@ -52,6 +52,16 @@ const reducer = (
 
 export default reducer
 
+function generateLevelsArray(mbp10: MBP10) {
+  const levelsArray = [];
+  for (let i = 0; i < 2; i++) { // Repeat twice to fill 18 entries
+    for (let j = 0; j <= 8; j++) { // Loop through levels 0 to 8
+      levelsArray.push(mbp10.levels[j].bid_px, mbp10.levels[j].ask_px);
+    }
+  }
+  return levelsArray;
+}
+
 const updateDepth = (
   state: State,
   action: { type: "UPDATE_DEPTH"; payload: MBP10 }
@@ -70,15 +80,15 @@ const updateDepth = (
     return acc
   }, {} as Record<number, number>)
 
-  // if (JSON.stringify(state.prices) === JSON.stringify(instrument.array)) {
-  //   /* prices have not been updated, return new price array */
-  //   newState = {
-  //     ...state,
-  //     prices: generateArray(mbp10.levels[9].bid_px),
-  //     offers: offers,
-  //     bids: bids,
-  //   }
-  // } else {
+  if (JSON.stringify(state.prices) === JSON.stringify(generateLevelsArray(mbp10))) {
+    /* prices have not been updated, return new price array */
+    newState = {
+      ...state,
+      prices: generateLevelsArray(mbp10).map((price) => price.toString()),
+      offers: offers,
+      bids: bids,
+    }
+  } else {
     /* update depth */
     newState = {
       ...state,
@@ -87,7 +97,7 @@ const updateDepth = (
       lowest: "" + mbp10.levels[0].ask_px,
       highest: "" + mbp10.levels[0].bid_px
     }
-    // }
+    }
 
   const bidLimitPrice = state.bidLimitOrder
   const offerLimitPrice = state.offerLimitOrder

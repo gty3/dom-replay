@@ -6,12 +6,13 @@ import { ReducerAction, State } from "../../types"
 export const PriceRow = ({
   state,
   dispatch,
-  number: priceNumber,
+  number,
 }: {
   state: State
   dispatch: React.Dispatch<ReducerAction>
-  number: number
+  number: string
 }) => {
+  const priceNumber = parseFloat(number);
   const limitOrder =
     state.bidLimitOrder === priceNumber
       ? "B"
