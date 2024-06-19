@@ -54,12 +54,12 @@ export default reducer
 
 function generateLevelsArray(mbp10: MBP10) {
   const levelsArray = [];
-  for (let i = 0; i < 2; i++) { // Repeat twice to fill 18 entries
-    for (let j = 0; j <= 8; j++) { // Loop through levels 0 to 8
-      levelsArray.push(mbp10.levels[j].bid_px, mbp10.levels[j].ask_px);
-    }
+  for (let i = 0; i < 9; i++) { // Loop through levels 0 to 8
+    levelsArray.push(parseFloat(mbp10.levels[i].bid_px), parseFloat(mbp10.levels[i].ask_px));
+    if (levelsArray.length >= 18) break; // Ensure only 18 entries are added
   }
-  return levelsArray;
+  levelsArray.sort((a, b) => a - b); // Sort the numbers
+  return levelsArray.map(price => price.toString()); // Convert numbers back to strings
 }
 
 const updateDepth = (
@@ -73,14 +73,15 @@ const updateDepth = (
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
     return acc
-  }, {} as Record<number, number>)
+  }, {} as Record<string, number>)
 
   const bids = mbp10.levels.reduce((acc, level) => {
     acc[level.bid_px] = level.bid_sz
     return acc
-  }, {} as Record<number, number>)
-
+  }, {} as Record<string, number>)
+  console.log(generateLevelsArray(mbp10))
   if (JSON.stringify(state.prices) === JSON.stringify(generateLevelsArray(mbp10))) {
+    
     /* prices have not been updated, return new price array */
     newState = {
       ...state,
@@ -99,8 +100,8 @@ const updateDepth = (
     }
     }
 
-  const bidLimitPrice = state.bidLimitOrder
-  const offerLimitPrice = state.offerLimitOrder
+  const bidLimitPrice = "" + state.bidLimitOrder
+  const offerLimitPrice = "" + state.offerLimitOrder
 
 
   if (bidLimitPrice) {
@@ -108,7 +109,7 @@ const updateDepth = (
       if (level.ask_px === bidLimitPrice) {
         newState = {
           ...state,
-          ...executeTrade(state, bidLimitPrice, "B"),
+          ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
         }
       }
     })
@@ -118,7 +119,7 @@ const updateDepth = (
       if (level.bid_px === offerLimitPrice) {
         newState = {
           ...state,
-          ...executeTrade(state, offerLimitPrice, "S"),
+          ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
         }
       }
     })

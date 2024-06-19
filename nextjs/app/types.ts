@@ -7,8 +7,8 @@ interface Header {
 }
 
 export interface Level {
-  bid_px: number
-  ask_px: number
+  bid_px: string
+  ask_px: string
   bid_sz: number
   ask_sz: number
   bid_ct: number
