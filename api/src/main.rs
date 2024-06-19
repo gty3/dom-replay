@@ -41,22 +41,25 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
             e
         })?;
 
-    let mut messages = Vec::new();
+    let mut message = serde_json::Value::Null;
 
     while let Some(definition) = definitions.decode_record::<InstrumentDefMsg>().await? {
-        println!("{:?}", definition);
-        messages.push((
-            definition.hd.instrument_id,
-            serde_json::to_string(&definition.trading_reference_price)?,
-            serde_json::to_string(&definition.min_price_increment)?,
-        ));
+        fn convert_to_decimal(tick_size: i64) -> f64 {
+            tick_size as f64 * 1e-9
+        }
+        message = serde_json::json!({
+            "instrument_id": definition.hd.instrument_id,
+            "trading_reference_price": convert_to_decimal(definition.trading_reference_price),
+            "min_price_increment": convert_to_decimal(definition.min_price_increment)
+        });
+
     }
-    println!("{:?}", messages); // This line prints the length of messages
+    println!("{:?}", message); // This line prints the length of messages
 
     let resp = Response::builder()
         .status(200)
         .header("content-type", "text/html")
-        .body(Body::from(serde_json::to_string(&messages)?))
+        .body(Body::from(serde_json::to_string(&message)?))
         .map_err(Box::new)?;
 
     Ok(resp)
