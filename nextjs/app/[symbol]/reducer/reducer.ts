@@ -23,18 +23,22 @@ const reducer = (
       if (!state.bids) {
         return state
       }
+      const decimalPlaces =
+        action.payload.toString().split(".")[1]?.length || 0
       return {
         ...state,
-        prices: state.prices.map((price) => price - 10000000),
+        prices: state.prices.map((price) => (parseFloat(price) - action.payload).toFixed(decimalPlaces)),
       }
 
     case "SCROLL_UP":
       if (!state.bids) {
         return state
       }
+      const decimalPlaces1 =
+        action.payload.toString().split(".")[1]?.length || 0
       return {
         ...state,
-        prices: state.prices.map((price) => price + 10000000),
+        prices: state.prices.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
       }
 
     case "UPDATE_DEPTH":

@@ -61,8 +61,8 @@ export type ReducerAction =
   | { type: "BUY_SELL_AGG" }
   | { type: "BID_LIMIT"; payload: number }
   | { type: "SELL_LIMIT"; payload: number }
-  | { type: "SCROLL_DOWN" }
-  | { type: "SCROLL_UP" }
+  | { type: "SCROLL_DOWN"; payload: number }
+  | { type: "SCROLL_UP"; payload: number }
   | { type: "UPDATE_DEPTH"; payload: MBP10 }
 
 export interface NowAggRecords {
@@ -76,7 +76,7 @@ export interface State {
     price: number | null,
     side: string,
   },
-  prices: number[],
+  prices: string[],
   bids: Record<string, number>,
   offers: Record<string, number>,
   lowest: string,

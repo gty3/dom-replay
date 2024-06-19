@@ -1,47 +1,53 @@
 import Dom from "./dom"
 import ModalButton from "./modal"
 
-function Page({
+async function Page({
   params,
   searchParams,
 }: {
   params: { symbol: string }
   searchParams: { [key: string]: string | undefined }
 }) {
-  // Access the dynamic part of the URL
-  console.log("FFFF", params)
-
   const getDefinitions = async () => {
-    const definitionsUrl = process.env.NEXT_PUBLIC_API_URL + "/definitions";
+    const definitionsUrl = process.env.NEXT_PUBLIC_API_URL + "/definitions"
     const response = await fetch(definitionsUrl, {
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
-      }
-
-    });
-    console.log("res", await response.json())
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      cache: "no-cache",
+    })
+    return response.json()
   }
-  getDefinitions()
 
-  const priceArray = Array.from({ length: 18 }, (_, i) => 7791 - i * 10)
+  const res = await getDefinitions()
+
+  const decimalPlaces =
+    res.min_price_increment.toString().split(".")[1]?.length || 0
+  const priceArray = Array.from({ length: 18 }, (_, i) =>
+    (res.trading_reference_price - res.min_price_increment * i).toFixed(
+      decimalPlaces
+    )
+  )
+  console.log(priceArray)
+
+  const startTime = new Date(searchParams.start ??"") ?? new Date("2024-06-10T13:30:00Z") // 9:30 EST
 
   return (
     <div>
       <div className="mb-4 ml-4">
         <ModalButton
-          symbol={params.symbol}
-          start={new Date("2024-05-01T14:00:00Z")}
+          symbol={params.symbol + " " + "2024-05-01T14:00:00Z"}
+          start={startTime}
         />
       </div>
       <div>
         <Dom
-          exchange="CME"
-          instrument={params.symbol}
-          start={new Date("2024-05-01T14:00:00Z")}
+          exchange="GLBX.MDP3"
+          instrument={"clq4"}
+          start={startTime}
           prices={priceArray}
-          increment={10}
+          increment={res.min_price_increment}
         />
       </div>
     </div>
@@ -66,7 +72,7 @@ export default Page
 //     const symbols = await response.json();
 //     Array.from({ length: 18 }, (_, i) => 77910000000 - i * 10000000)
 //     console.log("response", symbols);
-//     return symbols; 
+//     return symbols;
 //   } catch (error) {
 //     console.error("Error fetching data: ", error);
 //     return []; // Return an empty array in case of error
