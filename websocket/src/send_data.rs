@@ -15,6 +15,7 @@ pub async fn send_data(
     let mut tasks = Vec::new();
 
     for (current_ts, message) in messages {
+        
         let delay_duration = if let Some(prev_ts) = previous_mbp_ts {
             current_ts.checked_sub(prev_ts).unwrap_or_default()
         } else {

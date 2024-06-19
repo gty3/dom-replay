@@ -53,7 +53,7 @@ pub async fn get_data(
     while let Some(mbo) = mbo_decoder.decode_record::<MboMsg>().await? {
         messages.push((mbo.hd.ts_event, serde_json::to_string(&mbo)?));
     }
-  
+
     while let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
         messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp)?));
     }
@@ -67,3 +67,7 @@ pub async fn get_data(
 
     Ok(messages)
 }
+
+// fn convert_to_decimal(tick_size: i64) -> f64 {
+//     tick_size as f64 * 1e-9
+// }

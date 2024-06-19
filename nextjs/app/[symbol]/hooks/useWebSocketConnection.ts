@@ -30,8 +30,8 @@ const useWebSocketConnection = (
         event: "subscribe",
         data: {
           exchange: exchange,
-          instrument: instrument,
-          replay_time: start,
+          instrument: "" + instrument,
+          replay_time: "2024-06-10T14:00:00Z",
         },
       })
     }
