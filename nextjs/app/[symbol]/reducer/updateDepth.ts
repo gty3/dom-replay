@@ -29,7 +29,7 @@ const updateDepth = (
     acc[level.bid_px] = level.bid_sz
     return acc
   }, {} as Record<string, number>)
-  console.log(generateLevelsArray(mbp10))
+
   // if state prices == const prices
   if (JSON.stringify(state.prices) === JSON.stringify(initialPrices)) {
     

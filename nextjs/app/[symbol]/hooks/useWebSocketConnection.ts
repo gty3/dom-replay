@@ -46,14 +46,14 @@ const useWebSocketConnection = (
       const mbo = lastJsonMessage
       /* if mbo.action === "T" */
       if (mbo.action === 84) {
-        console.log(mbo)
+
         dispatch({ type: "UPDATE_MBO", payload: mbo })
       }
 
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
-      // console.log(mbp10)
+
       dispatch({ type: "UPDATE_DEPTH", payload: mbp10 })
     }
 

@@ -44,7 +44,7 @@ export const PriceRow = ({
 
   return (
     <div className={`grid grid-flow-col ${tradeBorder}`}>
-      <Price priceNumber={priceNumber} />
+      <Price priceNumber={priceNumber} increment={state.increment} />
       <Depth
         limits={state.bids[priceNumber]}
         limitOrder={limitOrder}
