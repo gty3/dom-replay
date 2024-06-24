@@ -59,16 +59,6 @@ export default {
         },
       });
 
-      const site = new StaticSite(stack, "react", {
-        path: "frontend",
-        buildCommand: "pnpm run build",
-        buildOutput: "dist",
-        environment: {
-          VITE_WS_URL: websocketApi.url,
-          VITE_API_URL: api.url,
-        },
-      })
-
       const nextjs = new NextjsSite(stack, "nextjs", {
         path: "nextjs",
         environment: {
@@ -78,7 +68,6 @@ export default {
       })
 
       stack.addOutputs({
-        Site: site.url,
         Nextjs: nextjs.url,
         api: api.url,
       })
