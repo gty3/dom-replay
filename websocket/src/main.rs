@@ -62,7 +62,7 @@ async fn handle_default(
     // let dataset = exchange;
     let replay_start =
         OffsetDateTime::parse(&replay_time, &time::format_description::well_known::Rfc3339)?;
-    let replay_end = replay_start + Duration::minutes(1);
+    let replay_end = replay_start + Duration::seconds(10);
 
     let endpoint_url = format!("https://{}/{}", domain_name, stage);
     let shared_config = aws_config::from_env()

@@ -36,6 +36,7 @@ export default function Dom({
     bidLimitOrder: null as number | null,
     offerLimitOrder: null as number | null,
     instrument: instrument,
+    increment: increment
   })
 
   useWebSocketConnection(exchange, instrument, start, dispatch)

@@ -86,4 +86,5 @@ export interface State {
   bidLimitOrder: number | null,
   offerLimitOrder: number | null,
   instrument: string,
+  increment: number
 }

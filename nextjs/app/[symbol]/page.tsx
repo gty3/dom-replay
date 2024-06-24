@@ -1,5 +1,6 @@
 import Dom from "./dom"
 import ModalButton from "./modal"
+import { initialPrices } from "./utils/prices"
 
 async function Page({
   params,
@@ -24,12 +25,8 @@ async function Page({
 
   const decimalPlaces =
     res.min_price_increment.toString().split(".")[1]?.length || 0
-  const priceArray = Array.from({ length: 18 }, (_, i) =>
-    (res.trading_reference_price - res.min_price_increment * i).toFixed(
-      decimalPlaces
-    )
-  )
-  console.log(priceArray)
+    
+
 
   const startTime = new Date(searchParams.start ??"") ?? new Date("2024-06-10T13:30:00Z") // 9:30 EST
 
@@ -46,7 +43,7 @@ async function Page({
           exchange="GLBX.MDP3"
           instrument={"clq4"}
           start={startTime}
-          prices={priceArray}
+          prices={initialPrices}
           increment={res.min_price_increment}
         />
       </div>

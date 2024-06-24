@@ -1,7 +1,11 @@
-const Price = ({ fixedStringPrice }: { fixedStringPrice: string }) => {
+
+const Price = ({ priceNumber }: { priceNumber: number }) => {
+  const visualPrice = (priceNumber * 1e-9).toString()
+  console.log(priceNumber)
+
   return (
     <h3 className="flex justify-center items-center w-12 text-sm">
-      {fixedStringPrice}
+      {visualPrice}
     </h3>
   )
 }

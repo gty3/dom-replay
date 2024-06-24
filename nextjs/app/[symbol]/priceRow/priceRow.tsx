@@ -39,12 +39,12 @@ export const PriceRow = ({
       ? `border-[3px] -ml-2.5 pl-5 -mr-1.5 relative z-20 ${borderColor}`
       : "border-[3px] -m-1.5 pl-4 border-transparent"
 
-      const higher = state.highest !== null && priceNumber > Number(state.highest) + 10000000
-      const lower = state.lowest !== null && priceNumber < Number(state.lowest) - 10000000
+      const higher = state.highest !== null && priceNumber > Number(state.highest) + state.increment
+      const lower = state.lowest !== null && priceNumber < Number(state.lowest) - state.increment
 
   return (
     <div className={`grid grid-flow-col ${tradeBorder}`}>
-      <Price fixedStringPrice={"" + priceNumber} />
+      <Price priceNumber={priceNumber} />
       <Depth
         limits={state.bids[priceNumber]}
         limitOrder={limitOrder}
