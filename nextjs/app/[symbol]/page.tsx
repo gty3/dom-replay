@@ -23,31 +23,27 @@ async function Page({
 
   const res = await getDefinitions()
 
-  const decimalPlaces =
-    res.min_price_increment.toString().split(".")[1]?.length || 0
-    
-
-
-  const startTime = new Date(searchParams.start ??"") ?? new Date("2024-06-10T13:30:00Z") // 9:30 EST
+  const startTime =
+    new Date(searchParams.start ?? "") ?? new Date("2024-06-10T13:30:00Z") // 9:30 EST
 
   return (
-    <div>
-      <div className="mb-4 ml-4">
-        <ModalButton
-          symbol={params.symbol + " " + "2024-05-01T14:00:00Z"}
-          start={startTime}
-        />
+      <div className="flex flex-col items-center mt-5">
+        <div className="mb-4 ml-4">
+          <ModalButton
+            symbol={params.symbol + " " + "2024-05-01T14:00:00Z"}
+            start={startTime}
+          />
+        </div>
+        <div>
+          <Dom
+            exchange="GLBX.MDP3"
+            instrument={"clq4"}
+            start={startTime}
+            prices={initialPrices}
+            increment={res.min_price_increment}
+          />
+        </div>
       </div>
-      <div>
-        <Dom
-          exchange="GLBX.MDP3"
-          instrument={"clq4"}
-          start={startTime}
-          prices={initialPrices}
-          increment={res.min_price_increment}
-        />
-      </div>
-    </div>
   )
 }
 
