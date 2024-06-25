@@ -25,7 +25,7 @@ export default function RootLayout({
       <head>
         <script
           defer
-          data-domain="https://orderflowreplay.com"
+          data-domain="orderflowreplay.com"
           data-api="/plausible/event"
           src="/js/script.tagged-events.js"
         ></script>
