@@ -1,1 +1,0 @@
-{"kind":"FETCH","data":{"headers":{"apigw-requestid":"ZlYIaj3ioAMEJBg=","connection":"keep-alive","content-length":"41","content-type":"text/html","date":"Tue, 18 Jun 2024 22:15:33 GMT"},"body":"W1syMDA0MzAsIjEwMDAwMDAwIl0sWzIwMDQzMCwiMTAwMDAwMDAiXV0=","status":200,"url":"https://3n82929qq1.execute-api.us-east-1.amazonaws.com/definitions"},"revalidate":31536000,"tags":[]}
