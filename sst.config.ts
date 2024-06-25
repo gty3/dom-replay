@@ -88,6 +88,10 @@ export default {
           NEXT_PUBLIC_WS_URL: websocketApi.url,
           NEXT_PUBLIC_API_URL: api.url,
         },
+        customDomain: {
+          domainName: "orderflowreplay.com",
+          domainAlias: "www.orderflowreplay.com",
+        },
         cdk: {
           distribution: {
             additionalBehaviors: {
