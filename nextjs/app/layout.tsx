@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 declare global {
   interface Window {
-    plausible: (eventName: string, {}?) => void;
+    plausible: (eventName: string, {}) => void
   }
 }
 
@@ -34,7 +34,6 @@ export default function RootLayout({
             __html: `window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }`,
           }}
         />
-        {" "}
       </head>
       <body className={inter.className}>{children}</body>
     </html>

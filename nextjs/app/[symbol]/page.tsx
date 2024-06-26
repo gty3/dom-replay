@@ -23,14 +23,14 @@ async function Page({
 
   const res = await getDefinitions()
 
-  const startTime =
-    new Date(searchParams.start ?? "") ?? new Date("2024-06-10T13:30:00Z") // 9:30 EST
+  const startTime = 
+    new Date(searchParams.start ?? "")
 
   return (
       <div className="flex flex-col items-center mt-5">
         <div className="mb-4 ml-4">
           <ModalButton
-            symbol={params.symbol + " " + "2024-05-01T14:00:00Z"}
+            symbol={params.symbol + " " + searchParams.start}
             start={startTime}
           />
         </div>
