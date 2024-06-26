@@ -30,7 +30,7 @@ async function Page({
       <div className="flex flex-col items-center mt-5">
         <div className="mb-4 ml-4">
           <ModalButton
-            symbol={params.symbol + " " + searchParams.start}
+            symbol={params.symbol}
             start={startTime}
           />
         </div>

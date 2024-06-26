@@ -24,8 +24,7 @@ import {
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
-import { useRouter } from 'next/navigation';
-
+import { useRouter } from "next/navigation"
 
 export function ModalButton({
   symbol,
@@ -35,25 +34,23 @@ export function ModalButton({
   start: Date
 }) {
   const [date, setDate] = useState(start)
-  const router = useRouter();
+  const router = useRouter()
 
   const handleSaveChanges = () => {
     // Format the date to the required ISO string format
-    const formattedDate = start.toISOString();
+    const formattedDate = date.toISOString()
     // Update the URL with the new query parameter
-    router.push(
-      "/" + symbol + "?start=" + formattedDate
-    );
-  };
+    console.log("/" + symbol + "?start=" + formattedDate)
+    // formatted Date is the old date
+    router.push("/" + symbol + "?start=" + formattedDate)
+  }
 
-  const disabledDays = [
-    { from: new Date(), to: new Date(2099, 11, 31) }
-  ];
+  const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">{symbol}</Button>
+        <Button variant="outline">{symbol + " " + date.toISOString()}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -118,9 +115,11 @@ export function ModalButton({
           </div>
         </div>
         <DialogFooter>
-        <DialogClose asChild>
-          <Button type="submit" onClick={handleSaveChanges}>Save changes</Button>
-          </DialogClose>  
+          <DialogClose asChild>
+            <Button type="submit" onClick={handleSaveChanges}>
+              Save changes
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
