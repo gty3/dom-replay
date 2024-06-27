@@ -7,7 +7,7 @@ const useWebSocketConnection = (
   exchange: string,
   instrument: string | null,
   start: Date,
-  dispatch: Dispatch<ReducerAction>,
+  dispatch: Dispatch<ReducerAction>
 ) => {
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     process.env.NEXT_PUBLIC_WS_URL ?? "",
@@ -18,10 +18,10 @@ const useWebSocketConnection = (
   )
 
   function isMBO(message: unknown): message is MBO {
-    return (message as MBO).hd?.rtype === 160;
+    return (message as MBO).hd?.rtype === 160
   }
   function isMBP10(message: unknown): message is MBP10 {
-    return (message as MBP10).hd?.rtype === 10;
+    return (message as MBP10).hd?.rtype === 10
   }
 
   useEffect(() => {
@@ -31,11 +31,11 @@ const useWebSocketConnection = (
         data: {
           exchange: exchange,
           instrument: "" + instrument,
-          replay_time: "2024-06-10T14:00:00Z",
+          replay_time: start.toISOString(),
         },
       })
     }
-  }, [readyState, sendJsonMessage])
+  }, [readyState, sendJsonMessage, start])
 
   useEffect(() => {
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
@@ -46,7 +46,6 @@ const useWebSocketConnection = (
       const mbo = lastJsonMessage
       /* if mbo.action === "T" */
       if (mbo.action === 84) {
-
         dispatch({ type: "UPDATE_MBO", payload: mbo })
       }
 
@@ -56,7 +55,6 @@ const useWebSocketConnection = (
 
       dispatch({ type: "UPDATE_DEPTH", payload: mbp10 })
     }
-
   }, [lastJsonMessage, dispatch])
 }
 

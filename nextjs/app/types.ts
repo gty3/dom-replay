@@ -57,13 +57,13 @@ export interface BidsOffersTime {
 
 export type ReducerAction =
   | { type: "UPDATE_MBO"; payload: MBO }
-  | { type: "SELECT_INSTRUMENT"; payload: string }
-  | { type: "BUY_SELL_AGG" }
+  | { type: "UPDATE_DEPTH"; payload: MBP10 }
+  | { type: "UPDATE_PRICES"; payload: string[] }
   | { type: "BID_LIMIT"; payload: number }
   | { type: "SELL_LIMIT"; payload: number }
   | { type: "SCROLL_DOWN"; payload: number }
   | { type: "SCROLL_UP"; payload: number }
-  | { type: "UPDATE_DEPTH"; payload: MBP10 }
+
 
 export interface NowAggRecords {
   now: Record<string, number>

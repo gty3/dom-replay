@@ -3,7 +3,8 @@ import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
 import updateMbo from "./updateMbo"
 import updateDepth from "./updateDepth"
-  
+
+
 const reducer = (
   state: State,
   action: ReducerAction
@@ -12,6 +13,9 @@ const reducer = (
   switch (action.type) {
     case "UPDATE_MBO":
       return updateMbo(state, action)
+
+    case "UPDATE_DEPTH":
+      return updateDepth(state, action)
 
     case "BID_LIMIT":
       return bidLimit(state, action)
@@ -23,6 +27,7 @@ const reducer = (
       if (!state.bids) {
         return state
       }
+      // This could be changed to use the increment variable
       const decimalPlaces =
         action.payload.toString().split(".")[1]?.length || 0
       return {
@@ -40,10 +45,13 @@ const reducer = (
         ...state,
         prices: state.prices.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
       }
+    case "UPDATE_PRICES":
+      
+      return {
+        ...state,
+        prices: action.payload,
+      }
 
-    case "UPDATE_DEPTH":
-
-      return updateDepth(state, action)
 
     default:
       return state

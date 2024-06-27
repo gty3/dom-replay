@@ -13,7 +13,7 @@ pub async fn get_data(
     dataset: &str,
 ) -> Result<Vec<(u64, String)>, Error> {
     let start_time = Instant::now();
-    
+    println!("replay_start: {:?}", replay_start);
     let mut client = HistoricalClient::builder().key_from_env()?.build()?;
 
     let mut mbo_decoder = client

@@ -27,8 +27,6 @@ export function middleware(request: NextRequest) {
     match &&
     !url.searchParams.has("start")
   ) {
-    console.log('DOES THIS TRIGGER WHEN TIME IS THERE?')
-    const symbol = match[1]
     const previousWeekdayDate = getPreviousWeekdayDate()
     const formattedDate = previousWeekdayDate.toISOString()
     url.searchParams.set("start", formattedDate) // Corrected search parameter setting

@@ -37,11 +37,7 @@ export function ModalButton({
   const router = useRouter()
 
   const handleSaveChanges = () => {
-    // Format the date to the required ISO string format
     const formattedDate = date.toISOString()
-    // Update the URL with the new query parameter
-    console.log("/" + symbol + "?start=" + formattedDate)
-    // formatted Date is the old date
     router.push("/" + symbol + "?start=" + formattedDate)
   }
 
