@@ -31,7 +31,7 @@ const updateDepth = (
   }, {} as Record<string, number>)
 
   // if state prices == const prices
-  if (JSON.stringify(state.prices) === JSON.stringify(initialPrices)) {
+  if (state.prices.priceTime !==  ) {
     
     /* prices have not been updated, return new price array */
     newState = {

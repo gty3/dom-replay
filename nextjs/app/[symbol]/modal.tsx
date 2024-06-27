@@ -68,7 +68,7 @@ export function ModalButton({
               Instrument
             </Label>
             CL.C.0
-            {/* <Combobox value={start + ""} /> */}
+            <Combobox value={"combobox sht"} />
           </div>
           <div>
             <Popover>

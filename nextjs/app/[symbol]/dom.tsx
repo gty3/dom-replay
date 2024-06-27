@@ -26,7 +26,10 @@ export default function Dom({
       price: null as number | null,
       side: "",
     },
-    prices: prices,
+    prices: {
+      priceTime: null as Date | null,
+      priceArray: prices,
+    },
     bids: {} as Record<string, number>,
     offers: {} as Record<string, number>,
     lowest: "",
@@ -53,7 +56,7 @@ export default function Dom({
   return (
     <>
       <div className="w-80">
-        {state.prices.map((number: string, i: number) => (
+        {state.prices.priceArray.map((number: string, i: number) => (
           <PriceRow state={state} dispatch={dispatch} key={i} number={number} />
         ))}
         {/* <AccountValue
