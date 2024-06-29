@@ -1,6 +1,5 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import Combobox from "@/components/ui/combobox"
 import {
   Dialog,
   DialogClose,
@@ -25,6 +24,7 @@ import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { InstrumentBox } from "./instrumentBox"
 
 export function ModalButton({
   symbol,
@@ -34,11 +34,13 @@ export function ModalButton({
   start: Date
 }) {
   const [date, setDate] = useState(start)
+  const [instrumentValue, setInstrumentValue] = useState(symbol)
+
   const router = useRouter()
 
   const handleSaveChanges = () => {
     const formattedDate = date.toISOString()
-    router.push("/" + symbol + "?start=" + formattedDate)
+    router.push("/" + instrumentValue + "?start=" + formattedDate)
   }
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]
@@ -51,9 +53,7 @@ export function ModalButton({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Select replay</DialogTitle>
-          {/* <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
-          </DialogDescription> */}
+          {/* <DialogDescription> Element removed </DialogDescription> */}
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 gap-4 items-center">
@@ -67,8 +67,8 @@ export function ModalButton({
             <Label htmlFor="username" className="text-right">
               Instrument
             </Label>
-            CL.C.0
-            {/* <Combobox value={start + ""} /> */}
+            
+            <InstrumentBox instrumentValue={instrumentValue} setInstrumentValue={setInstrumentValue} />
           </div>
           <div>
             <Popover>
