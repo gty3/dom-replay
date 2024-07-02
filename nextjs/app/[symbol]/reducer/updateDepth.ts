@@ -41,8 +41,9 @@ const updateDepth = (
     return acc
   }, {} as Record<string, number>)
 
-  // if state prices == const prices
+  // THIS CAUSES WAY TOO MANY RECENTERS
   // this needs to be set using the time.priceTime cause it doesnt get reset on time change
+
   console.log( JSON.stringify(state.prices.priceTime), JSON.stringify(priceTime))
   if (
     JSON.stringify(state.prices.priceTime) !== JSON.stringify(priceTime)

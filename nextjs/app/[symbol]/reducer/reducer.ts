@@ -33,9 +33,10 @@ const reducer = (
       return {
         ...state,
         prices: {
+          ...state.prices,
           priceArray: state.prices.priceArray.map((price) => (parseFloat(price) - action.payload)
         .toFixed(decimalPlaces)),
-        priceTime: new Date(),
+        // priceTime: new Date(),
         },
       }
 
@@ -48,8 +49,9 @@ const reducer = (
       return {
         ...state,
         prices: {
+          ...state.prices,
           priceArray: state.prices.priceArray.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
-          priceTime: new Date(),
+          // priceTime: new Date(),
         },
       }
 
