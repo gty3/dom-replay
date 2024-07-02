@@ -3,7 +3,7 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/cl', // Replace with your default symbol page
+        destination: '/CL', // Replace with your default symbol page
         permanent: true,
       },
     ];

@@ -53,7 +53,10 @@ const useWebSocketConnection = (
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
 
-      dispatch({ type: "UPDATE_DEPTH", payload: mbp10 })
+      dispatch({ type: "UPDATE_DEPTH", payload: {
+        MBP10: mbp10,
+        priceTime: start
+      } })
     }
   }, [lastJsonMessage, dispatch])
 }

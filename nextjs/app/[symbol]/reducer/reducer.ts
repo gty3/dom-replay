@@ -32,7 +32,11 @@ const reducer = (
         action.payload.toString().split(".")[1]?.length || 0
       return {
         ...state,
-        prices: state.prices.map((price) => (parseFloat(price) - action.payload).toFixed(decimalPlaces)),
+        prices: {
+          priceArray: state.prices.priceArray.map((price) => (parseFloat(price) - action.payload)
+        .toFixed(decimalPlaces)),
+        priceTime: new Date(),
+        },
       }
 
     case "SCROLL_UP":
@@ -43,14 +47,18 @@ const reducer = (
         action.payload.toString().split(".")[1]?.length || 0
       return {
         ...state,
-        prices: state.prices.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
+        prices: {
+          priceArray: state.prices.priceArray.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
+          priceTime: new Date(),
+        },
       }
-    case "UPDATE_PRICES":
+
+    // case "UPDATE_PRICES":
       
-      return {
-        ...state,
-        prices: action.payload,
-      }
+    //   return {
+    //     ...state,
+    //     prices: action.payload,
+    //   }
 
 
     default:

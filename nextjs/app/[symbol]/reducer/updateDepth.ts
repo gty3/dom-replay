@@ -18,11 +18,18 @@ function generateLevelsArray(mbp10: MBP10) {
 
 const updateDepth = (
   state: State,
-  action: { type: "UPDATE_DEPTH"; payload: MBP10 }
+  action: {
+    type: "UPDATE_DEPTH"
+    payload: {
+      MBP10: MBP10
+      priceTime: Date
+    }
+  }
 ): State => {
   let newState: State | null = null
 
-  const mbp10 = action.payload
+  const { MBP10: mbp10, priceTime } = action.payload
+
 
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
@@ -35,14 +42,22 @@ const updateDepth = (
   }, {} as Record<string, number>)
 
   // if state prices == const prices
-  if (JSON.stringify(state.prices) === JSON.stringify(initialPrices)) {
+  // this needs to be set using the time.priceTime cause it doesnt get reset on time change
+  console.log( JSON.stringify(state.prices.priceTime), JSON.stringify(priceTime))
+  if (
+    JSON.stringify(state.prices.priceTime) !== JSON.stringify(priceTime)
+  ) {
     /* prices have not been updated, return new price array */
     newState = {
       ...state,
-      prices: generateLevelsArray(mbp10).map((price) => price.toString()),
+      prices: {
+        priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
+        priceTime: new Date(),
+      },
       offers: offers,
       bids: bids,
     }
+    console.log("newState", newState)
   } else {
     /* update depth */
     newState = {
@@ -58,7 +73,7 @@ const updateDepth = (
   const offerLimitPrice = "" + state.offerLimitOrder
 
   if (bidLimitPrice) {
-    action.payload.levels.forEach((level: Level) => {
+    mbp10.levels.forEach((level: Level) => {
       if (level.ask_px === bidLimitPrice) {
         newState = {
           ...state,
@@ -67,7 +82,7 @@ const updateDepth = (
       }
     })
   } else if (offerLimitPrice) {
-    action.payload.levels.forEach((level: Level) => {
+    mbp10.levels.forEach((level: Level) => {
       /* if there is an bid that exists at the same price i have an open offer */
       if (level.bid_px === offerLimitPrice) {
         newState = {

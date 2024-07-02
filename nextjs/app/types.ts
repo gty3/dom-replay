@@ -31,16 +31,16 @@ export interface MBP10 {
 
 export interface MBO {
   hd: Header
-  order_id: number;
-  price: number;
-  size: number;
-  flags: number;
-  channel_id: number;
-  action: number;
-  side: number;
-  ts_recv: number;
-  ts_in_delta: number;
-  sequence: number;
+  order_id: number
+  price: number
+  size: number
+  flags: number
+  channel_id: number
+  action: number
+  side: number
+  ts_recv: number
+  ts_in_delta: number
+  sequence: number
 }
 
 export interface InstrumentFile {
@@ -57,13 +57,18 @@ export interface BidsOffersTime {
 
 export type ReducerAction =
   | { type: "UPDATE_MBO"; payload: MBO }
-  | { type: "UPDATE_DEPTH"; payload: MBP10 }
-  | { type: "UPDATE_PRICES"; payload: string[] }
+  | {
+      type: "UPDATE_DEPTH"
+      payload: {
+        MBP10: MBP10
+        priceTime: Date
+      }
+    }
+  // | { type: "UPDATE_PRICES"; payload: string[] }
   | { type: "BID_LIMIT"; payload: number }
   | { type: "SELL_LIMIT"; payload: number }
   | { type: "SCROLL_DOWN"; payload: number }
   | { type: "SCROLL_UP"; payload: number }
-
 
 export interface NowAggRecords {
   now: Record<string, number>
@@ -71,23 +76,23 @@ export interface NowAggRecords {
 }
 
 export interface State {
-  PNL: number,
+  PNL: number
   trade: {
-    price: number | null,
-    side: string,
-  },
+    price: number | null
+    side: string
+  }
   prices: {
-    priceArray: string[],
-    priceTime: Date | null,
-  },
-  bids: Record<string, number>,
-  offers: Record<string, number>,
-  lowest: string,
-  highest: string,
-  marketBuys: Record<string, number>,
-  marketSells: Record<string, number>,
-  bidLimitOrder: number | null,
-  offerLimitOrder: number | null,
-  instrument: string,
+    priceArray: string[]
+    priceTime: Date | null
+  }
+  bids: Record<string, number>
+  offers: Record<string, number>
+  lowest: string
+  highest: string
+  marketBuys: Record<string, number>
+  marketSells: Record<string, number>
+  bidLimitOrder: number | null
+  offerLimitOrder: number | null
+  instrument: string
   increment: number
 }
