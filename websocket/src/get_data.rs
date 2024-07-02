@@ -1,5 +1,5 @@
 use databento::{
-    dbn::{MboMsg, Mbp10Msg, Schema},
+    dbn::{MboMsg, Mbp10Msg, Schema, SType},
     historical::timeseries::GetRangeParams,
     HistoricalClient,
 };
@@ -24,6 +24,7 @@ pub async fn get_data(
                 .date_time_range((replay_start, replay_end))
                 .symbols(instrument)
                 .schema(Schema::Mbo)
+                .stype_in(SType::Continuous)
                 .build(),
         )
         .await
@@ -40,6 +41,7 @@ pub async fn get_data(
                 .date_time_range((replay_start, replay_end))
                 .symbols(instrument)
                 .schema(Schema::Mbp10)
+                .stype_in(SType::Continuous)
                 .build(),
         )
         .await

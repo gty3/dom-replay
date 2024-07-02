@@ -23,47 +23,48 @@ fn create_response() -> ApiGatewayProxyResponse {
 
 async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    // domain_name: &str,
-    // stage: &str,
-    // connection_id: &str,
-    // replay_time: &str,
-    // instrument: &str,
-    // exchange: &str,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-    let domain_name = event
-        .request_context
-        .domain_name
-        .as_deref()
-        .unwrap_or_default();
-    let connection_id = event
-        .request_context
-        .connection_id
-        .as_deref()
-        .unwrap_or_default();
+    let domain_name = event.request_context.domain_name.as_deref().unwrap_or_default();
+    let connection_id = event.request_context.connection_id.as_deref().unwrap_or_default();
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
-    let (replay_time, instrument, exchange) = match event.body.as_ref() {
-        Some(body) => match serde_json::from_str::<RequestData>(body) {
-            Ok(request_data) => (
+    let (replay_time, instrument, exchange) = parse_request_body(&event.body)?;
+    let instrument_with_suffix = format!("{}.C.0", instrument);
+    println!("{:?}", instrument_with_suffix);
+
+    let replay_start = parse_replay_time(&replay_time)?;
+    let replay_end = replay_start + Duration::seconds(10);
+
+    let apigateway_client = create_apigateway_client(domain_name, stage).await?;
+
+    let messages = get_data::get_data(replay_start, replay_end, &instrument_with_suffix, &exchange).await?;
+
+    send_data::send_data(&apigateway_client, connection_id, messages, replay_start).await?;
+
+    Ok(create_response())
+}
+
+fn parse_request_body(body: &Option<String>) -> Result<(String, String, String), Error> {
+    match body {
+        Some(body) => {
+            let request_data: RequestData = serde_json::from_str(body)
+                .map_err(|e| Error::from(format!("Failed to deserialize request data: {}", e)))?;
+            Ok((
                 request_data.data.replay_time,
                 request_data.data.instrument,
                 request_data.data.exchange,
-            ),
-            Err(e) => {
-                return Err(lambda_runtime::Error::from(format!(
-                    "Failed to deserialize request data: {}",
-                    e
-                )))
-            }
-        },
-        None => return Err(lambda_runtime::Error::from("Missing body in the request")),
-    };
+            ))
+        }
+        None => Err(Error::from("Missing body in the request")),
+    }
+}
 
-    // let dataset = exchange;
-    let replay_start =
-        OffsetDateTime::parse(&replay_time, &time::format_description::well_known::Rfc3339)?;
-    let replay_end = replay_start + Duration::seconds(10);
+fn parse_replay_time(replay_time: &str) -> Result<OffsetDateTime, Error> {
+    OffsetDateTime::parse(replay_time, &time::format_description::well_known::Rfc3339)
+        .map_err(Error::from)
+}
 
+async fn create_apigateway_client(domain_name: &str, stage: &str) -> Result<Client, Error> {
     let endpoint_url = format!("https://{}/{}", domain_name, stage);
     let shared_config = aws_config::from_env()
         .region(Region::new("us-east-1"))
@@ -72,13 +73,7 @@ async fn handle_default(
     let api_management_config = config::Builder::from(&shared_config)
         .endpoint_url(endpoint_url)
         .build();
-    let apigateway_client = Client::from_conf(api_management_config);
-
-    let messages = get_data::get_data(replay_start, replay_end, &instrument, &exchange).await?;
-
-    send_data::send_data(&apigateway_client, connection_id, messages, replay_start).await?;
-
-    Ok(create_response())
+    Ok(Client::from_conf(api_management_config))
 }
 
 #[derive(serde::Deserialize)]
