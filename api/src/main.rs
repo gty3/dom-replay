@@ -11,9 +11,14 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
         .query_string_parameters_ref()
         .and_then(|params| params.first("start"))
         .unwrap_or("default_start");
-    println!("{:?}", start_time);
+    let instrument = event
+        .query_string_parameters_ref()
+        .and_then(|params| params.first("instrument"))
+        .unwrap_or("default_instrument");
+    let instrument_with_suffix = format!("{}.C.0", instrument);
+    println!("API Fn - start_time: {:?}, instrument_with_suffix: {:?}", start_time, instrument_with_suffix);
 
-    // let instrument = "CLQ4";
+
     let replay_start = OffsetDateTime::parse(
         "2024-06-10T14:00:00Z",
         &time::format_description::well_known::Rfc3339,
@@ -29,7 +34,7 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
             &GetRangeParams::builder()
                 .dataset("GLBX.MDP3")
                 .date_time_range((replay_start, replay_end))
-                .symbols("CL.c.0")
+                .symbols(instrument_with_suffix)
                 .stype_in(SType::Continuous)
                 .schema(Schema::Definition)
                 .build(),
@@ -50,7 +55,6 @@ async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
         });
 
     }
-    println!("{:?}", message); // This line prints the length of messages
 
     let resp = Response::builder()
         .status(200)

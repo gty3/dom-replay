@@ -9,22 +9,25 @@ async function Page({
   params: { symbol: string }
   searchParams: { [key: string]: string | undefined }
 }) {
-  const getDefinitions = async () => {
-    const definitionsUrl = process.env.NEXT_PUBLIC_API_URL + "/definitions"
-    const response = await fetch(definitionsUrl, {
+  const getDefinitions = async (instrument: string, startTime: Date) => {
+    const definitionsUrl = new URL(process.env.NEXT_PUBLIC_API_URL + "/definitions");
+    definitionsUrl.searchParams.append("instrument", instrument);
+    definitionsUrl.searchParams.append("start", startTime.toISOString());
+
+    const response = await fetch(definitionsUrl.toString(), {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
       cache: "no-cache",
-    })
-    return response.json()
-  }
+    });
+    return response.json();
+  };
 
-  const res = await getDefinitions()
+  const startTime = new Date(searchParams.start ?? "");
+  const instrument = params.symbol;
 
-  const startTime = 
-    new Date(searchParams.start ?? "")
+  const res = await getDefinitions(instrument, startTime);
 
   return (
       <div className="flex flex-col items-center mt-5">
@@ -37,7 +40,7 @@ async function Page({
         <div>
           <Dom
             exchange="GLBX.MDP3"
-            instrument={"clq4"}
+            instrument={instrument}
             start={startTime}
             prices={initialPrices}
             increment={res.min_price_increment}
