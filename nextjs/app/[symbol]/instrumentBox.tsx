@@ -24,8 +24,8 @@ export function InstrumentBox({
   instrumentValue,
   setInstrumentValue,
 }: {
-  instrumentValue: any
-  setInstrumentValue: (value: any) => void
+  instrumentValue: string
+  setInstrumentValue: React.Dispatch<React.SetStateAction<string>>
 }) {
   const [open, setOpen] = React.useState(false)
 

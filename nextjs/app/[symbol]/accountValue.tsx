@@ -11,9 +11,6 @@ const AccountValue = ({
 }) => {
   const accountProfit = profit / 10000  + ( accountValue / 10000)
   const position = side === "B" ? "LONG" : side === "S" ? "SHORT" : ""
-  const color =
-    side === "B" ? "text-blue-500" : side === "B" ? "text-red-500" : ""
-  const profitColor = profit >= 0 ? "text-green-500" : "text-red-500"
 
   return (
     <div className="flex flex-row">

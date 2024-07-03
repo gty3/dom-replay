@@ -1,4 +1,5 @@
-import ClientModalDom from "./clientModalDom"
+import Dom from "./dom"
+import ModalButton from "./modal"
 
 async function Page({
   params,
@@ -8,9 +9,11 @@ async function Page({
   searchParams: { [key: string]: string | undefined }
 }) {
   const getDefinitions = async (instrument: string, startTime: Date) => {
-    const definitionsUrl = new URL(process.env.NEXT_PUBLIC_API_URL + "/definitions");
-    definitionsUrl.searchParams.append("instrument", instrument);
-    definitionsUrl.searchParams.append("start", startTime.toISOString());
+    const definitionsUrl = new URL(
+      process.env.NEXT_PUBLIC_API_URL + "/definitions"
+    )
+    definitionsUrl.searchParams.append("instrument", instrument)
+    definitionsUrl.searchParams.append("start", startTime.toISOString())
 
     const response = await fetch(definitionsUrl.toString(), {
       headers: {
@@ -18,24 +21,29 @@ async function Page({
         "Content-Type": "application/json",
       },
       cache: "no-cache",
-    });
-    return response.json();
-  };
+    })
+    return response.json()
+  }
 
-  const startTime = new Date(searchParams.start ?? "");
-  const instrument = params.symbol;
+  const startTime = new Date(searchParams.start ?? "")
+  const instrument = params.symbol
 
-  const res = await getDefinitions(instrument, startTime);
-
+  const res = await getDefinitions(instrument, startTime)
 
   return (
-      <div className="flex flex-col items-center mt-5">
-        <ClientModalDom
-          symbol={params.symbol}
+    <div className="flex flex-col items-center mt-5">
+      <div className="mb-4 ml-4">
+        <ModalButton symbol={params.symbol} start={startTime} />
+      </div>
+      <div>
+        <Dom
+          exchange="GLBX.MDP3"
+          instrument={params.symbol}
           start={startTime}
           increment={res.min_price_increment}
         />
       </div>
+    </div>
   )
 }
 

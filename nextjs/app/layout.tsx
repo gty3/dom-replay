@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 declare global {
   interface Window {
-    plausible: (eventName: string, {}) => void
+    plausible: (eventName: string, options?: Record<string, unknown>) => void
   }
 }
 
