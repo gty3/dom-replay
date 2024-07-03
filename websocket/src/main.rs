@@ -33,7 +33,7 @@ async fn handle_default(
     println!("{:?}", instrument_with_suffix);
 
     let replay_start = parse_replay_time(&replay_time)?;
-    let replay_end = replay_start + Duration::seconds(10);
+    let replay_end = replay_start + Duration::seconds(30);
 
     let apigateway_client = create_apigateway_client(domain_name, stage).await?;
 
@@ -98,16 +98,13 @@ async fn function_handler(
         .as_deref()
         .unwrap_or_default();
 
+    println!("{:?}", route_key);
+
     match route_key {
         "$connect" => Ok(create_response()),
         "$disconnect" => Ok(create_response()),
         _ => Ok(handle_default(
-            event, // domain_name,
-                  // stage,
-                  // connection_id,
-                  // &replay_time,
-                  // &instrument,
-                  // &exchange,
+            event,
         )
         .await?),
     }

@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TimePickerDemo } from "./time-picker-demo"
 import { Calendar } from "@/components/ui/calendar"
-import { Dispatch, ReducerAction, useState } from "react"
+import { Dispatch, ReducerAction, SetStateAction, useState } from "react"
 import {
   Popover,
   PopoverContent,
@@ -33,11 +33,11 @@ type Action =
 export function ModalButton({
   symbol,
   start,
-  // dispatch,
+  setPriceArray,
 }: {
   symbol: string
   start: Date
-  // dispatch: Dispatch<Action>
+  setPriceArray: Dispatch<SetStateAction<string[]>>
 }) {
   const [date, setDate] = useState(start)
   const [instrumentValue, setInstrumentValue] = useState(symbol)
@@ -48,7 +48,7 @@ export function ModalButton({
     const formattedDate = date.toISOString()
     router.push("/" + instrumentValue + "?start=" + formattedDate)
     // how do i update pricearray from here?
-    // dispatch({ type: "UPDATE_PRICE_ARRAY", payload: [] })
+    setPriceArray([])
   }
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]

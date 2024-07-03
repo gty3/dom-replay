@@ -45,8 +45,8 @@ export default function Dom({
   })
 
   useEffect(() => {
-    updatePriceArray(state.prices.priceArray)
-  }, [state.prices.priceArray, updatePriceArray])
+    dispatch({ type: "UPDATE_PRICE_ARRAY", payload: prices })
+  }, [prices, updatePriceArray])
 
   useWebSocketConnection(exchange, instrument, start, dispatch)
 

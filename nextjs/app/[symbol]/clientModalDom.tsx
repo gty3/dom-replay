@@ -15,7 +15,7 @@ export default function ClientModalDom({
   increment: number
 }) {
 
-  const [priceArray, setPriceArray] = useState([])
+  const [priceArray, setPriceArray] = useState<string[]>([])
 
   const updatePriceArray = (newPrices: string[]) => {
     setPriceArray(newPrices)
@@ -24,7 +24,7 @@ export default function ClientModalDom({
   return (
     <>
       <div className="mb-4 ml-4">
-        <ModalButton symbol={symbol} start={start} />
+        <ModalButton symbol={symbol} start={start} setPriceArray={setPriceArray} />
       </div>
       <div>
         <Dom

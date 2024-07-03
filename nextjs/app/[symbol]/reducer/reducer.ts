@@ -43,11 +43,14 @@ const reducer = (
       case "UPDATE_PRICE_ARRAY":
         return {
           ...state,
+          marketBuys: {},
+          marketSells: {},
           prices: {
             ...state.prices,
             priceArray: action.payload,
           },
         }
+        
     case "SCROLL_UP":
       if (!state.bids) {
         return state

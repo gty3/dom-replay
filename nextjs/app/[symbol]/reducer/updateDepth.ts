@@ -55,7 +55,6 @@ const updateDepth = (
       offers: offers,
       bids: bids,
     }
-    console.log("newState", newState)
   } else {
     /* update depth */
     newState = {

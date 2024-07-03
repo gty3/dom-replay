@@ -35,6 +35,17 @@ const useWebSocketConnection = (
         },
       })
     }
+    return () => {
+      if (readyState === ReadyState.OPEN) {
+        console.log('unmount')
+        // sendJsonMessage({
+        //   event: "unsubscribe",
+        // })
+        sendJsonMessage({
+          event: "disconnect",
+        })
+      }
+    }
   }, [readyState, sendJsonMessage, start])
 
   useEffect(() => {
@@ -54,8 +65,7 @@ const useWebSocketConnection = (
       const mbp10 = lastJsonMessage
 
       dispatch({ type: "UPDATE_DEPTH", payload: {
-        MBP10: mbp10,
-        priceTime: start
+        MBP10: mbp10
       } })
     }
   }, [lastJsonMessage, dispatch])
