@@ -37,7 +37,6 @@ const reducer = (
         prices: {
           ...state.prices,
           priceArray: newPriceArray
-        // priceTime: new Date(),
         },
       }
       
@@ -55,7 +54,6 @@ const reducer = (
         prices: {
           ...state.prices,
           priceArray: state.prices.priceArray.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
-          // priceTime: new Date(),
         },
       }
 

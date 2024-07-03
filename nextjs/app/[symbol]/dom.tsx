@@ -12,18 +12,12 @@ export default function Dom({
   start,
   exchange,
   increment,
-  updatePriceArray,
-  isWebSocketActive,
-  onNewDataReceived
 }: {
   prices: string[]
   instrument: string
   start: Date
   exchange: string
   increment: number
-  updatePriceArray: (newPrices: string[]) => void
-  isWebSocketActive: boolean
-  onNewDataReceived: () => void
 }) {
 
   const [state, dispatch] = useReducer(reducer, {
@@ -33,7 +27,6 @@ export default function Dom({
       side: "",
     },
     prices: {
-      // priceTime: null as Date | null,
       priceArray: prices,
     },
     bids: {} as Record<string, number>,
@@ -48,11 +41,7 @@ export default function Dom({
     increment: increment
   })
 
-  useEffect(() => {
-    dispatch({ type: "UPDATE_PRICE_ARRAY", payload: prices })
-  }, [prices])
-
-  useWebSocketConnection(exchange, instrument, start, dispatch, isWebSocketActive)
+  useWebSocketConnection(exchange, instrument, start, dispatch)
 
   useDomScroll(increment, dispatch)
 

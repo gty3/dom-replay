@@ -8,9 +8,8 @@ const useWebSocketConnection = (
   instrument: string | null,
   start: Date,
   dispatch: Dispatch<ReducerAction>
-  // isWebSocketActive: boolean
 ) => {
-  const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } =
+  const { sendJsonMessage, lastJsonMessage, readyState } =
     useWebSocket(process.env.NEXT_PUBLIC_WS_URL ?? "", {
       share: false,
       shouldReconnect: () => true,
@@ -46,9 +45,6 @@ const useWebSocketConnection = (
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
       return
     }
-    // if (!isWebSocketActive) {
-    //   return
-    // }
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
       const mbo = lastJsonMessage
@@ -61,7 +57,7 @@ const useWebSocketConnection = (
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
       if (mbp10.isFirstMessage) {
-        console.log("mbp10", mbp10)
+
         dispatch({
           type: "UPDATE_PRICE_ARRAY",
           payload: {

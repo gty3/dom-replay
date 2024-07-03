@@ -26,32 +26,14 @@ const updatePriceArray = (
   let newState: State | null = null
   const { MBP10: mbp10 } = action.payload
   console.log("WTF", mbp10)
-  // const offers = mbp10.levels.reduce((acc, level) => {
-  //   acc[level.ask_px] = level.ask_sz
-  //   return acc
-  // }, {} as Record<string, number>)
-
-  // const bids = mbp10.levels.reduce((acc, level) => {
-  //   acc[level.bid_px] = level.bid_sz
-  //   return acc
-  // }, {} as Record<string, number>)
-
   newState = {
     ...state,
     marketBuys: {},
     marketSells: {},
     prices: {
-      // ...state.prices,
       priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
     },
-    // offers: offers,
-    // bids: bids,
-    // lowest: "" + mbp10.levels[0].ask_px,
-    // highest: "" + mbp10.levels[0].bid_px,
   }
-
-  // const bidLimitPrice = "" + state.bidLimitOrder
-  // const offerLimitPrice = "" + state.offerLimitOrder
 
   return newState
 }

@@ -1,7 +1,5 @@
 import { Level, MBP10, State } from "@/app/types"
 import executeTrade from "./executeTrade"
-import { initialPrices } from "../utils/prices"
-
 
 const updateDepth = (
   state: State,
@@ -9,14 +7,12 @@ const updateDepth = (
     type: "UPDATE_DEPTH"
     payload: {
       MBP10: MBP10
-      // priceTime: Date
     }
   }
 ): State => {
   let newState: State | null = null
 
   const { MBP10: mbp10 } = action.payload
-
 
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
@@ -28,21 +24,6 @@ const updateDepth = (
     return acc
   }, {} as Record<string, number>)
 
-  // THIS CAUSES WAY TOO MANY RECENTERS
-  // this needs to be set using the time.priceTime cause it doesnt get reset on time change
-
-  // if (state.prices.priceArray.length === 0) {
-  //   /* prices have not been updated, return new price array */
-  //   newState = {
-  //     ...state,
-  //     prices: {
-  //       priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
-  //       // priceTime: new Date(),
-  //     },
-  //     offers: offers,
-  //     bids: bids,
-  //   }
-  // } else {
     /* update depth */
     newState = {
       ...state,
