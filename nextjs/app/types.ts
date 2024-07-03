@@ -61,7 +61,7 @@ export type ReducerAction =
       type: "UPDATE_DEPTH"
       payload: {
         MBP10: MBP10
-        priceTime: Date
+        // priceTime: Date
       }
     }
   // | { type: "UPDATE_PRICES"; payload: string[] }
@@ -69,6 +69,7 @@ export type ReducerAction =
   | { type: "SELL_LIMIT"; payload: number }
   | { type: "SCROLL_DOWN"; payload: number }
   | { type: "SCROLL_UP"; payload: number }
+  | { type: "UPDATE_PRICE_ARRAY"; payload: string[] }
 
 export interface NowAggRecords {
   now: Record<string, number>
@@ -83,7 +84,7 @@ export interface State {
   }
   prices: {
     priceArray: string[]
-    priceTime: Date | null
+    // priceTime: Date | null
   }
   bids: Record<string, number>
   offers: Record<string, number>

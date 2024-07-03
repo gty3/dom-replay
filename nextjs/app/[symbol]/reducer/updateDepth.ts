@@ -22,13 +22,13 @@ const updateDepth = (
     type: "UPDATE_DEPTH"
     payload: {
       MBP10: MBP10
-      priceTime: Date
+      // priceTime: Date
     }
   }
 ): State => {
   let newState: State | null = null
 
-  const { MBP10: mbp10, priceTime } = action.payload
+  const { MBP10: mbp10 } = action.payload
 
 
   const offers = mbp10.levels.reduce((acc, level) => {
@@ -44,16 +44,13 @@ const updateDepth = (
   // THIS CAUSES WAY TOO MANY RECENTERS
   // this needs to be set using the time.priceTime cause it doesnt get reset on time change
 
-  console.log( JSON.stringify(state.prices.priceTime), JSON.stringify(priceTime))
-  if (
-    JSON.stringify(state.prices.priceTime) !== JSON.stringify(priceTime)
-  ) {
+  if (state.prices.priceArray.length === 0) {
     /* prices have not been updated, return new price array */
     newState = {
       ...state,
       prices: {
         priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
-        priceTime: new Date(),
+        // priceTime: new Date(),
       },
       offers: offers,
       bids: bids,

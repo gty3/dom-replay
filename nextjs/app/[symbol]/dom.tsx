@@ -1,7 +1,7 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
-import { useReducer } from "react"
+import { useEffect, useReducer } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
@@ -11,13 +11,15 @@ export default function Dom({
   instrument,
   start,
   exchange,
-  increment
+  increment,
+  updatePriceArray
 }: {
   prices: string[]
   instrument: string
   start: Date
   exchange: string
   increment: number
+  updatePriceArray: (newPrices: string[]) => void
 }) {
 
   const [state, dispatch] = useReducer(reducer, {
@@ -27,7 +29,7 @@ export default function Dom({
       side: "",
     },
     prices: {
-      priceTime: null as Date | null,
+      // priceTime: null as Date | null,
       priceArray: prices,
     },
     bids: {} as Record<string, number>,
@@ -41,6 +43,10 @@ export default function Dom({
     instrument: instrument,
     increment: increment
   })
+
+  useEffect(() => {
+    updatePriceArray(state.prices.priceArray)
+  }, [state.prices.priceArray, updatePriceArray])
 
   useWebSocketConnection(exchange, instrument, start, dispatch)
 

@@ -1,6 +1,8 @@
+import { useState } from "react"
 import Dom from "./dom"
 import ModalButton from "./modal"
 import { initialPrices } from "./utils/prices"
+import ClientModalDom from "./clientModalDom"
 
 async function Page({
   params,
@@ -29,23 +31,14 @@ async function Page({
 
   const res = await getDefinitions(instrument, startTime);
 
+
   return (
       <div className="flex flex-col items-center mt-5">
-        <div className="mb-4 ml-4">
-          <ModalButton
-            symbol={params.symbol}
-            start={startTime}
-          />
-        </div>
-        <div>
-          <Dom
-            exchange="GLBX.MDP3"
-            instrument={instrument}
-            start={startTime}
-            prices={initialPrices}
-            increment={res.min_price_increment}
-          />
-        </div>
+        <ClientModalDom
+          symbol={params.symbol}
+          start={startTime}
+          increment={res.min_price_increment}
+        />
       </div>
   )
 }

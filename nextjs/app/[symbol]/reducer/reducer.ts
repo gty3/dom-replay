@@ -39,7 +39,15 @@ const reducer = (
         // priceTime: new Date(),
         },
       }
-
+      
+      case "UPDATE_PRICE_ARRAY":
+        return {
+          ...state,
+          prices: {
+            ...state.prices,
+            priceArray: action.payload,
+          },
+        }
     case "SCROLL_UP":
       if (!state.bids) {
         return state
