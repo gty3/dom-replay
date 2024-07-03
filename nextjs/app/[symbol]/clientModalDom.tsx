@@ -14,34 +14,18 @@ export default function ClientModalDom({
   start: Date
   increment: number
 }) {
-
-  const [priceArray, setPriceArray] = useState<string[]>([])
-  const [isWebSocketActive, setIsWebSocketActive] = useState(true)
-
-  const updatePriceArray = (newPrices: string[]) => {
-    setIsWebSocketActive(false)
-    // setPriceArray(newPrices)
-  }
-  
-  const handleNewDataReceived = () => {
-    setIsWebSocketActive(true)
-  }
   
   return (
     <>
       <div className="mb-4 ml-4">
-        <ModalButton symbol={symbol} start={start} setPriceArray={setPriceArray} updatePriceArray={updatePriceArray} />
+        <ModalButton symbol={symbol} start={start}/>
       </div>
       <div>
         <Dom
           exchange="GLBX.MDP3"
           instrument={symbol}
           start={start}
-          prices={priceArray}
           increment={increment}
-          updatePriceArray={updatePriceArray}
-          isWebSocketActive={isWebSocketActive}
-          onNewDataReceived={handleNewDataReceived}
         />
       </div>
     </>

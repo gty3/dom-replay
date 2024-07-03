@@ -1,16 +1,11 @@
-import { Level, MBP10, ReducerAction, State  } from "../../types"
+import { Level, MBP10, ReducerAction, State } from "../../types"
 import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
 import updateMbo from "./updateMbo"
 import updateDepth from "./updateDepth"
 import updatePriceArray from "./updatePriceArray"
 
-
-const reducer = (
-  state: State,
-  action: ReducerAction
-): State => {
-
+const reducer = (state: State, action: ReducerAction): State => {
   switch (action.type) {
     case "UPDATE_MBO":
       return updateMbo(state, action)
@@ -28,21 +23,18 @@ const reducer = (
       if (!state.bids) {
         return state
       }
-      // This could be changed to use the increment variable
-      const decimalPlaces =
-        action.payload.toString().split(".")[1]?.length || 0
-      const newPriceArray = state.prices.priceArray.map((price) => (parseFloat(price) - action.payload).toFixed(decimalPlaces))
+      const decimalPlaces = action.payload.toString().split(".")[1]?.length || 0
+      const newPriceArray = state.prices.map((price) =>
+        (parseFloat(price) - action.payload).toFixed(decimalPlaces)
+      )
       return {
         ...state,
-        prices: {
-          ...state.prices,
-          priceArray: newPriceArray
-        },
+        prices: newPriceArray,
       }
-      
-      case "UPDATE_PRICE_ARRAY":
-        return updatePriceArray(state, action)
-        
+
+    case "UPDATE_PRICE_ARRAY":
+      return updatePriceArray(state, action)
+
     case "SCROLL_UP":
       if (!state.bids) {
         return state
@@ -51,10 +43,9 @@ const reducer = (
         action.payload.toString().split(".")[1]?.length || 0
       return {
         ...state,
-        prices: {
-          ...state.prices,
-          priceArray: state.prices.priceArray.map((price) => (parseFloat(price) + action.payload).toFixed(decimalPlaces1)),
-        },
+        prices: state.prices.map((price) =>
+          (parseFloat(price) + action.payload).toFixed(decimalPlaces1)
+        ),
       }
 
     default:
@@ -63,4 +54,3 @@ const reducer = (
 }
 
 export default reducer
-

@@ -7,13 +7,11 @@ import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 
 export default function Dom({
-  prices,
   instrument,
   start,
   exchange,
   increment,
 }: {
-  prices: string[]
   instrument: string
   start: Date
   exchange: string
@@ -26,9 +24,7 @@ export default function Dom({
       price: null as number | null,
       side: "",
     },
-    prices: {
-      priceArray: prices,
-    },
+    prices: [] as string[],
     bids: {} as Record<string, number>,
     offers: {} as Record<string, number>,
     lowest: "",
@@ -55,7 +51,7 @@ export default function Dom({
   return (
     <>
       <div className="w-80">
-        {state.prices.priceArray.map((number: string, i: number) => (
+        {state.prices.map((number: string, i: number) => (
           <PriceRow state={state} dispatch={dispatch} key={i} number={number} />
         ))}
         {/* <AccountValue

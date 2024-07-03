@@ -39,7 +39,7 @@ const useWebSocketConnection = (
         sendJsonMessage({ event: "unsubscribe" })
       }
     }
-  }, [readyState, sendJsonMessage, start])
+  }, [readyState, sendJsonMessage, start, instrument, exchange])
 
   useEffect(() => {
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {

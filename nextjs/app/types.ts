@@ -89,10 +89,7 @@ export interface State {
     price: number | null
     side: string
   }
-  prices: {
-    priceArray: string[]
-    // priceTime: Date | null
-  }
+  prices: string[]
   bids: Record<string, number>
   offers: Record<string, number>
   lowest: string

@@ -26,20 +26,12 @@ import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { InstrumentBox } from "./instrumentBox"
 
-type Action = 
-  | { type: "UPDATE_PRICE_ARRAY"; payload: string[] }
-  // Add other action types here as needed
-
 export function ModalButton({
   symbol,
   start,
-  setPriceArray,
-  updatePriceArray
 }: {
   symbol: string
   start: Date
-  setPriceArray: Dispatch<SetStateAction<string[]>>
-  updatePriceArray: (newPrices: string[]) => void
 }) {
   const [date, setDate] = useState(start)
   const [instrumentValue, setInstrumentValue] = useState(symbol)
@@ -49,9 +41,6 @@ export function ModalButton({
   const handleSaveChanges = () => {
     const formattedDate = date.toISOString()
     router.push("/" + instrumentValue + "?start=" + formattedDate)
-    // how do i update pricearray from here?
-    // setPriceArray([])
-    updatePriceArray([])
   }
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]

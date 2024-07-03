@@ -25,14 +25,11 @@ const updatePriceArray = (
 ): State => {
   let newState: State | null = null
   const { MBP10: mbp10 } = action.payload
-  console.log("WTF", mbp10)
   newState = {
     ...state,
     marketBuys: {},
     marketSells: {},
-    prices: {
-      priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
-    },
+    prices:  generateLevelsArray(mbp10).map((price) => price.toString()),
   }
 
   return newState

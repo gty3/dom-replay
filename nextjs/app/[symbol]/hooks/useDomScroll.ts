@@ -16,7 +16,7 @@ const useDomScroll = (increment: number, dispatch: React.Dispatch<ReducerAction>
     return () => {
       window.removeEventListener("wheel", handleWheel)
     }
-  }, [dispatch])
+  }, [dispatch, increment])
 }
 
 export default useDomScroll
