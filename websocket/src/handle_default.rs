@@ -5,6 +5,10 @@ use aws_sdk_apigatewaymanagement::{
     Client,
 };
 use time::{Duration, OffsetDateTime};
+use tokio::sync::mpsc;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use std::collections::HashMap;
 mod get_data;
 mod send_data;
 use crate::utils;
@@ -13,12 +17,9 @@ use crate::utils;
 #[serde(untagged)]
 enum WebSocketMessage {
     Subscribe {
-        event: String,
         data: BodyData,
     },
-    Unsubscribe {
-        event: String,
-    },
+    Unsubscribe {},
 }
 
 #[derive(serde::Deserialize)]
@@ -36,8 +37,11 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
     }
 }
 
+type CancelChannels = Arc<Mutex<HashMap<String, mpsc::Sender<()>>>>;
+
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
+    cancel_channels: CancelChannels,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let domain_name = event
         .request_context
@@ -48,21 +52,21 @@ pub async fn handle_default(
         .request_context
         .connection_id
         .as_deref()
-        .unwrap_or_default();
+        .unwrap_or_default()
+        .to_string();
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
-    println!("{:?}", event);
+
     match message {
-        WebSocketMessage::Subscribe { data, .. } => {
+        WebSocketMessage::Subscribe { data } => {
             let (replay_time, instrument, exchange) = (
                 data.replay_time,
                 data.instrument,
                 data.exchange,
             );
             let instrument_with_suffix = format!("{}.C.0", instrument);
-            println!("{:?}", instrument_with_suffix);
-
+            println!("{:?}", connection_id);
             let replay_start = parse_replay_time(&replay_time)?;
             let replay_end = replay_start + Duration::seconds(30);
 
@@ -72,16 +76,30 @@ pub async fn handle_default(
                 get_data::get_data(replay_start, replay_end, &instrument_with_suffix, &exchange)
                     .await?;
 
-            send_data::send_data(&apigateway_client, connection_id, messages, replay_start).await?;
+            let (cancel_tx, cancel_rx) = mpsc::channel(1);
+            {
+                let mut channels = cancel_channels.lock().await;
+                channels.insert(connection_id.to_string(), cancel_tx);
+            }
+
+            tokio::spawn(async move {
+                if let Err(e) = send_data::send_data(&apigateway_client, &connection_id, messages, replay_start, cancel_rx).await {
+                    log::error!("Error in send_data: {:?}", e);
+                }
+            });
 
             Ok(utils::create_response())
         }
-        WebSocketMessage::Unsubscribe { .. } => {
-            println!(
-                "Received unsubscribe message from connection: {}",
-                connection_id
-            );
-            // Handle unsubscribe logic here (e.g., clean up resources, stop sending data)
+        WebSocketMessage::Unsubscribe {} => {
+            log::info!("Received unsubscribe message from connection: {}", connection_id);
+            
+            let mut channels = cancel_channels.lock().await;
+            if let Some(cancel_tx) = channels.remove(&connection_id) {
+                if let Err(e) = cancel_tx.send(()).await {
+                    log::error!("Failed to send cancellation signal: {:?}", e);
+                }
+            }
+
             Ok(utils::create_response())
         }
     }
