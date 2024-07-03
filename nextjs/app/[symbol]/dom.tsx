@@ -12,7 +12,9 @@ export default function Dom({
   start,
   exchange,
   increment,
-  updatePriceArray
+  updatePriceArray,
+  isWebSocketActive,
+  onNewDataReceived
 }: {
   prices: string[]
   instrument: string
@@ -20,6 +22,8 @@ export default function Dom({
   exchange: string
   increment: number
   updatePriceArray: (newPrices: string[]) => void
+  isWebSocketActive: boolean
+  onNewDataReceived: () => void
 }) {
 
   const [state, dispatch] = useReducer(reducer, {
@@ -44,13 +48,11 @@ export default function Dom({
     increment: increment
   })
 
-  const [isUnsubscribing, setIsUnsubscribing] = useState(false);
-
   useEffect(() => {
     dispatch({ type: "UPDATE_PRICE_ARRAY", payload: prices })
-  }, [prices, updatePriceArray])
+  }, [prices])
 
-  useWebSocketConnection(exchange, instrument, start, dispatch, isUnsubscribing, setIsUnsubscribing)
+  useWebSocketConnection(exchange, instrument, start, dispatch, isWebSocketActive)
 
   useDomScroll(increment, dispatch)
 

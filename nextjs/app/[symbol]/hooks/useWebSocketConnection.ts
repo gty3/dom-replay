@@ -8,8 +8,7 @@ const useWebSocketConnection = (
   instrument: string | null,
   start: Date,
   dispatch: Dispatch<ReducerAction>,
-  isUnsubscribing: boolean,
-  setIsUnsubscribing: React.Dispatch<React.SetStateAction<boolean>>
+  isWebSocketActive: boolean
 ) => {
   const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } = useWebSocket(
     process.env.NEXT_PUBLIC_WS_URL ?? "",
@@ -28,8 +27,8 @@ const useWebSocketConnection = (
 
   useEffect(() => {
     
-    if (readyState === ReadyState.OPEN) {
-      setIsUnsubscribing(true)
+    if (readyState === ReadyState.OPEN && isWebSocketActive) {
+      console.log("how many")
       sendJsonMessage({
         event: "subscribe",
         data: {
@@ -39,12 +38,16 @@ const useWebSocketConnection = (
         },
       })
     }
-    return () => {
-  if (readyState === ReadyState.OPEN) {
-    console.log('unmount')
-    setIsUnsubscribing(true)
-    sendJsonMessage({ event: "unsubscribe" })
-  }
+
+    if (readyState === ReadyState.OPEN) {
+      sendJsonMessage({ event: "unsubscribe" })
+    }
+      
+
+  return () => {
+  // if (readyState === ReadyState.OPEN) {
+  //   sendJsonMessage({ event: "unsubscribe" })
+  // }
     }
   }, [readyState, sendJsonMessage, start])
 
@@ -52,6 +55,9 @@ const useWebSocketConnection = (
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
       return
     }
+      if (!isWebSocketActive) {
+        return
+      }
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
       const mbo = lastJsonMessage

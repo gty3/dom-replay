@@ -34,10 +34,12 @@ export function ModalButton({
   symbol,
   start,
   setPriceArray,
+  updatePriceArray
 }: {
   symbol: string
   start: Date
   setPriceArray: Dispatch<SetStateAction<string[]>>
+  updatePriceArray: (newPrices: string[]) => void
 }) {
   const [date, setDate] = useState(start)
   const [instrumentValue, setInstrumentValue] = useState(symbol)
@@ -48,7 +50,8 @@ export function ModalButton({
     const formattedDate = date.toISOString()
     router.push("/" + instrumentValue + "?start=" + formattedDate)
     // how do i update pricearray from here?
-    setPriceArray([])
+    // setPriceArray([])
+    updatePriceArray([])
   }
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]

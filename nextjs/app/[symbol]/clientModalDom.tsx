@@ -16,15 +16,21 @@ export default function ClientModalDom({
 }) {
 
   const [priceArray, setPriceArray] = useState<string[]>([])
+  const [isWebSocketActive, setIsWebSocketActive] = useState(true)
 
   const updatePriceArray = (newPrices: string[]) => {
-    setPriceArray(newPrices)
+    setIsWebSocketActive(false)
+    // setPriceArray(newPrices)
+  }
+  
+  const handleNewDataReceived = () => {
+    setIsWebSocketActive(true)
   }
   
   return (
     <>
       <div className="mb-4 ml-4">
-        <ModalButton symbol={symbol} start={start} setPriceArray={setPriceArray} />
+        <ModalButton symbol={symbol} start={start} setPriceArray={setPriceArray} updatePriceArray={updatePriceArray} />
       </div>
       <div>
         <Dom
@@ -34,6 +40,8 @@ export default function ClientModalDom({
           prices={priceArray}
           increment={increment}
           updatePriceArray={updatePriceArray}
+          isWebSocketActive={isWebSocketActive}
+          onNewDataReceived={handleNewDataReceived}
         />
       </div>
     </>
