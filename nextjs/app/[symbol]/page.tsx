@@ -1,7 +1,3 @@
-import { useState } from "react"
-import Dom from "./dom"
-import ModalButton from "./modal"
-import { initialPrices } from "./utils/prices"
 import ClientModalDom from "./clientModalDom"
 
 async function Page({
