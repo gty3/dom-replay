@@ -66,9 +66,8 @@ pub async fn handle_default(
                 data.exchange,
             );
             let instrument_with_suffix = format!("{}.C.0", instrument);
-            println!("{:?}", connection_id);
             let replay_start = parse_replay_time(&replay_time)?;
-            let replay_end = replay_start + Duration::seconds(30);
+            let replay_end = replay_start + Duration::seconds(10);
 
             let apigateway_client = create_apigateway_client(domain_name, stage).await?;
 

@@ -31,7 +31,7 @@ const TimePickerInput = React.forwardRef<
       value,
       id,
       name,
-      date = new Date(new Date().setHours(0,0,0,0)),
+      date = new Date(new Date().setHours(13,30,0,0)),
       setDate,
       onChange,
       onKeyDown,
