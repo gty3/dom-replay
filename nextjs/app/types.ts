@@ -27,6 +27,7 @@ export interface MBP10 {
   ts_in_delta: number
   sequence: number
   levels: Level[]
+  isFirstMessage?: boolean
 }
 
 export interface MBO {
@@ -69,7 +70,13 @@ export type ReducerAction =
   | { type: "SELL_LIMIT"; payload: number }
   | { type: "SCROLL_DOWN"; payload: number }
   | { type: "SCROLL_UP"; payload: number }
-  | { type: "UPDATE_PRICE_ARRAY"; payload: string[] }
+  | {
+      type: "UPDATE_PRICE_ARRAY"
+      payload: {
+        MBP10: MBP10
+        // priceTime: Date
+      }
+    }
 
 export interface NowAggRecords {
   now: Record<string, number>

@@ -3,6 +3,7 @@ import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
 import updateMbo from "./updateMbo"
 import updateDepth from "./updateDepth"
+import updatePriceArray from "./updatePriceArray"
 
 
 const reducer = (
@@ -30,26 +31,18 @@ const reducer = (
       // This could be changed to use the increment variable
       const decimalPlaces =
         action.payload.toString().split(".")[1]?.length || 0
+      const newPriceArray = state.prices.priceArray.map((price) => (parseFloat(price) - action.payload).toFixed(decimalPlaces))
       return {
         ...state,
         prices: {
           ...state.prices,
-          priceArray: state.prices.priceArray.map((price) => (parseFloat(price) - action.payload)
-        .toFixed(decimalPlaces)),
+          priceArray: newPriceArray
         // priceTime: new Date(),
         },
       }
       
       case "UPDATE_PRICE_ARRAY":
-        return {
-          ...state,
-          marketBuys: {},
-          marketSells: {},
-          prices: {
-            ...state.prices,
-            priceArray: action.payload,
-          },
-        }
+        return updatePriceArray(state, action)
         
     case "SCROLL_UP":
       if (!state.bids) {

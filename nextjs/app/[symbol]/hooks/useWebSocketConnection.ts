@@ -7,16 +7,14 @@ const useWebSocketConnection = (
   exchange: string,
   instrument: string | null,
   start: Date,
-  dispatch: Dispatch<ReducerAction>,
-  isWebSocketActive: boolean
+  dispatch: Dispatch<ReducerAction>
+  // isWebSocketActive: boolean
 ) => {
-  const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } = useWebSocket(
-    process.env.NEXT_PUBLIC_WS_URL ?? "",
-    {
+  const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } =
+    useWebSocket(process.env.NEXT_PUBLIC_WS_URL ?? "", {
       share: false,
       shouldReconnect: () => true,
-    }
-  )
+    })
 
   function isMBO(message: unknown): message is MBO {
     return (message as MBO).hd?.rtype === 160
@@ -26,9 +24,7 @@ const useWebSocketConnection = (
   }
 
   useEffect(() => {
-    
-    if (readyState === ReadyState.OPEN && isWebSocketActive) {
-      console.log("how many")
+    if (readyState === ReadyState.OPEN) {
       sendJsonMessage({
         event: "subscribe",
         data: {
@@ -39,15 +35,10 @@ const useWebSocketConnection = (
       })
     }
 
-    if (readyState === ReadyState.OPEN) {
-      sendJsonMessage({ event: "unsubscribe" })
-    }
-      
-
-  return () => {
-  // if (readyState === ReadyState.OPEN) {
-  //   sendJsonMessage({ event: "unsubscribe" })
-  // }
+    return () => {
+      if (readyState === ReadyState.OPEN) {
+        sendJsonMessage({ event: "unsubscribe" })
+      }
     }
   }, [readyState, sendJsonMessage, start])
 
@@ -55,9 +46,9 @@ const useWebSocketConnection = (
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
       return
     }
-      if (!isWebSocketActive) {
-        return
-      }
+    // if (!isWebSocketActive) {
+    //   return
+    // }
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
       const mbo = lastJsonMessage
@@ -69,10 +60,22 @@ const useWebSocketConnection = (
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
-
-      dispatch({ type: "UPDATE_DEPTH", payload: {
-        MBP10: mbp10
-      } })
+      if (mbp10.isFirstMessage) {
+        console.log("mbp10", mbp10)
+        dispatch({
+          type: "UPDATE_PRICE_ARRAY",
+          payload: {
+            MBP10: mbp10,
+          },
+        })
+      } else {
+        dispatch({
+          type: "UPDATE_DEPTH",
+          payload: {
+            MBP10: mbp10,
+          },
+        })
+      }
     }
   }, [lastJsonMessage, dispatch])
 }

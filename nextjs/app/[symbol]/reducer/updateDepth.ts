@@ -2,19 +2,6 @@ import { Level, MBP10, State } from "@/app/types"
 import executeTrade from "./executeTrade"
 import { initialPrices } from "../utils/prices"
 
-function generateLevelsArray(mbp10: MBP10) {
-  const levelsArray = []
-  for (let i = 0; i < 9; i++) {
-    // Loop through levels 0 to 8
-    levelsArray.push(
-      parseFloat(mbp10.levels[i].bid_px),
-      parseFloat(mbp10.levels[i].ask_px)
-    )
-    if (levelsArray.length >= 18) break // Ensure only 18 entries are added
-  }
-  levelsArray.sort((a, b) => b - a) // Sort the numbers
-  return levelsArray.map((price) => price.toString()) // Convert numbers back to strings
-}
 
 const updateDepth = (
   state: State,
@@ -44,18 +31,18 @@ const updateDepth = (
   // THIS CAUSES WAY TOO MANY RECENTERS
   // this needs to be set using the time.priceTime cause it doesnt get reset on time change
 
-  if (state.prices.priceArray.length === 0) {
-    /* prices have not been updated, return new price array */
-    newState = {
-      ...state,
-      prices: {
-        priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
-        // priceTime: new Date(),
-      },
-      offers: offers,
-      bids: bids,
-    }
-  } else {
+  // if (state.prices.priceArray.length === 0) {
+  //   /* prices have not been updated, return new price array */
+  //   newState = {
+  //     ...state,
+  //     prices: {
+  //       priceArray: generateLevelsArray(mbp10).map((price) => price.toString()),
+  //       // priceTime: new Date(),
+  //     },
+  //     offers: offers,
+  //     bids: bids,
+  //   }
+  // } else {
     /* update depth */
     newState = {
       ...state,
@@ -64,7 +51,7 @@ const updateDepth = (
       lowest: "" + mbp10.levels[0].ask_px,
       highest: "" + mbp10.levels[0].bid_px,
     }
-  }
+  // }
 
   const bidLimitPrice = "" + state.bidLimitOrder
   const offerLimitPrice = "" + state.offerLimitOrder
