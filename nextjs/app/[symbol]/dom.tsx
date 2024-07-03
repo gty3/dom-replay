@@ -1,7 +1,7 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
-import { useEffect, useReducer } from "react"
+import { useEffect, useReducer, useState } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
@@ -44,11 +44,13 @@ export default function Dom({
     increment: increment
   })
 
+  const [isUnsubscribing, setIsUnsubscribing] = useState(false);
+
   useEffect(() => {
     dispatch({ type: "UPDATE_PRICE_ARRAY", payload: prices })
   }, [prices, updatePriceArray])
 
-  useWebSocketConnection(exchange, instrument, start, dispatch)
+  useWebSocketConnection(exchange, instrument, start, dispatch, isUnsubscribing, setIsUnsubscribing)
 
   useDomScroll(increment, dispatch)
 

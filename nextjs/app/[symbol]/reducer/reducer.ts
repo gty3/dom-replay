@@ -66,14 +66,6 @@ const reducer = (
         },
       }
 
-    // case "UPDATE_PRICES":
-      
-    //   return {
-    //     ...state,
-    //     prices: action.payload,
-    //   }
-
-
     default:
       return state
   }

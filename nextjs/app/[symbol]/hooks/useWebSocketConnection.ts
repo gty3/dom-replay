@@ -7,7 +7,9 @@ const useWebSocketConnection = (
   exchange: string,
   instrument: string | null,
   start: Date,
-  dispatch: Dispatch<ReducerAction>
+  dispatch: Dispatch<ReducerAction>,
+  isUnsubscribing: boolean,
+  setIsUnsubscribing: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } = useWebSocket(
     process.env.NEXT_PUBLIC_WS_URL ?? "",
@@ -25,7 +27,9 @@ const useWebSocketConnection = (
   }
 
   useEffect(() => {
+    
     if (readyState === ReadyState.OPEN) {
+      setIsUnsubscribing(true)
       sendJsonMessage({
         event: "subscribe",
         data: {
@@ -36,14 +40,11 @@ const useWebSocketConnection = (
       })
     }
     return () => {
-      if (readyState === ReadyState.OPEN) {
-        console.log('unmount')
-        sendJsonMessage({ event: "unsubscribe" })
-        // const ws = getWebSocket()
-        // if (ws) {
-        //   ws.close()
-        // }
-      }
+  if (readyState === ReadyState.OPEN) {
+    console.log('unmount')
+    setIsUnsubscribing(true)
+    sendJsonMessage({ event: "unsubscribe" })
+  }
     }
   }, [readyState, sendJsonMessage, start])
 
