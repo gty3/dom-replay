@@ -102,7 +102,7 @@ export function ModalButton({
                   mode="single"
                   selected={date}
                   onSelect={(date) => {
-                    date && setDate(date), console.log("selected")
+                    date && setDate(date)
                   }}
                   initialFocus
                 />

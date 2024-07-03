@@ -9,7 +9,7 @@ const useWebSocketConnection = (
   start: Date,
   dispatch: Dispatch<ReducerAction>
 ) => {
-  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
+  const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } = useWebSocket(
     process.env.NEXT_PUBLIC_WS_URL ?? "",
     {
       share: false,
@@ -38,12 +38,11 @@ const useWebSocketConnection = (
     return () => {
       if (readyState === ReadyState.OPEN) {
         console.log('unmount')
-        // sendJsonMessage({
-        //   event: "unsubscribe",
-        // })
-        sendJsonMessage({
-          event: "disconnect",
-        })
+        sendJsonMessage({ event: "unsubscribe" })
+        // const ws = getWebSocket()
+        // if (ws) {
+        //   ws.close()
+        // }
       }
     }
   }, [readyState, sendJsonMessage, start])
