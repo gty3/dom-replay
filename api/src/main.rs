@@ -7,16 +7,16 @@ use lambda_http::{run, service_fn, tracing, Body, Error, Request, RequestExt, Re
 use time::{Duration, OffsetDateTime};
 
 async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
-    let start_time = event
-        .query_string_parameters_ref()
-        .and_then(|params| params.first("start"))
-        .unwrap_or("default_start");
+    // let start_time = event
+    //     .query_string_parameters_ref()
+    //     .and_then(|params| params.first("start"))
+    //     .unwrap_or("default_start");
     let instrument = event
         .query_string_parameters_ref()
         .and_then(|params| params.first("instrument"))
         .unwrap_or("default_instrument");
     let instrument_with_suffix = format!("{}.C.0", instrument);
-    println!("API Fn - start_time: {:?}, instrument_with_suffix: {:?}", start_time, instrument_with_suffix);
+    println!(" instrument {:?}", instrument);
 
 
     let replay_start = OffsetDateTime::parse(

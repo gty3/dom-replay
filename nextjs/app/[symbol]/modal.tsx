@@ -99,7 +99,7 @@ export function ModalButton({
                 <div className="p-3 border-t border-border">
                   <TimePickerDemo
                     setDate={(date) => {
-                      date && setDate(date), console.log(date)
+                      date && setDate(date)
                     }}
                     date={date}
                   />
