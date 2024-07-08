@@ -54,19 +54,19 @@ export default {
         },
       })
 
-      const api = new Api(stack, "restApi", {
-        routes: {
-          "GET /definitions": {
-            function: {
-              handler: "api/src/main.rs",
-              runtime: "rust",
-              environment: {
-                DATABENTO_API_KEY: DATABENTO_API_KEY,
-              },
-            },
-          },
-        },
-      })
+      // const api = new Api(stack, "restApi", {
+      //   routes: {
+      //     "GET /definitions": {
+      //       function: {
+      //         handler: "api/src/main.rs",
+      //         runtime: "rust",
+      //         environment: {
+      //           DATABENTO_API_KEY: DATABENTO_API_KEY,
+      //         },
+      //       },
+      //     },
+      //   },
+      // })
 
       const cfFunction = new cloudfront.Function(stack, "Function", {
         code: cloudfront.FunctionCode.fromInline(
@@ -86,7 +86,7 @@ export default {
         path: "nextjs",
         environment: {
           NEXT_PUBLIC_WS_URL: websocketApi.url,
-          NEXT_PUBLIC_API_URL: api.url,
+          // NEXT_PUBLIC_API_URL: api.url,
         },
         customDomain: {
           domainName: "orderflowreplay.com",
@@ -121,7 +121,7 @@ export default {
 
       stack.addOutputs({
         Nextjs: nextjs.url,
-        api: api.url,
+        // api: api.url,
       })
     })
   },

@@ -1,14 +1,14 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
-use lambda_runtime::Error;
 use aws_sdk_apigatewaymanagement::{
     config::{self, Region},
     Client,
 };
+use lambda_runtime::Error;
+use std::collections::HashMap;
+use std::sync::Arc;
 use time::{Duration, OffsetDateTime};
 use tokio::sync::mpsc;
-use std::sync::Arc;
 use tokio::sync::Mutex;
-use std::collections::HashMap;
 mod get_data;
 mod send_data;
 use crate::utils;
@@ -16,9 +16,7 @@ use crate::utils;
 #[derive(serde::Deserialize)]
 #[serde(untagged)]
 enum WebSocketMessage {
-    Subscribe {
-        data: BodyData,
-    },
+    Subscribe { data: BodyData },
     Unsubscribe {},
 }
 
@@ -56,15 +54,19 @@ pub async fn handle_default(
         .to_string();
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
+    log::info!(
+        "Parsed event details: domain_name={}, connection_id={}, stage={}",
+        domain_name,
+        connection_id,
+        stage
+    );
+
     let message: WebSocketMessage = parse_request_body(&event.body)?;
 
     match message {
         WebSocketMessage::Subscribe { data } => {
-            let (replay_time, instrument, exchange) = (
-                data.replay_time,
-                data.instrument,
-                data.exchange,
-            );
+            let (replay_time, instrument, exchange) =
+                (data.replay_time, data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.C.0", instrument);
             let replay_start = parse_replay_time(&replay_time)?;
             let replay_end = replay_start + Duration::seconds(10);
@@ -82,7 +84,15 @@ pub async fn handle_default(
             }
 
             tokio::spawn(async move {
-                if let Err(e) = send_data::send_data(&apigateway_client, &connection_id, messages, replay_start, cancel_rx).await {
+                if let Err(e) = send_data::send_data(
+                    &apigateway_client,
+                    &connection_id,
+                    messages,
+                    replay_start,
+                    cancel_rx,
+                )
+                .await
+                {
                     log::error!("Error in send_data: {:?}", e);
                 }
             });
@@ -90,8 +100,11 @@ pub async fn handle_default(
             Ok(utils::create_response())
         }
         WebSocketMessage::Unsubscribe {} => {
-            log::info!("Received unsubscribe message from connection: {}", connection_id);
-            
+            log::info!(
+                "Received unsubscribe message from connection: {}",
+                connection_id
+            );
+
             let mut channels = cancel_channels.lock().await;
             if let Some(cancel_tx) = channels.remove(&connection_id) {
                 if let Err(e) = cancel_tx.send(()).await {
