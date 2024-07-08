@@ -41,6 +41,8 @@ pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
     cancel_channels: CancelChannels,
 ) -> Result<ApiGatewayProxyResponse, Error> {
+    log::info!("hello?");
+    log::info!("Received event: {:?}", event);
     let domain_name = event
         .request_context
         .domain_name
