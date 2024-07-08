@@ -46,9 +46,9 @@ export default {
             function: {
               handler: "websocket/src/main.rs",
               runtime: "rust",
-            },
-            environment: {
-              DATABENTO_API_KEY: DATABENTO_API_KEY,
+              environment: {
+                DATABENTO_API_KEY: DATABENTO_API_KEY,
+              },
             },
           },
         },
@@ -60,9 +60,9 @@ export default {
             function: {
               handler: "api/src/main.rs",
               runtime: "rust",
-            },
-            environment: {
-              DATABENTO_API_KEY: DATABENTO_API_KEY,
+              environment: {
+                DATABENTO_API_KEY: DATABENTO_API_KEY,
+              },
             },
           },
         },

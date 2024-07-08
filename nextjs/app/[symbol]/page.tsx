@@ -20,7 +20,7 @@ async function Page({
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      cache: "no-cache",
+      // cache: "no-cache",
     })
     return response.json()
   }
