@@ -30,6 +30,7 @@ const updatePriceArray = (
     marketBuys: {},
     marketSells: {},
     prices:  generateLevelsArray(mbp10).map((price) => price.toString()),
+    // datasetTime: new Date(mbp10.dataset_time?? "")
   }
 
   return newState

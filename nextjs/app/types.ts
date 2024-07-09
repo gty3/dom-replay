@@ -28,6 +28,7 @@ export interface MBP10 {
   sequence: number
   levels: Level[]
   isFirstMessage?: boolean
+  dataset_time: string
 }
 
 export interface MBO {
@@ -62,7 +63,6 @@ export type ReducerAction =
       type: "UPDATE_DEPTH"
       payload: {
         MBP10: MBP10
-        // priceTime: Date
       }
     }
   // | { type: "UPDATE_PRICES"; payload: string[] }
@@ -74,7 +74,6 @@ export type ReducerAction =
       type: "UPDATE_PRICE_ARRAY"
       payload: {
         MBP10: MBP10
-        // priceTime: Date
       }
     }
 

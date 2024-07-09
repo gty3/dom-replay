@@ -9,11 +9,13 @@ const useWebSocketConnection = (
   start: Date,
   dispatch: Dispatch<ReducerAction>
 ) => {
-  const { sendJsonMessage, lastJsonMessage, readyState } =
-    useWebSocket(process.env.NEXT_PUBLIC_WS_URL ?? "", {
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
+    process.env.NEXT_PUBLIC_WS_URL ?? "",
+    {
       share: false,
       shouldReconnect: () => true,
-    })
+    }
+  )
 
   function isMBO(message: unknown): message is MBO {
     return (message as MBO).hd?.rtype === 160
@@ -42,6 +44,8 @@ const useWebSocketConnection = (
   }, [readyState, sendJsonMessage, start, instrument, exchange])
 
   useEffect(() => {
+
+    console.log(lastJsonMessage)
     if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
       return
     }
@@ -56,14 +60,18 @@ const useWebSocketConnection = (
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
-      if (mbp10.isFirstMessage) {
+      const datasetTime = new Date(convertDateString(mbp10.dataset_time))
 
+      if (mbp10.isFirstMessage) {
         dispatch({
           type: "UPDATE_PRICE_ARRAY",
           payload: {
             MBP10: mbp10,
           },
         })
+      } else if (datasetTime.getTime() !== start.getTime()) {
+        console.log("wrong dataset time", datasetTime, start)
+        return
       } else {
         dispatch({
           type: "UPDATE_DEPTH",
@@ -74,6 +82,11 @@ const useWebSocketConnection = (
       }
     }
   }, [lastJsonMessage, dispatch])
+}
+
+function convertDateString(dateString: string): string {
+  // Remove the extra ":00" from the timezone offset
+  return dateString.replace(/(\+\d{2}:\d{2}):\d{2}$/, '$1')
 }
 
 export default useWebSocketConnection

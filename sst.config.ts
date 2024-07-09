@@ -36,7 +36,7 @@ export default {
             function: {
               handler: "websocket/src/main.rs",
               runtime: "rust",
-              timeout: 20,
+              timeout: 30,
               environment: {
                 DATABENTO_API_KEY: DATABENTO_API_KEY,
               },

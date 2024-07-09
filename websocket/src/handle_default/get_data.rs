@@ -56,15 +56,18 @@ pub async fn get_data(
 
     let mut is_first_mbp = true;
     while let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
+        let mbp_json = serde_json::to_value(mbp)?;
+        let mut mbp_map = mbp_json.as_object().unwrap().clone();
+        mbp_map.insert("dataset_time".to_string(), serde_json::Value::String(replay_start.to_string()));
+        
         if is_first_mbp {
             // Add the isFirstMessage property to the first MBP message
-            let mbp_json = serde_json::to_value(mbp)?;
-            let mut mbp_map = mbp_json.as_object().unwrap().clone();
+
             mbp_map.insert("isFirstMessage".to_string(), serde_json::Value::Bool(true));
             messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp_map)?));
             is_first_mbp = false;
         } else {
-            messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp)?));
+            messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp_map)?));
         }
     }
 
