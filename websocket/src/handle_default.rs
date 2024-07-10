@@ -17,7 +17,7 @@ use crate::utils;
 #[serde(untagged)]
 enum WebSocketMessage {
     Subscribe { data: BodyData },
-    Unsubscribe {},
+    Heartbeat {}
 }
 
 #[derive(serde::Deserialize)]
@@ -35,14 +35,10 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
     }
 }
 
-type CancelChannels = Arc<Mutex<HashMap<String, mpsc::Sender<()>>>>;
-
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    cancel_channels: CancelChannels,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-
-    let duration = 5; 
+    let duration = 5;
 
     let domain_name = event
         .request_context
@@ -59,9 +55,7 @@ pub async fn handle_default(
 
     println!(
         "Parsed event details: domain_name={}, connection_id={}, stage={}",
-        domain_name,
-        connection_id,
-        stage
+        domain_name, connection_id, stage
     );
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
@@ -71,20 +65,14 @@ pub async fn handle_default(
             let (replay_time, instrument, exchange) =
                 (data.replay_time, data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.C.0", instrument);
-            let replay_start = parse_replay_time(&replay_time)?;
+            let replay_start = utils::parse_replay_time(&replay_time)?;
             let replay_end = replay_start + Duration::seconds(duration);
 
-            let apigateway_client = create_apigateway_client(domain_name, stage).await?;
+            let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
 
             let messages =
                 get_data::get_data(replay_start, replay_end, &instrument_with_suffix, &exchange)
                     .await?;
-
-            let (cancel_tx, cancel_rx) = mpsc::channel(1);
-            {
-                let mut channels = cancel_channels.lock().await;
-                channels.insert(connection_id.to_string(), cancel_tx);
-            }
 
             tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
@@ -92,7 +80,6 @@ pub async fn handle_default(
                     connection_id,
                     messages,
                     replay_start,
-                    cancel_rx,
                 )
                 .await
                 {
@@ -102,37 +89,14 @@ pub async fn handle_default(
 
             Ok(utils::create_response())
         }
-        WebSocketMessage::Unsubscribe {} => {
-            log::info!(
-                "Received unsubscribe message from connection: {}",
+        WebSocketMessage::Heartbeat {} => {
+            println!(
+                "Received heartbeat message from connection: {}",
                 connection_id
             );
-
-            let mut channels = cancel_channels.lock().await;
-            if let Some(cancel_tx) = channels.remove(&connection_id) {
-                if let Err(e) = cancel_tx.send(()).await {
-                    log::error!("Failed to send cancellation signal: {:?}", e);
-                }
-            }
 
             Ok(utils::create_response())
         }
     }
 }
 
-fn parse_replay_time(replay_time: &str) -> Result<OffsetDateTime, Error> {
-    OffsetDateTime::parse(replay_time, &time::format_description::well_known::Rfc3339)
-        .map_err(Error::from)
-}
-
-async fn create_apigateway_client(domain_name: &str, stage: &str) -> Result<Client, Error> {
-    let endpoint_url = format!("https://{}/{}", domain_name, stage);
-    let shared_config = aws_config::from_env()
-        .region(Region::new("us-east-1"))
-        .load()
-        .await;
-    let api_management_config = config::Builder::from(&shared_config)
-        .endpoint_url(endpoint_url)
-        .build();
-    Ok(Client::from_conf(api_management_config))
-}
