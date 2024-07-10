@@ -16,6 +16,7 @@ const useWebSocketConnection = (
       shouldReconnect: () => true,
     }
   )
+  
 
   function isMBO(message: unknown): message is MBO {
     return (message as MBO).hd?.rtype === 160
@@ -25,12 +26,12 @@ const useWebSocketConnection = (
   }
 
   useEffect(() => {
-    if (readyState === ReadyState.OPEN) {
+    if (readyState === ReadyState.OPEN && instrument) {
       sendJsonMessage({
         event: "subscribe",
         data: {
           exchange: exchange,
-          instrument: "" + instrument,
+          instrument: instrument,
           replay_time: start.toISOString(),
         },
       })
