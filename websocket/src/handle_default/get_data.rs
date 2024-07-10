@@ -51,7 +51,14 @@ pub async fn get_data(
     let mut messages = Vec::new();
 
     while let Some(mbo) = mbo_decoder.decode_record::<MboMsg>().await? {
-        messages.push((mbo.hd.ts_event, serde_json::to_string(&mbo)?));
+        if mbo.action == 84 {
+            if mbo.side == 66 || mbo.side == 65 {
+                messages.push((mbo.hd.ts_event, serde_json::to_string(&mbo)?));
+            } else {
+                continue;
+            }
+        }
+        
     }
 
     let mut is_first_mbp = true;

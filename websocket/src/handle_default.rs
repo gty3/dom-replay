@@ -41,8 +41,9 @@ pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
     cancel_channels: CancelChannels,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-    log::info!("hello?");
-    log::info!("Received event: {:?}", event);
+
+    let duration = 5; 
+
     let domain_name = event
         .request_context
         .domain_name
@@ -71,7 +72,7 @@ pub async fn handle_default(
                 (data.replay_time, data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.C.0", instrument);
             let replay_start = parse_replay_time(&replay_time)?;
-            let replay_end = replay_start + Duration::seconds(10);
+            let replay_end = replay_start + Duration::seconds(duration);
 
             let apigateway_client = create_apigateway_client(domain_name, stage).await?;
 

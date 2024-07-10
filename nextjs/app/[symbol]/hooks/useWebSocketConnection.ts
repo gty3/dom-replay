@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { Dispatch } from "react"
 import { ReducerAction, MBO, MBP10 } from "../../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
@@ -16,16 +16,7 @@ const useWebSocketConnection = (
       shouldReconnect: () => true,
     }
   )
-  
-
-  function isMBO(message: unknown): message is MBO {
-    return (message as MBO).hd?.rtype === 160
-  }
-  function isMBP10(message: unknown): message is MBP10 {
-    return (message as MBP10).hd?.rtype === 10
-  }
-
-  useEffect(() => {
+  const subscribeToData = useCallback(() => {
     if (readyState === ReadyState.OPEN && instrument) {
       sendJsonMessage({
         event: "subscribe",
@@ -36,20 +27,34 @@ const useWebSocketConnection = (
         },
       })
     }
+  }, [readyState, sendJsonMessage, start, instrument, exchange])
+
+  function isMBO(message: unknown): message is MBO {
+    if (!message) return false
+    return (message as MBO).hd?.rtype === 160
+  }
+  function isMBP10(message: unknown): message is MBP10 {
+    if (!message) return false
+    return (message as MBP10).hd?.rtype === 10
+  }
+
+  useEffect(() => {
+    subscribeToData()
 
     return () => {
       if (readyState === ReadyState.OPEN) {
         sendJsonMessage({ event: "unsubscribe" })
       }
     }
-  }, [readyState, sendJsonMessage, start, instrument, exchange])
+  }, [readyState, sendJsonMessage, subscribeToData])
 
   useEffect(() => {
 
-    console.log(lastJsonMessage)
-    if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
-      return
-    }
+    console.log("json message", lastJsonMessage)
+    // if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
+    //   console.log("lastJsonMessage is empty or null")
+    //   return
+    // }
     /* if message is MBO */
     if (isMBO(lastJsonMessage)) {
       const mbo = lastJsonMessage
@@ -82,7 +87,7 @@ const useWebSocketConnection = (
         })
       }
     }
-  }, [lastJsonMessage, dispatch])
+  }, [lastJsonMessage, dispatch, start])
 }
 
 function convertDateString(dateString: string): string {
