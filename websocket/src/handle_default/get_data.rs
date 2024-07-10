@@ -80,6 +80,6 @@ pub async fn get_data(
     }
 
     messages.sort_by_key(|k| k.0);
-
+    // println!("{:?}", messages);
     Ok(messages)
 }

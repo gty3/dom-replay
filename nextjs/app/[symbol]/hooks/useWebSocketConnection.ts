@@ -1,3 +1,4 @@
+"use client"
 import { useCallback, useEffect } from "react"
 import { Dispatch } from "react"
 import { ReducerAction, MBO, MBP10 } from "../../types"
@@ -41,11 +42,11 @@ const useWebSocketConnection = (
   useEffect(() => {
     subscribeToData()
 
-    return () => {
-      if (readyState === ReadyState.OPEN) {
-        sendJsonMessage({ event: "unsubscribe" })
-      }
-    }
+    // return () => {
+    //   if (readyState === ReadyState.OPEN) {
+    //     sendJsonMessage({ event: "unsubscribe" })
+    //   }
+    // }
   }, [readyState, sendJsonMessage, subscribeToData])
 
   useEffect(() => {
