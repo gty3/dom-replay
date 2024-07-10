@@ -1,7 +1,7 @@
 use aws_sdk_apigatewaymanagement::primitives::Blob;
 use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
-use tokio::sync::mpsc;
+// use tokio::sync::mpsc;
 use tokio::time::{Duration, Instant};
 
 pub async fn send_data(
@@ -9,7 +9,7 @@ pub async fn send_data(
     connection_id: &str,
     messages: Vec<(u64, String)>,
     replay_start: time::OffsetDateTime,
-    mut cancel_rx: mpsc::Receiver<()>,
+    // mut cancel_rx: mpsc::Receiver<()>,
 ) -> Result<(), Error> {
     let mut last_sleep = Instant::now();
     let mut previous_mbp_ts: Option<u64> = None;
@@ -26,10 +26,10 @@ pub async fn send_data(
         if delay_duration > 0 {
             tokio::select! {
                 _ = tokio::time::sleep_until(last_sleep + Duration::from_nanos(delay_duration)) => {},
-                _ = cancel_rx.recv() => {
-                    log::info!("Cancellation received, stopping send_data");
-                    return Ok(());
-                }
+                // _ = cancel_rx.recv() => {
+                //     log::info!("Cancellation received, stopping send_data");
+                //     return Ok(());
+                // }
             }
         }
         last_sleep = Instant::now();
@@ -51,10 +51,10 @@ pub async fn send_data(
         });
 
         // Check for cancellation after sending
-        if cancel_rx.try_recv().is_ok() {
-            log::info!("Cancellation received, stopping send_data");
-            return Ok(());
-        }
+        // if cancel_rx.try_recv().is_ok() {
+        //     log::info!("Cancellation received, stopping send_data");
+        //     return Ok(());
+        // }
 
         previous_mbp_ts = Some(current_ts);
     }

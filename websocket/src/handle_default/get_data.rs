@@ -4,6 +4,7 @@ use databento::{
     HistoricalClient,
 };
 use lambda_runtime::Error;
+// use log::{info, error};
 
 pub async fn get_data(
     replay_start: time::OffsetDateTime,

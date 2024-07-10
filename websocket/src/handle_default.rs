@@ -4,11 +4,11 @@ use aws_sdk_apigatewaymanagement::{
     Client,
 };
 use lambda_runtime::Error;
-use std::collections::HashMap;
-use std::sync::Arc;
+// use std::collections::HashMap;
+// use std::sync::Arc;
 use time::{Duration, OffsetDateTime};
-use tokio::sync::mpsc;
-use tokio::sync::Mutex;
+// use tokio::sync::mpsc;
+// use tokio::sync::Mutex;
 mod get_data;
 mod send_data;
 use crate::utils;
@@ -35,11 +35,11 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
     }
 }
 
-type CancelChannels = Arc<Mutex<HashMap<String, mpsc::Sender<()>>>>;
+// type CancelChannels = Arc<Mutex<HashMap<String, mpsc::Sender<()>>>>;
 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    cancel_channels: CancelChannels,
+    // cancel_channels: CancelChannels,
 ) -> Result<ApiGatewayProxyResponse, Error> {
 
     let duration = 5; 
@@ -80,11 +80,11 @@ pub async fn handle_default(
                 get_data::get_data(replay_start, replay_end, &instrument_with_suffix, &exchange)
                     .await?;
 
-            let (cancel_tx, cancel_rx) = mpsc::channel(1);
-            {
-                let mut channels = cancel_channels.lock().await;
-                channels.insert(connection_id.to_string(), cancel_tx);
-            }
+            // let (cancel_tx, cancel_rx) = mpsc::channel(1);
+            // {
+            //     let mut channels = cancel_channels.lock().await;
+            //     channels.insert(connection_id.to_string(), cancel_tx);
+            // }
 
             tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
@@ -92,7 +92,7 @@ pub async fn handle_default(
                     &connection_id,
                     messages,
                     replay_start,
-                    cancel_rx,
+                    // cancel_rx,
                 )
                 .await
                 {
@@ -103,17 +103,17 @@ pub async fn handle_default(
             Ok(utils::create_response())
         }
         WebSocketMessage::Unsubscribe {} => {
-            log::info!(
+            println!(
                 "Received unsubscribe message from connection: {}",
                 connection_id
             );
 
-            let mut channels = cancel_channels.lock().await;
-            if let Some(cancel_tx) = channels.remove(&connection_id) {
-                if let Err(e) = cancel_tx.send(()).await {
-                    log::error!("Failed to send cancellation signal: {:?}", e);
-                }
-            }
+            // let mut channels = cancel_channels.lock().await;
+            // if let Some(cancel_tx) = channels.remove(&connection_id) {
+            //     if let Err(e) = cancel_tx.send(()).await {
+            //         log::error!("Failed to send cancellation signal: {:?}", e);
+            //     }
+            // }
 
             Ok(utils::create_response())
         }
