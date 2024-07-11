@@ -6,7 +6,7 @@ use time::Duration;
 mod get_data;
 mod send_data;
 use crate::utils;
-use tokio::time::{interval, Duration as TokioDuration};
+use tokio::{sync::mpsc, time::{interval, Duration as TokioDuration}};
 use websocket::WebSocketMessage;
 
 fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> {
@@ -47,8 +47,6 @@ pub async fn handle_default(
             (data.replay_time, data.instrument, data.exchange);
         let instrument_with_suffix = format!("{}.C.0", instrument);
         let mut replay_start = utils::parse_replay_time(&replay_time)?;
-        // let replay_start = utils::parse_replay_time(&replay_time)?;
-        // let replay_end = replay_start + Duration::seconds(duration);
 
         let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
 
@@ -61,22 +59,21 @@ pub async fn handle_default(
         )
         .await?;
 
-        // let mut messages = Vec::new();
-
         if let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
-            
-            let mut price_array: Vec<f64> = mbp.levels.iter().flat_map(|level| {
-                vec![level.bid_px as f64 , level.ask_px as f64 ]
-            }).collect();
+            let mut price_array: Vec<f64> = mbp
+                .levels
+                .iter()
+                .flat_map(|level| vec![level.bid_px as f64, level.ask_px as f64])
+                .collect();
 
             price_array.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
-            
+
             let modified_mbp = serde_json::json!({
                 "time": mbp.hd.ts_event,
                 "price_array": price_array
             });
             let message_json = serde_json::to_string(&modified_mbp)?;
-        
+
             let res = apigateway_client
                 .post_to_connection()
                 .connection_id(&connection_id)
@@ -89,68 +86,97 @@ pub async fn handle_default(
             }
         }
 
+        let (message_tx, message_rx) = mpsc::channel(100);
+
         tokio::spawn(async move {
-            let mut first_loop = true;
-            let mut interval = interval(TokioDuration::from_secs(3));
-            
-            loop {
+            let mut replay_start = utils::parse_replay_time(&replay_time).unwrap();
+            let mut loop_count = 0;
+            const MAX_LOOPS: usize = 12;
+
+            while loop_count < MAX_LOOPS {
                 let replay_end = replay_start + Duration::seconds(duration);
-        
-                match get_data::get_data(
+
+                if let Err(e) = get_data::get_data(
                     replay_start,
                     replay_end,
                     &instrument_with_suffix,
                     &exchange,
+                    message_tx.clone(),
                 )
                 .await
                 {
-                    Ok(messages) => {
-                        if let Err(e) = send_data::send_data(
-                            &apigateway_client,
-                            &connection_id,
-                            messages,
-                            replay_start,
-                        )
-                        .await
-                        {
-                            log::error!("Error in send_data: {:?}", e);
-                            break;
-                        }
-                    }
-                    Err(e) => {
-                        log::error!("Error in get_data: {:?}", e);
-                        break;
-                    }
+                    log::error!("Error in get_data: {:?}", e);
+                    break;
                 }
-        
+
                 replay_start = replay_end;
-                interval.tick().await;
-        
-                if first_loop {
-                    first_loop = false;
-                    interval = tokio::time::interval(TokioDuration::from_secs(5));
-                }
+                tokio::time::sleep(TokioDuration::from_secs(5)).await;
+                loop_count += 1;
             }
         });
+
+        // Spawn task for sending data
+        tokio::spawn(async move {
+            if let Err(e) = send_data::send_data(
+                &apigateway_client,
+                &connection_id,
+                message_rx,
+                replay_start,
+            )
+            .await
+            {
+                log::error!("Error in send_data: {:?}", e);
+            }
+        });
+        
+        // tokio::spawn(async move {
+        //     let mut first_loop = true;
+        //     let mut interval = interval(TokioDuration::from_secs(3));
+        //     let mut loop_count = 0;
+        //     const MAX_LOOPS: usize = 12;
+
+        //     while loop_count < MAX_LOOPS {
+        //         let replay_end = replay_start + Duration::seconds(duration);
+
+        //         match get_data::get_data(
+        //             replay_start,
+        //             replay_end,
+        //             &instrument_with_suffix,
+        //             &exchange,
+        //         )
+        //         .await
+        //         {
+        //             Ok(messages) => {
+        //                 if let Err(e) = send_data::send_data(
+        //                     &apigateway_client,
+        //                     &connection_id,
+        //                     messages,
+        //                     replay_start,
+        //                 )
+        //                 .await
+        //                 {
+        //                     log::error!("Error in send_data: {:?}", e);
+        //                     break;
+        //                 }
+        //             }
+        //             Err(e) => {
+        //                 log::error!("Error in get_data: {:?}", e);
+        //                 break;
+        //             }
+        //         }
+
+        //         replay_start = replay_end;
+        //         interval.tick().await;
+
+        //         if first_loop {
+        //             first_loop = false;
+        //             interval = tokio::time::interval(TokioDuration::from_secs(5));
+        //         }
+
+        //         loop_count += 1;
+        //     }
+        // });
     }
-
-    // let (replay_time, instrument, exchange) = (data.replay_time, data.instrument, data.exchange);
-    // let instrument_with_suffix = format!("{}.C.0", instrument);
-    // let replay_start = utils::parse_replay_time(&replay_time)?;
-    // let replay_end = replay_start + Duration::seconds(duration);
-
-    // let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
-
-    // let messages =
-    //     get_data::get_data(replay_start, replay_end, &instrument_with_suffix, &exchange).await?;
-
-    // tokio::spawn(async move {
-    //     if let Err(e) =
-    //         send_data::send_data(&apigateway_client, &connection_id, messages, replay_start).await
-    //     {
-    //         log::error!("Error in send_data: {:?}", e);
-    //     }
-    // });
 
     Ok(utils::create_response())
 }
