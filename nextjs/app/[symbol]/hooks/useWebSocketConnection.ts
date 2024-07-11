@@ -38,10 +38,18 @@ const useWebSocketConnection = (
     if (!message) return false
     return (message as MBP10).hd?.rtype === 10
   }
+  const startHeartbeat = useCallback(() => {
+    const heartbeatInterval = 5000
+    const intervalId = setInterval(() => {
+      sendJsonMessage({ type: "heartbeat" })
+    }, heartbeatInterval)
+
+    return () => clearInterval(intervalId)
+  }, [sendJsonMessage])
 
   useEffect(() => {
     subscribeToData()
-
+    // startHeartbeat()
     // return () => {
     //   if (readyState === ReadyState.OPEN) {
     //     sendJsonMessage({ event: "unsubscribe" })
@@ -50,7 +58,6 @@ const useWebSocketConnection = (
   }, [readyState, sendJsonMessage, subscribeToData])
 
   useEffect(() => {
-
     console.log("json message", lastJsonMessage)
     // if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
     //   console.log("lastJsonMessage is empty or null")
@@ -93,7 +100,7 @@ const useWebSocketConnection = (
 
 function convertDateString(dateString: string): string {
   // Remove the extra ":00" from the timezone offset
-  return dateString.replace(/(\+\d{2}:\d{2}):\d{2}$/, '$1')
+  return dateString.replace(/(\+\d{2}:\d{2}):\d{2}$/, "$1")
 }
 
 export default useWebSocketConnection
