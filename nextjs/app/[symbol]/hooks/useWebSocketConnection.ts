@@ -30,13 +30,16 @@ const useWebSocketConnection = (
     }
   }, [readyState, sendJsonMessage, start, instrument, exchange])
 
-  function isPriceArrayMessage(message: unknown): message is { price_array: number[], time: number } {
-    // console.log(typeof message)
-    if (!message || typeof message !== 'object') return false;
-    const msg = message as { price_array?: number[], time?: number };
-    return Array.isArray(msg.price_array) && 
-    msg.price_array.every(item => typeof item === 'number') &&
-    typeof msg.time === 'number';
+  function isPriceArrayMessage(
+    message: unknown
+  ): message is { price_array: number[]; time: number } {
+    if (!message || typeof message !== "object") return false
+    const msg = message as { price_array?: number[]; time?: number }
+    return (
+      Array.isArray(msg.price_array) &&
+      msg.price_array.every((item) => typeof item === "number") &&
+      typeof msg.time === "number"
+    )
   }
 
   function isMBO(message: unknown): message is MBO {
@@ -53,11 +56,8 @@ const useWebSocketConnection = (
   }, [readyState, sendJsonMessage, subscribeToData])
 
   useEffect(() => {
-    
     if (isPriceArrayMessage(lastJsonMessage)) {
       const { price_array, time } = lastJsonMessage
-      console.log("priceArray", price_array)
-      console.log("time", time)
       dispatch({
         type: "UPDATE_PRICE_ARRAY",
         payload: {
@@ -65,7 +65,6 @@ const useWebSocketConnection = (
           time: time,
         },
       })
-      
     }
     if (isMBO(lastJsonMessage)) {
       const mbo = lastJsonMessage
@@ -79,17 +78,17 @@ const useWebSocketConnection = (
       const mbp10 = lastJsonMessage
       const datasetTime = new Date(convertDateString(mbp10.dataset_time))
 
-       if (datasetTime.getTime() !== start.getTime()) {
-        // console.log("wrong dataset time", datasetTime, start)
-        return
-      } else {
+      // if (datasetTime.getTime() !== start.getTime()) {
+      //   // console.log("wrong dataset time", datasetTime, start)
+      //   return
+      // } else {
         dispatch({
           type: "UPDATE_DEPTH",
           payload: {
             MBP10: mbp10,
           },
         })
-      }
+      // }
     }
   }, [lastJsonMessage, dispatch, start])
 }
