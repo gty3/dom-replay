@@ -1,4 +1,5 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
+use aws_sdk_apigatewaymanagement::primitives::Blob;
 use databento::dbn::Mbp10Msg;
 use lambda_runtime::Error;
 use time::Duration;
@@ -60,50 +61,73 @@ pub async fn handle_default(
         )
         .await?;
 
-        let mut messages = Vec::new();
+        // let mut messages = Vec::new();
+
         if let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
-            messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp)?));
-        }
-        println!("First MBP entry: {:?}", messages);
+            
+
+            let mut price_array: Vec<f64> = mbp.levels.iter().flat_map(|level| {
+                vec![level.bid_px as f64 / 1_000_000_000.0, level.ask_px as f64 / 1_000_000_000.0]
+            }).collect();
+
+            price_array.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
 
 
-
-        tokio::spawn(async move {
-            let mut interval = interval(TokioDuration::from_secs(5));
-            loop {
-                let replay_end = replay_start + Duration::seconds(duration);
-
-                match get_data::get_data(
-                    replay_start,
-                    replay_end,
-                    &instrument_with_suffix,
-                    &exchange,
-                )
-                .await
-                {
-                    Ok(messages) => {
-                        if let Err(e) = send_data::send_data(
-                            &apigateway_client,
-                            &connection_id,
-                            messages,
-                            replay_start,
-                        )
-                        .await
-                        {
-                            log::error!("Error in send_data: {:?}", e);
-                            break;
-                        }
-                    }
-                    Err(e) => {
-                        log::error!("Error in get_data: {:?}", e);
-                        break;
-                    }
-                }
-
-                replay_start = replay_end;
-                interval.tick().await;
+            let modified_mbp = serde_json::json!({
+                "time": mbp.hd.ts_event,
+                "price_array": price_array
+            });
+            println!("modified_mbp: {:?}", &modified_mbp);
+            let message_json = serde_json::to_string(&modified_mbp)?;
+        
+            let res = apigateway_client
+                .post_to_connection()
+                .connection_id(&connection_id)
+                .data(Blob::new(message_json))
+                .send()
+                .await;
+            match res {
+                Ok(_) => println!("Message sent successfully"),
+                Err(e) => eprintln!("Failed to send message: {:?}", e),
             }
-        });
+        }
+
+        // tokio::spawn(async move {
+        //     let mut interval = interval(TokioDuration::from_secs(5));
+        //     loop {
+        //         let replay_end = replay_start + Duration::seconds(duration);
+
+        //         match get_data::get_data(
+        //             replay_start,
+        //             replay_end,
+        //             &instrument_with_suffix,
+        //             &exchange,
+        //         )
+        //         .await
+        //         {
+        //             Ok(messages) => {
+        //                 if let Err(e) = send_data::send_data(
+        //                     &apigateway_client,
+        //                     &connection_id,
+        //                     messages,
+        //                     replay_start,
+        //                 )
+        //                 .await
+        //                 {
+        //                     log::error!("Error in send_data: {:?}", e);
+        //                     break;
+        //                 }
+        //             }
+        //             Err(e) => {
+        //                 log::error!("Error in get_data: {:?}", e);
+        //                 break;
+        //             }
+        //         }
+
+        //         replay_start = replay_end;
+        //         interval.tick().await;
+        //     }
+        // });
     }
 
     // let (replay_time, instrument, exchange) = (data.replay_time, data.instrument, data.exchange);

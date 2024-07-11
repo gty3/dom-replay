@@ -19,17 +19,16 @@ const updatePriceArray = (
   action: {
     type: "UPDATE_PRICE_ARRAY"
     payload: {
-      MBP10: MBP10
+      priceArray: number[]
+      time: number
     }
   }
 ): State => {
-  let newState: State | null = null
-  const { MBP10: mbp10 } = action.payload
-  newState = {
+  let newState = {
     ...state,
     marketBuys: {},
     marketSells: {},
-    prices:  generateLevelsArray(mbp10).map((price) => price.toString()),
+    prices: action.payload.priceArray.map((price) => price.toString()),
     // datasetTime: new Date(mbp10.dataset_time?? "")
   }
 

@@ -30,6 +30,15 @@ const useWebSocketConnection = (
     }
   }, [readyState, sendJsonMessage, start, instrument, exchange])
 
+  function isPriceArrayMessage(message: unknown): message is { price_array: number[], time: number } {
+    // console.log(typeof message)
+    if (!message || typeof message !== 'object') return false;
+    const msg = message as { price_array?: number[], time?: number };
+    return Array.isArray(msg.price_array) && 
+    msg.price_array.every(item => typeof item === 'number') &&
+    typeof msg.time === 'number';
+  }
+
   function isMBO(message: unknown): message is MBO {
     if (!message) return false
     return (message as MBO).hd?.rtype === 160
@@ -38,32 +47,26 @@ const useWebSocketConnection = (
     if (!message) return false
     return (message as MBP10).hd?.rtype === 10
   }
-  const startHeartbeat = useCallback(() => {
-    const heartbeatInterval = 5000
-    const intervalId = setInterval(() => {
-      sendJsonMessage({ type: "heartbeat" })
-    }, heartbeatInterval)
-
-    return () => clearInterval(intervalId)
-  }, [sendJsonMessage])
 
   useEffect(() => {
     subscribeToData()
-    // startHeartbeat()
-    // return () => {
-    //   if (readyState === ReadyState.OPEN) {
-    //     sendJsonMessage({ event: "unsubscribe" })
-    //   }
-    // }
   }, [readyState, sendJsonMessage, subscribeToData])
 
   useEffect(() => {
-    console.log("json message", lastJsonMessage)
-    // if (!lastJsonMessage || Object.keys(lastJsonMessage).length === 0) {
-    //   console.log("lastJsonMessage is empty or null")
-    //   return
-    // }
-    /* if message is MBO */
+    
+    if (isPriceArrayMessage(lastJsonMessage)) {
+      const { price_array, time } = lastJsonMessage
+      console.log("priceArray", price_array)
+      console.log("time", time)
+      dispatch({
+        type: "UPDATE_PRICE_ARRAY",
+        payload: {
+          priceArray: price_array,
+          time: time,
+        },
+      })
+      
+    }
     if (isMBO(lastJsonMessage)) {
       const mbo = lastJsonMessage
       /* if mbo.action === "T" */
@@ -76,15 +79,8 @@ const useWebSocketConnection = (
       const mbp10 = lastJsonMessage
       const datasetTime = new Date(convertDateString(mbp10.dataset_time))
 
-      if (mbp10.isFirstMessage) {
-        dispatch({
-          type: "UPDATE_PRICE_ARRAY",
-          payload: {
-            MBP10: mbp10,
-          },
-        })
-      } else if (datasetTime.getTime() !== start.getTime()) {
-        console.log("wrong dataset time", datasetTime, start)
+       if (datasetTime.getTime() !== start.getTime()) {
+        // console.log("wrong dataset time", datasetTime, start)
         return
       } else {
         dispatch({

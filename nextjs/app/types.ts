@@ -73,7 +73,8 @@ export type ReducerAction =
   | {
       type: "UPDATE_PRICE_ARRAY"
       payload: {
-        MBP10: MBP10
+        priceArray: number[]
+        time: number
       }
     }
 
