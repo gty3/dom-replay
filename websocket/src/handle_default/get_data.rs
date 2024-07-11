@@ -1,10 +1,8 @@
-use databento::{
-    dbn::{MboMsg, Mbp10Msg, Schema, SType},
-    historical::timeseries::GetRangeParams,
-    HistoricalClient,
-};
+use databento::dbn::{MboMsg, Mbp10Msg};
 use lambda_runtime::Error;
 // use log::{info, error};
+
+use crate::utils;
 
 pub async fn get_data(
     replay_start: time::OffsetDateTime,
@@ -13,41 +11,8 @@ pub async fn get_data(
     dataset: &str,
 ) -> Result<Vec<(u64, String)>, Error> {
     println!("replay_start: {:?}", replay_start);
-    let mut client = HistoricalClient::builder().key_from_env()?.build()?;
 
-    let mut mbo_decoder = client
-        .timeseries()
-        .get_range(
-            &GetRangeParams::builder()
-                .dataset(dataset)
-                .date_time_range((replay_start, replay_end))
-                .symbols(instrument)
-                .schema(Schema::Mbo)
-                .stype_in(SType::Continuous)
-                .build(),
-        )
-        .await
-        .map_err(|e| {
-            println!("Failed to get MBO data: {:?}", e);
-            e
-        })?;
-
-    let mut mbp_decoder = client
-        .timeseries()
-        .get_range(
-            &GetRangeParams::builder()
-                .dataset(dataset)
-                .date_time_range((replay_start, replay_end))
-                .symbols(instrument)
-                .schema(Schema::Mbp10)
-                .stype_in(SType::Continuous)
-                .build(),
-        )
-        .await
-        .map_err(|e| {
-            println!("Failed to get MBP data: {:?}", e);
-            e
-        })?;
+    let (mut mbo_decoder, mut mbp_decoder) = utils::get_client_data(replay_start, replay_end, instrument, dataset).await?;
 
     let mut messages = Vec::new();
 
