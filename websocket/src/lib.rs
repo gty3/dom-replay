@@ -3,6 +3,7 @@
 pub enum WebSocketMessage {
     Subscribe { data: BodyData },
     Heartbeat {},
+    FirstDataReady {}
 }
 
 #[derive(serde::Deserialize)]

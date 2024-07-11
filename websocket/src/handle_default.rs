@@ -1,13 +1,12 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
-use aws_sdk_apigatewaymanagement::primitives::Blob;
-use databento::dbn::Mbp10Msg;
 use lambda_runtime::Error;
 use time::Duration;
 mod get_data;
 mod send_data;
 use crate::utils;
-use tokio::{sync::mpsc, time::{interval, Duration as TokioDuration}};
+use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
+mod send_price_array;
 
 fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> {
     match body {
@@ -46,47 +45,19 @@ pub async fn handle_default(
         let (replay_time, instrument, exchange) =
             (data.replay_time, data.instrument, data.exchange);
         let instrument_with_suffix = format!("{}.C.0", instrument);
-        let mut replay_start = utils::parse_replay_time(&replay_time)?;
+        let replay_start = utils::parse_replay_time(&replay_time)?;
 
         let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
-
-        let price_array_replay_end = replay_start + Duration::seconds(1);
-        let (_mbo_decoder, mut mbp_decoder) = utils::get_client_data(
+        send_price_array::send_price_array(
+            &apigateway_client,
+            &connection_id,
             replay_start,
-            price_array_replay_end,
             &instrument_with_suffix,
             &exchange,
         )
         .await?;
 
-        if let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
-            let mut price_array: Vec<f64> = mbp
-                .levels
-                .iter()
-                .flat_map(|level| vec![level.bid_px as f64, level.ask_px as f64])
-                .collect();
-
-            price_array.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
-
-            let modified_mbp = serde_json::json!({
-                "time": mbp.hd.ts_event,
-                "price_array": price_array
-            });
-            let message_json = serde_json::to_string(&modified_mbp)?;
-
-            let res = apigateway_client
-                .post_to_connection()
-                .connection_id(&connection_id)
-                .data(Blob::new(message_json))
-                .send()
-                .await;
-            match res {
-                Ok(_) => println!("Message sent successfully"),
-                Err(e) => eprintln!("Failed to send message: {:?}", e),
-            }
-        }
-
-        let (message_tx, message_rx) = mpsc::channel(100);
+        let (message_tx, mut message_rx) = mpsc::channel(100);
 
         tokio::spawn(async move {
             let mut replay_start = utils::parse_replay_time(&replay_time).unwrap();
@@ -109,6 +80,8 @@ pub async fn handle_default(
                     break;
                 }
 
+                message_tx.send((0, "FirstDataReady".to_string())).await.unwrap();
+
                 replay_start = replay_end;
                 tokio::time::sleep(TokioDuration::from_secs(5)).await;
                 loop_count += 1;
@@ -117,65 +90,24 @@ pub async fn handle_default(
 
         // Spawn task for sending data
         tokio::spawn(async move {
-            if let Err(e) = send_data::send_data(
-                &apigateway_client,
-                &connection_id,
-                message_rx,
-                replay_start,
-            )
-            .await
-            {
-                log::error!("Error in send_data: {:?}", e);
+            // Wait for the signal that the first get_data is complete
+            while let Some((_, msg)) = message_rx.recv().await {
+                if msg == "FirstDataReady" {
+                    // First get_data is complete, start send_data
+                    if let Err(e) = send_data::send_data(
+                        &apigateway_client,
+                        &connection_id,
+                        message_rx,
+                        replay_start,
+                    )
+                    .await
+                    {
+                        log::error!("Error in send_data: {:?}", e);
+                    }
+                    break;
+                }
             }
         });
-        
-        // tokio::spawn(async move {
-        //     let mut first_loop = true;
-        //     let mut interval = interval(TokioDuration::from_secs(3));
-        //     let mut loop_count = 0;
-        //     const MAX_LOOPS: usize = 12;
-
-        //     while loop_count < MAX_LOOPS {
-        //         let replay_end = replay_start + Duration::seconds(duration);
-
-        //         match get_data::get_data(
-        //             replay_start,
-        //             replay_end,
-        //             &instrument_with_suffix,
-        //             &exchange,
-        //         )
-        //         .await
-        //         {
-        //             Ok(messages) => {
-        //                 if let Err(e) = send_data::send_data(
-        //                     &apigateway_client,
-        //                     &connection_id,
-        //                     messages,
-        //                     replay_start,
-        //                 )
-        //                 .await
-        //                 {
-        //                     log::error!("Error in send_data: {:?}", e);
-        //                     break;
-        //                 }
-        //             }
-        //             Err(e) => {
-        //                 log::error!("Error in get_data: {:?}", e);
-        //                 break;
-        //             }
-        //         }
-
-        //         replay_start = replay_end;
-        //         interval.tick().await;
-
-        //         if first_loop {
-        //             first_loop = false;
-        //             interval = tokio::time::interval(TokioDuration::from_secs(5));
-        //         }
-
-        //         loop_count += 1;
-        //     }
-        // });
     }
 
     Ok(utils::create_response())

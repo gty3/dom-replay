@@ -1,7 +1,7 @@
 use aws_sdk_apigatewaymanagement::primitives::Blob;
 use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
-use tokio::time::{Duration, Instant};
+use tokio::time::Duration;
 use tokio::sync::mpsc::Receiver;
 
 pub async fn send_data(

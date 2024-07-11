@@ -40,28 +40,5 @@ pub async fn get_data(
         message_tx.send((ts, msg)).await?;
     }
 
-    // while let Some(mbo) = mbo_decoder.decode_record::<MboMsg>().await? {
-    //     if mbo.action == 84 {
-    //         if mbo.side == 66 || mbo.side == 65 {
-    //             message_tx.send((mbo.hd.ts_event, serde_json::to_string(&mbo)?)).await?;
-    //         } else {
-    //             continue;
-    //         }
-    //     }
-    // }
-
-    // while let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
-    //     let mbp_json = serde_json::to_value(mbp)?;
-    //     let mut mbp_map = mbp_json.as_object().unwrap().clone();
-    //     mbp_map.insert(
-    //         "dataset_time".to_string(),
-    //         serde_json::Value::String(replay_start.to_string()),
-    //     );
-    //     // messages.push((mbp.hd.ts_event, serde_json::to_string(&mbp_map)?));
-    //     message_tx.send((mbp.hd.ts_event, serde_json::to_string(&mbp_map)?)).await?;
-    // }
-
-    // messages.sort_by_key(|k| k.0);
-
     Ok(())
 }
