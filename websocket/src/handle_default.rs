@@ -19,7 +19,6 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-
     let domain_name = event
         .request_context
         .domain_name
@@ -62,30 +61,47 @@ pub async fn handle_default(
             let mut current_time = replay_start;
             let end_time = replay_start + Duration::minutes(1); // Adjust as needed
             let chunk_duration = Duration::seconds(5);
-            let mut next_fetch_time = current_time;
+            let mut next_fetch_time = current_time + chunk_duration ;
+
+            // Fetch initial data
+            if let Err(e) = get_data::get_data(
+                current_time,
+                next_fetch_time,
+                &instrument_with_suffix,
+                &exchange,
+                message_tx.clone(),
+            )
+            .await
+            {
+                log::error!("Error in initial get_data: {:?}", e);
+                return;
+            }
 
             while current_time < end_time {
-                if current_time >= next_fetch_time {
-                    let chunk_end = next_fetch_time + chunk_duration;
+                // Fetch next chunk of data proactively
+                let next_chunk_end = next_fetch_time + chunk_duration;
+                let instrument_with_suffix = instrument_with_suffix.clone();
+                let exchange = exchange.clone();
+                let message_tx = message_tx.clone();
 
+                tokio::spawn(async move {
                     if let Err(e) = get_data::get_data(
                         next_fetch_time,
-                        chunk_end,
+                        next_chunk_end,
                         &instrument_with_suffix,
                         &exchange,
-                        message_tx.clone(),
+                        message_tx,
                     )
                     .await
                     {
                         log::error!("Error in get_data: {:?}", e);
-                        break;
                     }
+                });
+                // Wait for the current chunk to be processed
+                tokio::time::sleep(TokioDuration::from_secs(5)).await;
 
-                    next_fetch_time = chunk_end;
-                }
-
-                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-                current_time += time::Duration::seconds(1);
+                current_time = next_fetch_time;
+                next_fetch_time = next_chunk_end - Duration::seconds(2);
             }
         });
 

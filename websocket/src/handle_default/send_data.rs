@@ -15,13 +15,17 @@ pub async fn send_data(
         connection_id
     );
 
-    let mut previous_ts: Option<u64> = None;
     let start_time = tokio::time::Instant::now();
-
+    
+    let replay_start_nanos = replay_start.unix_timestamp_nanos() as u64;
+    
     while let Some((current_ts, message)) = message_rx.recv().await {
-        let elapsed = start_time.elapsed().as_nanos() as u64;
-        let target_time = current_ts.saturating_sub(replay_start.unix_timestamp_nanos() as u64);
+        let target_time = current_ts.saturating_sub(replay_start_nanos);
 
+        let elapsed = start_time.elapsed().as_nanos() as u64;
+        // let target_time = current_ts.saturating_sub(replay_start.unix_timestamp_nanos() as u64);
+        println!("elapsed: {}, target_time: {}", elapsed, target_time);
+        
         if elapsed < target_time {
             tokio::time::sleep(Duration::from_nanos(target_time - elapsed)).await;
         }
@@ -40,8 +44,6 @@ pub async fn send_data(
                 println!("Error sending message: {:?}", e);
             }
         });
-
-        previous_ts = Some(current_ts);
     }
 
     Ok(())
