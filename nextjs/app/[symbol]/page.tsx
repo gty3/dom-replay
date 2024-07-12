@@ -7,11 +7,18 @@ async function Page({
   params,
   searchParams,
 }: {
-  params: { symbol: string }
+  params: { symbol?: string }
   searchParams: { [key: string]: string | undefined }
 }) {
+  /* page should autoforward, this should not be possible? */
+  if (!params.symbol) {
+    return <div>No instrument</div>
+  }
+  if (!searchParams.start) {
+    return <div>No start time</div>
+  }
   const instrument = params.symbol
-  const startTime = new Date(searchParams.start ?? "")
+  const startTime = new Date(searchParams.start)
 
   const { min_price_increment } = definitions[instrument]
 

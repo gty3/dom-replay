@@ -19,7 +19,6 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-    let duration = 5;
 
     let domain_name = event
         .request_context
@@ -57,55 +56,45 @@ pub async fn handle_default(
         )
         .await?;
 
-        let (message_tx, mut message_rx) = mpsc::channel(100);
+        let (message_tx, message_rx) = mpsc::channel(100);
 
         tokio::spawn(async move {
-            let mut replay_start = utils::parse_replay_time(&replay_time).unwrap();
-            let mut loop_count = 0;
-            const MAX_LOOPS: usize = 12;
+            let mut current_time = replay_start;
+            let end_time = replay_start + Duration::minutes(1); // Adjust as needed
+            let chunk_duration = Duration::seconds(5);
+            let mut next_fetch_time = current_time;
 
-            while loop_count < MAX_LOOPS {
-                let replay_end = replay_start + Duration::seconds(duration);
+            while current_time < end_time {
+                if current_time >= next_fetch_time {
+                    let chunk_end = next_fetch_time + chunk_duration;
 
-                if let Err(e) = get_data::get_data(
-                    replay_start,
-                    replay_end,
-                    &instrument_with_suffix,
-                    &exchange,
-                    message_tx.clone(),
-                )
-                .await
-                {
-                    log::error!("Error in get_data: {:?}", e);
-                    break;
-                }
-
-                message_tx.send((0, "FirstDataReady".to_string())).await.unwrap();
-
-                replay_start = replay_end;
-                tokio::time::sleep(TokioDuration::from_secs(5)).await;
-                loop_count += 1;
-            }
-        });
-
-        // Spawn task for sending data
-        tokio::spawn(async move {
-            // Wait for the signal that the first get_data is complete
-            while let Some((_, msg)) = message_rx.recv().await {
-                if msg == "FirstDataReady" {
-                    // First get_data is complete, start send_data
-                    if let Err(e) = send_data::send_data(
-                        &apigateway_client,
-                        &connection_id,
-                        message_rx,
-                        replay_start,
+                    if let Err(e) = get_data::get_data(
+                        next_fetch_time,
+                        chunk_end,
+                        &instrument_with_suffix,
+                        &exchange,
+                        message_tx.clone(),
                     )
                     .await
                     {
-                        log::error!("Error in send_data: {:?}", e);
+                        log::error!("Error in get_data: {:?}", e);
+                        break;
                     }
-                    break;
+
+                    next_fetch_time = chunk_end;
                 }
+
+                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                current_time += time::Duration::seconds(1);
+            }
+        });
+
+        tokio::spawn(async move {
+            if let Err(e) =
+                send_data::send_data(&apigateway_client, &connection_id, message_rx, replay_start)
+                    .await
+            {
+                log::error!("Error in send_data: {:?}", e);
             }
         });
     }

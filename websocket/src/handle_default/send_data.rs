@@ -7,48 +7,41 @@ use tokio::sync::mpsc::Receiver;
 pub async fn send_data(
     apigateway_client: &Client,
     connection_id: &str,
-    // messages: Vec<(u64, String)>,
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
 ) -> Result<(), Error> {
-
     println!(
         "send_data function called with connection_id: {}",
         connection_id
     );
-    // let mut last_sleep = Instant::now();
-    let mut previous_mbp_ts: Option<u64> = None;
 
-    // for (current_ts, message) in messages.iter().cloned() {
-        while let Some((current_ts, message)) = message_rx.recv().await {
-            let delay_duration = if let Some(prev_ts) = previous_mbp_ts {
-                current_ts.checked_sub(prev_ts).unwrap_or_default()
-            } else {
-                current_ts
-                    .checked_sub(replay_start.unix_timestamp_nanos() as u64)
-                    .unwrap_or_default()
-            };
-            println!("Delay duration: {:?}", delay_duration);
-            
-            // Actually wait for the delay
-            tokio::time::sleep(Duration::from_nanos(delay_duration)).await;
-            
-            let client = apigateway_client.clone();
-            let connection_id = connection_id.to_string();
+    let mut previous_ts: Option<u64> = None;
+    let start_time = tokio::time::Instant::now();
 
-            tokio::spawn(async move {
-                if let Err(e) = client
-                    .post_to_connection()
-                    .connection_id(connection_id)
-                    .data(Blob::new(message.clone()))
-                    .send()
-                    .await
-                {
-                    println!("Error sending message: {:?}", e);
-                }
-            });
+    while let Some((current_ts, message)) = message_rx.recv().await {
+        let elapsed = start_time.elapsed().as_nanos() as u64;
+        let target_time = current_ts.saturating_sub(replay_start.unix_timestamp_nanos() as u64);
 
-        previous_mbp_ts = Some(current_ts);
+        if elapsed < target_time {
+            tokio::time::sleep(Duration::from_nanos(target_time - elapsed)).await;
+        }
+
+        let client = apigateway_client.clone();
+        let connection_id = connection_id.to_string();
+
+        tokio::spawn(async move {
+            if let Err(e) = client
+                .post_to_connection()
+                .connection_id(connection_id)
+                .data(Blob::new(message))
+                .send()
+                .await
+            {
+                println!("Error sending message: {:?}", e);
+            }
+        });
+
+        previous_ts = Some(current_ts);
     }
 
     Ok(())
