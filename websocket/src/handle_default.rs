@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
 use lambda_runtime::Error;
 use time::Duration;
@@ -63,7 +65,9 @@ pub async fn handle_default(
             let chunk_duration = Duration::seconds(5);
             let mut iteration = 0;
             
+            
             while current_time < end_time {
+                let iteration_start = Instant::now();
                 let chunk_end = current_time + chunk_duration;
 
                 if let Err(e) = get_data::get_data(
@@ -78,14 +82,19 @@ pub async fn handle_default(
                     log::error!("Error in get_data: {:?}", e);
                     break;
                 }
+
+                let elapsed = iteration_start.elapsed();
                 let sleep_duration = if iteration < 2 {
                     TokioDuration::from_secs(0)
                 } else {
-                    TokioDuration::from_secs(5)
+                    TokioDuration::from_secs(5).saturating_sub(elapsed)
                 };
                 tokio::time::sleep(sleep_duration).await;
                 current_time = chunk_end;
                 iteration += 1;
+
+                let elapsed = iteration_start.elapsed();
+        println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
             }
         });
 

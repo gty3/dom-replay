@@ -26,7 +26,11 @@ pub async fn send_data(
 
         let elapsed = start_time.elapsed().as_nanos() as u64;
         // let target_time = current_ts.saturating_sub(replay_start.unix_timestamp_nanos() as u64);
+        
         // println!("elapsed: {}, target_time: {}", elapsed, target_time);
+        // if elapsed > target_time {
+        //     println!("Warning: Elapsed time ({}) is greater than target time ({})", elapsed, target_time);
+        // }
         
         message_count += 1;
 
@@ -37,6 +41,7 @@ pub async fn send_data(
         }
         
         if elapsed < target_time {
+            // println!("elapsed < target, wait: ({})", target_time - elapsed );
             tokio::time::sleep(Duration::from_nanos(target_time - elapsed)).await;
         }
 
