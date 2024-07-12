@@ -36,9 +36,12 @@ pub async fn get_data(
         combined_messages.push(Reverse((mbp.hd.ts_event, serde_json::to_string(&mbp_map)?)));
     }
 
+    let mut message_count = 0;
+
     while let Some(Reverse((ts, msg))) = combined_messages.pop() {
         message_tx.send((ts, msg)).await?;
+        message_count += 1;
     }
-
+        println!("Number of messages added: {}", message_count);
     Ok(())
 }

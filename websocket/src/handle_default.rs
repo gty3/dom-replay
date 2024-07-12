@@ -55,53 +55,37 @@ pub async fn handle_default(
         )
         .await?;
 
-        let (message_tx, message_rx) = mpsc::channel(100);
+        let (message_tx, message_rx) = mpsc::channel(20000);
 
         tokio::spawn(async move {
             let mut current_time = replay_start;
             let end_time = replay_start + Duration::minutes(1); // Adjust as needed
             let chunk_duration = Duration::seconds(5);
-            let mut next_fetch_time = current_time + chunk_duration ;
-
-            // Fetch initial data
-            if let Err(e) = get_data::get_data(
-                current_time,
-                next_fetch_time,
-                &instrument_with_suffix,
-                &exchange,
-                message_tx.clone(),
-            )
-            .await
-            {
-                log::error!("Error in initial get_data: {:?}", e);
-                return;
-            }
-
+            let mut iteration = 0;
+            
             while current_time < end_time {
-                // Fetch next chunk of data proactively
-                let next_chunk_end = next_fetch_time + chunk_duration;
-                let instrument_with_suffix = instrument_with_suffix.clone();
-                let exchange = exchange.clone();
-                let message_tx = message_tx.clone();
+                let chunk_end = current_time + chunk_duration;
 
-                tokio::spawn(async move {
-                    if let Err(e) = get_data::get_data(
-                        next_fetch_time,
-                        next_chunk_end,
-                        &instrument_with_suffix,
-                        &exchange,
-                        message_tx,
-                    )
-                    .await
-                    {
-                        log::error!("Error in get_data: {:?}", e);
-                    }
-                });
-                // Wait for the current chunk to be processed
-                tokio::time::sleep(TokioDuration::from_secs(5)).await;
-
-                current_time = next_fetch_time;
-                next_fetch_time = next_chunk_end - Duration::seconds(2);
+                if let Err(e) = get_data::get_data(
+                    current_time,
+                    chunk_end,
+                    &instrument_with_suffix,
+                    &exchange,
+                    message_tx.clone(),
+                )
+                .await
+                {
+                    log::error!("Error in get_data: {:?}", e);
+                    break;
+                }
+                let sleep_duration = if iteration < 2 {
+                    TokioDuration::from_secs(0)
+                } else {
+                    TokioDuration::from_secs(5)
+                };
+                tokio::time::sleep(sleep_duration).await;
+                current_time = chunk_end;
+                iteration += 1;
             }
         });
 
