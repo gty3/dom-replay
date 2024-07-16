@@ -75,6 +75,8 @@ export type ReducerAction =
       payload: {
         priceArray: number[]
         time: number
+        bids: BidOffer[]
+        offers: BidOffer[]
       }
     }
 
@@ -100,4 +102,9 @@ export interface State {
   offerLimitOrder: number | null
   instrument: string
   increment: number
+}
+
+export interface BidOffer {
+  price: number;
+  size: number;
 }

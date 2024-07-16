@@ -1,10 +1,9 @@
-
-use aws_sdk_apigatewaymanagement::Client as ApiGatewayManagementClient;
+use crate::utils;
 use aws_sdk_apigatewaymanagement::primitives::Blob;
+use aws_sdk_apigatewaymanagement::Client as ApiGatewayManagementClient;
 use databento::dbn::Mbp10Msg;
 use lambda_runtime::Error;
 use time::Duration;
-use crate::utils;
 
 pub async fn send_price_array(
     apigateway_client: &ApiGatewayManagementClient,
@@ -34,8 +33,18 @@ pub async fn send_price_array(
         let modified_mbp = serde_json::json!({
             "time": mbp.hd.ts_event,
             "price_array": price_array,
-            // "highest": price_array.iter().max().unwrap(),
-            // "lowest": price_array.iter().min().unwrap()
+            "bids": mbp.levels.iter().map(|level| {
+                serde_json::json!({
+                    "price": level.bid_px,
+                    "size": level.bid_sz
+                })
+            }).collect::<Vec<_>>(),
+            "offers": mbp.levels.iter().map(|level| {
+                serde_json::json!({
+                    "price": level.ask_px,
+                    "size": level.ask_sz
+                })
+            }).collect::<Vec<_>>(),
         });
         let message_json = serde_json::to_string(&modified_mbp)?;
 

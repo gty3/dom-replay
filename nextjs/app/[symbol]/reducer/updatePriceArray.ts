@@ -1,18 +1,4 @@
-import { State } from "@/app/types"
-
-// function generateLevelsArray(mbp10: MBP10) {
-//   const levelsArray = []
-//   for (let i = 0; i < 9; i++) {
-//     // Loop through levels 0 to 8
-//     levelsArray.push(
-//       parseFloat(mbp10.levels[i].bid_px),
-//       parseFloat(mbp10.levels[i].ask_px)
-//     )
-//     if (levelsArray.length >= 18) break // Ensure only 18 entries are added
-//   }
-//   levelsArray.sort((a, b) => b - a) // Sort the numbers
-//   return levelsArray.map((price) => price.toString()) // Convert numbers back to strings
-// }
+import { BidOffer, State } from "@/app/types"
 
 const updatePriceArray = (
   state: State,
@@ -21,15 +7,23 @@ const updatePriceArray = (
     payload: {
       priceArray: number[]
       time: number
+      bids: BidOffer[]
+      offers: BidOffer[]
     }
   }
+
+
 ): State => {
   return {
     ...state,
     marketBuys: {},
     marketSells: {},
+    bids: Object.fromEntries(action.payload.bids.map((bid) => [bid.price.toString(), bid.size])),
+    offers: Object.fromEntries(action.payload.offers.map((offer) => [offer.price.toString(), offer.size])),
     prices: action.payload.priceArray.map((price) => price.toString()),
     // datasetTime: new Date(mbp10.dataset_time?? "")
+    highest: action.payload.offers[0].price.toString(),
+    lowest: action.payload.bids[0].price.toString()
   }
 
   // return newState

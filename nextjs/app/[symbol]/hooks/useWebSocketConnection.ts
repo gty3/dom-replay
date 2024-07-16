@@ -1,8 +1,9 @@
 "use client"
 import { useCallback, useEffect } from "react"
 import { Dispatch } from "react"
-import { ReducerAction, MBO, MBP10 } from "../../types"
+import { ReducerAction, MBO, MBP10, BidOffer } from "../../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
+import { z } from "zod";
 
 const useWebSocketConnection = (
   exchange: string,
@@ -42,16 +43,39 @@ const useWebSocketConnection = (
     }
   }, [readyState, sendJsonMessage, instrument, exchange])
 
-  function isPriceArrayMessage(
-    message: unknown
-  ): message is { price_array: number[]; time: number } {
-    if (!message || typeof message !== "object") return false
-    const msg = message as { price_array?: number[]; time?: number }
+
+  
+  interface PriceArrayMessage {
+    price_array: number[];
+    time: number;
+    bids: BidOffer[];
+    offers: BidOffer[];
+  }
+  
+  function isPriceArrayMessage(message: unknown): message is PriceArrayMessage {
+    if (typeof message !== "object" || message === null) return false;
+    const msg = message as PriceArrayMessage;
     return (
       Array.isArray(msg.price_array) &&
       msg.price_array.every((item) => typeof item === "number") &&
-      typeof msg.time === "number"
-    )
+      typeof msg.time === "number" &&
+      Array.isArray(msg.bids) &&
+      msg.bids.every(
+        (item) =>
+          typeof item === "object" &&
+          item !== null &&
+          typeof item.price === "number" &&
+          typeof item.size === "number"
+      ) &&
+      Array.isArray(msg.offers) &&
+      msg.offers.every(
+        (item) =>
+          typeof item === "object" &&
+          item !== null &&
+          typeof item.price === "number" &&
+          typeof item.size === "number"
+      )
+    );
   }
 
   function isMBO(message: unknown): message is MBO {
@@ -72,12 +96,15 @@ const useWebSocketConnection = (
 
   useEffect(() => {
     if (isPriceArrayMessage(lastJsonMessage)) {
-      const { price_array, time } = lastJsonMessage
+      const { price_array, time, bids, offers } = lastJsonMessage
+      console.log("update price array:", price_array, bids, offers)
       dispatch({
         type: "UPDATE_PRICE_ARRAY",
         payload: {
           priceArray: price_array,
           time: time,
+          bids,
+          offers
         },
       })
     }
@@ -97,12 +124,12 @@ const useWebSocketConnection = (
       //   // console.log("wrong dataset time", datasetTime, start)
       //   return
       // } else {
-        dispatch({
-          type: "UPDATE_DEPTH",
-          payload: {
-            MBP10: mbp10,
-          },
-        })
+        // dispatch({
+        //   type: "UPDATE_DEPTH",
+        //   payload: {
+        //     MBP10: mbp10,
+        //   },
+        // })
       // }
     }
   }, [lastJsonMessage, dispatch, start])

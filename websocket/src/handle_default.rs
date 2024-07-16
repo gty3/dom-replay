@@ -55,6 +55,8 @@ pub async fn handle_default(
             let instrument_with_suffix = format!("{}.C.0", instrument);
             let replay_start = utils::parse_replay_time(&replay_time)?;
 
+
+            
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             send_price_array::send_price_array(
                 &apigateway_client,
