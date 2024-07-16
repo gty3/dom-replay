@@ -1,7 +1,7 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
-import { useReducer } from "react"
+import { useCallback, useReducer } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
@@ -37,9 +37,11 @@ export default function Dom({
     increment: increment
   })
 
-  useWebSocketConnection(exchange, instrument, start, dispatch)
+  const memoizedDispatch = useCallback(dispatch, []);
 
-  useDomScroll(increment, dispatch)
+  useWebSocketConnection(exchange, instrument, start, memoizedDispatch)
+
+  useDomScroll(increment, memoizedDispatch)
 
   // const profit = getProfit({
   //   bids: state.bids,
@@ -48,11 +50,13 @@ export default function Dom({
   //   increment: increment
   // })
 
+  
+
   return (
     <>
       <div className="w-80">
         {state.prices.map((number: string, i: number) => (
-          <PriceRow state={state} dispatch={dispatch} key={i} number={number} />
+          <PriceRow state={state} dispatch={memoizedDispatch} key={i} number={number} />
         ))}
         {/* <AccountValue
           side={state.trade.side}

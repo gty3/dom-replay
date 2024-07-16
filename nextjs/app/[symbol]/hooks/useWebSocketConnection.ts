@@ -29,6 +29,18 @@ const useWebSocketConnection = (
       })
     }
   }, [readyState, sendJsonMessage, start, instrument, exchange])
+  
+  const unsubscribeToData = useCallback(() => {
+    if (readyState === ReadyState.OPEN && instrument) {
+      sendJsonMessage({
+        event: "unsubscribe",
+        data: {
+          exchange: exchange,
+          instrument: instrument,
+        },
+      })
+    }
+  }, [readyState, sendJsonMessage, instrument, exchange])
 
   function isPriceArrayMessage(
     message: unknown
@@ -53,7 +65,10 @@ const useWebSocketConnection = (
 
   useEffect(() => {
     subscribeToData()
-  }, [readyState, sendJsonMessage, subscribeToData])
+    return () => {
+      unsubscribeToData()
+    }
+  }, [readyState, sendJsonMessage, subscribeToData, unsubscribeToData])
 
   useEffect(() => {
     if (isPriceArrayMessage(lastJsonMessage)) {

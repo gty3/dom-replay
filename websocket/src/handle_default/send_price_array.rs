@@ -33,7 +33,9 @@ pub async fn send_price_array(
 
         let modified_mbp = serde_json::json!({
             "time": mbp.hd.ts_event,
-            "price_array": price_array
+            "price_array": price_array,
+            // "highest": price_array.iter().max().unwrap(),
+            // "lowest": price_array.iter().min().unwrap()
         });
         let message_json = serde_json::to_string(&modified_mbp)?;
 
