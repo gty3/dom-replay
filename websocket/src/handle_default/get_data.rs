@@ -17,54 +17,22 @@ pub async fn get_data(
 ) -> Result<(), Error> {
 
     let start_time = Instant::now(); 
-    let (mut mbo_decoder, mut mbp_decoder) =
-        utils::get_client_data(replay_start, replay_end, instrument, dataset).await?;
-    loop {
-        let (mbo_next, mbp_next) = join!(
-            mbo_decoder.decode_record::<MboMsg>(),
-            mbp_decoder.decode_record::<Mbp10Msg>()
-        );
-    
-        // println!("mbp_next: {:?}", mbp_next);
-        match (mbo_next?, mbp_next?) {
-            (Some(mbo), Some(mbp)) => {
-                // println!("Both mbo and mbp are Some");
-                if mbo.hd.ts_event < mbp.hd.ts_event {
-                    // println!("mbo_json Some: {:?}", mbo);
-                    if mbo.action == 84 && (mbo.side == 66 || mbo.side == 65) {
-                        message_tx.send((mbo.hd.ts_event, serde_json::to_string(&mbo)?)).await?;
-                    }
-                } else {
+    let mut mbp_decoder =
+        utils::get_mbp_decoder(replay_start, replay_end, instrument, dataset).await?;
+        loop {
+            match mbp_decoder.decode_record::<Mbp10Msg>().await {
+                Ok(Some(mbp)) => {
                     let mbp_json = serde_json::to_value(mbp)?;
-                    println!("mbp_json Some: {:?}", mbp_json);
-                    // let mut mbp_map = mbp_json.as_object().unwrap().clone();
-                    // mbp_map.insert(
-                    //     "dataset_time".to_string(),
-                    //     serde_json::Value::String(replay_start.to_string()),
-                    // );
+                    println!("mbp_json: {:?}", mbp_json);
                     message_tx.send((mbp.hd.ts_event, serde_json::to_string(&mbp_json)?)).await?;
                 }
-            }
-            (Some(mbo), None) => {
-                
-                if mbo.action == 84 && (mbo.side == 66 || mbo.side == 65) {
-                    println!("mbo_json TRADE None");
-                    message_tx.send((mbo.hd.ts_event, serde_json::to_string(&mbo)?)).await?;
+                Ok(None) => break, // No more messages
+                Err(e) => {
+                    eprintln!("Error decoding record: {:?}", e);
+                    break;
                 }
             }
-            (None, Some(mbp)) => {
-                let mbp_json = serde_json::to_value(mbp)?;
-                println!("mbp_json None: {:?}", mbp_json);
-                // let mut mbp_map = mbp_json.as_object().unwrap().clone();
-                // mbp_map.insert(
-                //     "dataset_time".to_string(),
-                //     serde_json::Value::String(replay_start.to_string()),
-                // );
-                message_tx.send((mbp.hd.ts_event, serde_json::to_string(&mbp_json)?)).await?;
-            }
-            (None, None) => break,
         }
-    }
 
     let duration = start_time.elapsed(); // Calculate the duration
     println!("get_data duration: {:?}", duration); // Print the duration

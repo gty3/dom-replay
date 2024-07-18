@@ -35,7 +35,8 @@ pub async fn send_data(
             message_count = 0;
             last_log_time = Instant::now();
         }
-
+        // artificial sleep to mitigate max update depth error
+        tokio::time::sleep(Duration::from_millis(2)).await;
         if elapsed < target_time {
             // println!("elapsed < target, wait: ({})", target_time - elapsed );
             tokio::time::sleep(Duration::from_nanos(target_time - elapsed)).await;

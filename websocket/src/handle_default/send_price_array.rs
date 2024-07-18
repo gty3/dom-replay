@@ -13,7 +13,7 @@ pub async fn send_price_array(
     exchange: &str,
 ) -> Result<(), Error> {
     let price_array_replay_end = replay_start + Duration::seconds(1);
-    let (_mbo_decoder, mut mbp_decoder) = utils::get_client_data(
+    let mut mbp_decoder = utils::get_mbp_decoder(
         replay_start,
         price_array_replay_end,
         instrument_with_suffix,

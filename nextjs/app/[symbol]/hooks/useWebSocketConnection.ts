@@ -77,10 +77,6 @@ const useWebSocketConnection = (
     );
   }
 
-  function isMBO(message: unknown): message is MBO {
-    if (!message) return false
-    return (message as MBO).hd?.rtype === 160
-  }
   function isMBP10(message: unknown): message is MBP10 {
     if (!message) return false
     return (message as MBP10).hd?.rtype === 10
@@ -107,15 +103,6 @@ const useWebSocketConnection = (
           offers
         },
       })
-    }
-    if (isMBO(lastJsonMessage)) {
-      const mbo = lastJsonMessage
-      /* if mbo.action === "T" */
-      if (mbo.action === 84) {
-        dispatch({ type: "UPDATE_MBO", payload: mbo })
-      }
-
-      /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
       // console.log(mbp10)
