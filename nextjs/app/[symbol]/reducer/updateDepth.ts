@@ -10,10 +10,12 @@ const updateDepth = (
     }
   }
 ): State => {
+  
   let newState: State | null = null
 
   const { MBP10: mbp10 } = action.payload
-
+  if (mbp10.action === 84) { console.log('trade', mbp10.size)}
+  
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
     return acc

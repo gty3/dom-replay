@@ -118,7 +118,7 @@ const useWebSocketConnection = (
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
-      console.log(mbp10)
+      // console.log(mbp10)
       // const datasetTime = new Date(convertDateString(mbp10.dataset_time))
 
       // if (datasetTime.getTime() !== start.getTime()) {
