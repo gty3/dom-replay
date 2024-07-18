@@ -1,4 +1,4 @@
-use databento::dbn::{MboMsg, Mbp10Msg};
+use databento::dbn::Mbp10Msg;
 use lambda_runtime::Error;
 // use log::{info, error};
 use crate::utils;
@@ -6,7 +6,6 @@ use crate::utils;
 // use std::collections::BinaryHeap;
 use tokio::sync::mpsc::Sender;
 use std::time::Instant;
-use tokio::join;
 
 pub async fn get_data(
     replay_start: time::OffsetDateTime,

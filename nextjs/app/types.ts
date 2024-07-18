@@ -58,14 +58,12 @@ export interface BidsOffersTime {
 }
 
 export type ReducerAction =
-  | { type: "UPDATE_MBO"; payload: MBO }
   | {
       type: "UPDATE_DEPTH"
       payload: {
         MBP10: MBP10
       }
     }
-  // | { type: "UPDATE_PRICES"; payload: string[] }
   | { type: "BID_LIMIT"; payload: number }
   | { type: "SELL_LIMIT"; payload: number }
   | { type: "SCROLL_DOWN"; payload: number }

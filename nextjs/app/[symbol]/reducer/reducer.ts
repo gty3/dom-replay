@@ -1,15 +1,11 @@
 import { ReducerAction, State } from "../../types"
 import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
-import updateMbo from "./updateMbo"
 import updateDepth from "./updateDepth"
 import updatePriceArray from "./updatePriceArray"
 
 const reducer = (state: State, action: ReducerAction): State => {
   switch (action.type) {
-    case "UPDATE_MBO":
-      return updateMbo(state, action)
-
     case "UPDATE_DEPTH":
       return updateDepth(state, action)
 

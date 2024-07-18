@@ -10,14 +10,9 @@ const updateDepth = (
     }
   }
 ): State => {
-  
   let newState: State | null = null
 
   const { MBP10: mbp10 } = action.payload
-
-  if (mbp10.action === 84) { 
-    
-  }
 
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
@@ -29,15 +24,37 @@ const updateDepth = (
     return acc
   }, {} as Record<string, number>)
 
-    /* update depth */
-    newState = {
-      ...state,
-      offers: offers,
-      bids: bids,
-      lowest: "" + mbp10.levels[0].ask_px,
-      highest: "" + mbp10.levels[0].bid_px,
+  if (mbp10.action === 84) {
+    if (mbp10.side === 65) {
+      newState = {
+        ...state,
+        marketSells: {
+          ...state.marketSells,
+          [mbp10.price]: state.marketSells[mbp10.price]
+            ? state.marketSells[mbp10.price] + mbp10.size
+            : mbp10.size,
+        },
+      }
+    } else if (mbp10.side === 66) {
+      newState = {
+        ...state,
+        marketBuys: {
+          ...state.marketBuys,
+          [mbp10.price]: state.marketBuys[mbp10.price]
+            ? state.marketBuys[mbp10.price] + mbp10.size
+            : mbp10.size,
+        },
+      }
     }
-  // }
+  }
+
+  newState = {
+    ...(newState || state),
+    offers: offers,
+    bids: bids,
+    lowest: "" + mbp10.levels[0].ask_px,
+    highest: "" + mbp10.levels[0].bid_px,
+  }
 
   const bidLimitPrice = "" + state.bidLimitOrder
   const offerLimitPrice = "" + state.offerLimitOrder

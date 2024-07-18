@@ -1,7 +1,7 @@
 "use client"
 import { useCallback, useEffect } from "react"
 import { Dispatch } from "react"
-import { ReducerAction, MBO, MBP10, BidOffer } from "../../types"
+import { ReducerAction, MBP10, BidOffer } from "../../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
 const useWebSocketConnection = (
@@ -41,8 +41,6 @@ const useWebSocketConnection = (
       })
     }
   }, [readyState, sendJsonMessage, instrument, exchange])
-
-
   
   interface PriceArrayMessage {
     price_array: number[];
@@ -120,12 +118,12 @@ const useWebSocketConnection = (
         })
       // }
     }
-  }, [lastJsonMessage, dispatch, start])
+  }, [lastJsonMessage, dispatch, start, isPriceArrayMessage])
 }
 
-function convertDateString(dateString: string): string {
-  // Remove the extra ":00" from the timezone offset
-  return dateString.replace(/(\+\d{2}:\d{2}):\d{2}$/, "$1")
-}
+// function convertDateString(dateString: string): string {
+//   // Remove the extra ":00" from the timezone offset
+//   return dateString.replace(/(\+\d{2}:\d{2}):\d{2}$/, "$1")
+// }
 
 export default useWebSocketConnection

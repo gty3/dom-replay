@@ -62,7 +62,7 @@ pub async fn handle_default(
             .await?;
 
             let (message_tx, message_rx) = mpsc::channel(20000);
-            let (cancel_tx, cancel_rx) = oneshot::channel();
+            let (cancel_tx, _cancel_rx) = oneshot::channel();
 
             {
                 let mut subs = subscriptions.lock().unwrap();
