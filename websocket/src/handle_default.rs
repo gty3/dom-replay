@@ -41,11 +41,6 @@ pub async fn handle_default(
         .to_string();
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
-    println!(
-        "Parsed event details: domain_name={}, connection_id={}, stage={}",
-        domain_name, connection_id, stage
-    );
-
     let message: WebSocketMessage = parse_request_body(&event.body)?;
 
     match message {
@@ -55,9 +50,8 @@ pub async fn handle_default(
             let instrument_with_suffix = format!("{}.C.0", instrument);
             let replay_start = utils::parse_replay_time(&replay_time)?;
 
-
-            
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
+            
             send_price_array::send_price_array(
                 &apigateway_client,
                 &connection_id,
@@ -75,14 +69,11 @@ pub async fn handle_default(
                 subs.insert(connection_id.clone(), cancel_tx);
             }
 
-            // tokio::spawn(async move {
-            tokio::select! {
-                    _ = async {
+            tokio::spawn(async move {
                 let mut current_time = replay_start;
                 let end_time = replay_start + Duration::minutes(1); // Adjust as needed
                 let chunk_duration = Duration::seconds(5);
                 let mut iteration = 0;
-
 
                 while current_time < end_time {
                     let iteration_start = Instant::now();
@@ -114,13 +105,7 @@ pub async fn handle_default(
                     let elapsed = iteration_start.elapsed();
             println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
-            } => {},
-            _ = cancel_rx => {
-                println!("Cancellation signal received, terminating handle_default task.");
-            }
-            }
-            // });
-
+            });
             tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
                     &apigateway_client,
@@ -134,6 +119,7 @@ pub async fn handle_default(
                 }
             });
         }
+
         WebSocketMessage::Unsubscribe { data } => {
             println!(
                 "Unsubscribe request received for instrument: {}",

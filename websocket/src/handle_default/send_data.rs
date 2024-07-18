@@ -1,9 +1,9 @@
 use aws_sdk_apigatewaymanagement::primitives::Blob;
 use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
-use tokio::time::{Duration, Instant};
+// use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc::Receiver;
-use std::sync::{Arc, Mutex};
+use tokio::time::{Duration, Instant};
 
 pub async fn send_data(
     apigateway_client: &Client,
@@ -23,18 +23,11 @@ pub async fn send_data(
     // let mut failed_messages: Vec<(String, u64)> = Vec::new();
 
     let replay_start_nanos = replay_start.unix_timestamp_nanos() as u64;
-    
+
     while let Some((current_ts, message)) = message_rx.recv().await {
         let target_time = current_ts.saturating_sub(replay_start_nanos);
 
         let elapsed = start_time.elapsed().as_nanos() as u64;
-        // let target_time = current_ts.saturating_sub(replay_start.unix_timestamp_nanos() as u64);
-        
-        // println!("elapsed: {}, target_time: {}", elapsed, target_time);
-        // if elapsed > target_time {
-        //     println!("Warning: Elapsed time ({}) is greater than target time ({})", elapsed, target_time);
-        // }
-        
         message_count += 1;
 
         if last_log_time.elapsed() >= Duration::from_secs(5) {
@@ -42,17 +35,18 @@ pub async fn send_data(
             message_count = 0;
             last_log_time = Instant::now();
         }
-        
+
         if elapsed < target_time {
             // println!("elapsed < target, wait: ({})", target_time - elapsed );
             tokio::time::sleep(Duration::from_nanos(target_time - elapsed)).await;
         }
 
-        let failed_messages = Arc::new(Mutex::new(Vec::new()));
+        // let failed_messages = Arc::new(Mutex::new(Vec::new()));
 
         let client = apigateway_client.clone();
         let connection_id = connection_id.to_string();
-        let failed_messages = Arc::clone(&failed_messages);
+        // let failed_messages = Arc::clone(&failed_messages);
+        // println!("message: {:?}", message);
 
         tokio::spawn(async move {
             if let Err(e) = client
@@ -61,21 +55,24 @@ pub async fn send_data(
                 .data(Blob::new(message))
                 .send()
                 .await
-                {
-                    let mut failed_messages = failed_messages.lock().unwrap();
-                    let mut found = false;
-                    for (conn_id, count) in &mut *failed_messages {
-                        if conn_id == &connection_id {
-                            *count += 1;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if !found {
-                        failed_messages.push((connection_id.clone(), 1));
-                    }
-                    println!("Error sending message: {:?}", *failed_messages);
-                }
+            {
+                println!("Error sending message: {:?}", e);
+            }
+            // {
+            //     let mut failed_messages = failed_messages.lock().unwrap();
+            //     let mut found = false;
+            //     for (conn_id, count) in &mut *failed_messages {
+            //         if conn_id == &connection_id {
+            //             *count += 1;
+            //             found = true;
+            //             break;
+            //         }
+            //     }
+            //     if !found {
+            //         failed_messages.push((connection_id.clone(), 1));
+            //     }
+            //     println!("Error sending message: {:?}", *failed_messages);
+            // }
         });
     }
 

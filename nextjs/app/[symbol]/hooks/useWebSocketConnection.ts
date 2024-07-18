@@ -3,7 +3,6 @@ import { useCallback, useEffect } from "react"
 import { Dispatch } from "react"
 import { ReducerAction, MBO, MBP10, BidOffer } from "../../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
-import { z } from "zod";
 
 const useWebSocketConnection = (
   exchange: string,
@@ -95,6 +94,7 @@ const useWebSocketConnection = (
   }, [readyState, sendJsonMessage, subscribeToData, unsubscribeToData])
 
   useEffect(() => {
+    // console.log('lastJsonMessage', lastJsonMessage)
     if (isPriceArrayMessage(lastJsonMessage)) {
       const { price_array, time, bids, offers } = lastJsonMessage
       console.log("update price array:", price_array, bids, offers)
@@ -118,18 +118,19 @@ const useWebSocketConnection = (
       /* if message is MBP10 */
     } else if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
-      const datasetTime = new Date(convertDateString(mbp10.dataset_time))
+      console.log(mbp10)
+      // const datasetTime = new Date(convertDateString(mbp10.dataset_time))
 
       // if (datasetTime.getTime() !== start.getTime()) {
       //   // console.log("wrong dataset time", datasetTime, start)
       //   return
       // } else {
-        // dispatch({
-        //   type: "UPDATE_DEPTH",
-        //   payload: {
-        //     MBP10: mbp10,
-        //   },
-        // })
+        dispatch({
+          type: "UPDATE_DEPTH",
+          payload: {
+            MBP10: mbp10,
+          },
+        })
       // }
     }
   }, [lastJsonMessage, dispatch, start])
