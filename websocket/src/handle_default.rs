@@ -28,6 +28,7 @@ pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
     subscriptions: SubscriptionMap,
 ) -> Result<ApiGatewayProxyResponse, Error> {
+
     let domain_name = event
         .request_context
         .domain_name
@@ -39,6 +40,7 @@ pub async fn handle_default(
         .as_deref()
         .unwrap_or_default()
         .to_string();
+    println!("Default: {:?}", connection_id);
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;

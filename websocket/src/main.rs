@@ -24,7 +24,10 @@ async fn function_handler(
         .to_string();
 
     match route_key {
-        "$connect" => Ok(utils::create_response()),
+        "$connect" => {
+            println!("Connecting: {}", connection_id);
+            Ok(utils::create_response())
+        },
         "$disconnect" => {
             println!("Disconnecting: {}", connection_id);
             let mut subs = subscriptions.lock().unwrap();
