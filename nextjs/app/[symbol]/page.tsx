@@ -20,7 +20,7 @@ async function Page({
   const instrument = params.symbol
   const startTime = new Date(searchParams.start)
 
-  const { min_price_increment } = definitions[instrument]
+  // const { min_price_increment } = definitions[instrument]
 
   return (
     <div className="flex flex-col items-center mt-5">
@@ -32,7 +32,7 @@ async function Page({
           exchange="GLBX.MDP3"
           instrument={instrument}
           start={startTime}
-          increment={min_price_increment}
+          increment={10000000}
         />
       </div>
     </div>

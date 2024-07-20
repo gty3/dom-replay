@@ -89,19 +89,7 @@ const useWebSocketConnection = (
 
   useEffect(() => {
     // console.log('lastJsonMessage', lastJsonMessage)
-    if (isPriceArrayMessage(lastJsonMessage)) {
-      const { price_array, time, bids, offers } = lastJsonMessage
-      console.log("update price array:", price_array, bids, offers)
-      dispatch({
-        type: "UPDATE_PRICE_ARRAY",
-        payload: {
-          priceArray: price_array,
-          time: time,
-          bids,
-          offers
-        },
-      })
-    } else if (isMBP10(lastJsonMessage)) {
+    if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
       // console.log(mbp10)
       // const datasetTime = new Date(convertDateString(mbp10.dataset_time))
@@ -118,7 +106,20 @@ const useWebSocketConnection = (
         })
       // }
     }
-  }, [lastJsonMessage, dispatch, start, isPriceArrayMessage])
+    else if (isPriceArrayMessage(lastJsonMessage)) {
+      const { price_array, time, bids, offers } = lastJsonMessage
+      console.log("update price array:", price_array, bids, offers)
+      dispatch({
+        type: "UPDATE_PRICE_ARRAY",
+        payload: {
+          priceArray: price_array,
+          time: time,
+          bids,
+          offers
+        },
+      })
+    }
+  }, [lastJsonMessage, dispatch, start])
 }
 
 // function convertDateString(dateString: string): string {

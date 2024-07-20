@@ -1,15 +1,12 @@
-
 interface Definition {
-  min_price_increment: number;
-
+  min_price_increment: number
 }
 
-
 const definitions: Record<string, Definition> = {
-"cl": {
+  cl: {
     min_price_increment: 10000000,
   },
-  "CL": {
+  CL: {
     min_price_increment: 10000000,
   },
 }

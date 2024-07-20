@@ -21,6 +21,8 @@ pub async fn send_price_array(
     )
     .await?;
 
+    let cl_increment = 10000000;
+
     if let Some(mbp) = mbp_decoder.decode_record::<Mbp10Msg>().await? {
         let mut price_array: Vec<f64> = mbp
             .levels
@@ -30,9 +32,26 @@ pub async fn send_price_array(
 
         price_array.sort_by(|a, b| b.partial_cmp(a).unwrap_or(std::cmp::Ordering::Equal));
 
+        let mut complete_price_array = Vec::new();
+        for window in price_array.windows(2) {
+            let current = window[0];
+            let next = window[1];
+            complete_price_array.push(current);
+            
+            let expected_next = current - cl_increment as f64;
+            if next < expected_next {
+                let mut missing = expected_next;
+                while missing > next {
+                    complete_price_array.push(missing);
+                    missing -= cl_increment as f64;
+                }
+            }
+        }
+        complete_price_array.push(*price_array.last().unwrap());
+
         let modified_mbp = serde_json::json!({
             "time": mbp.hd.ts_event,
-            "price_array": price_array,
+            "price_array": complete_price_array,
             "bids": mbp.levels.iter().map(|level| {
                 serde_json::json!({
                     "price": level.bid_px,
