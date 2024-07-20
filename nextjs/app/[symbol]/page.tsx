@@ -18,6 +18,8 @@ async function Page({
     return <div>No start time</div>
   }
   const instrument = params.symbol
+  // TODO: change this to have a default fail safe if no searchparams wrong? Why am I still
+  // getting an error with the above handling?
   const startTime = new Date(searchParams.start)
 
   // const { min_price_increment } = definitions[instrument]
