@@ -28,7 +28,6 @@ pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
     subscriptions: SubscriptionMap,
 ) -> Result<ApiGatewayProxyResponse, Error> {
-
     let domain_name = event
         .request_context
         .domain_name
@@ -38,9 +37,9 @@ pub async fn handle_default(
         .request_context
         .connection_id
         .as_deref()
-        .unwrap_or_default()
-        .to_string();
-    println!("Default: {:?}", connection_id);
+        .unwrap_or_default();
+        // .to_string();
+    // println!("Default: {:?}", connection_id);
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
@@ -53,22 +52,25 @@ pub async fn handle_default(
             let replay_start = utils::parse_replay_time(&replay_time)?;
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
-            
-            send_price_array::send_price_array(
+            println!("before send price done");
+            match send_price_array::send_price_array(
                 &apigateway_client,
-                &connection_id,
+                connection_id,
                 replay_start,
                 &instrument_with_suffix,
                 &exchange,
             )
-            .await?;
-
+            .await {
+                Ok(_) => println!("send_price_array completed successfully"),
+                Err(e) => eprintln!("Error in send_price_array: {:?}", e),
+            };
+            println!("send_price_array done");
             let (message_tx, message_rx) = mpsc::channel(20000);
             let (cancel_tx, _cancel_rx) = oneshot::channel();
 
             {
                 let mut subs = subscriptions.lock().unwrap();
-                subs.insert(connection_id.clone(), cancel_tx);
+                subs.insert(connection_id.to_string(), cancel_tx);
             }
 
             tokio::spawn(async move {
@@ -105,9 +107,12 @@ pub async fn handle_default(
                     iteration += 1;
 
                     let elapsed = iteration_start.elapsed();
-            println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
+                    println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
             });
+            
+            println!("connection_id handle_default: {}", connection_id);
+            let connection_id = connection_id.to_string(); // Clone once for the new task
             tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
                     &apigateway_client,
@@ -128,7 +133,7 @@ pub async fn handle_default(
                 data.instrument
             );
             let mut subs = subscriptions.lock().unwrap();
-            if let Some(cancel_tx) = subs.remove(&connection_id) {
+            if let Some(cancel_tx) = subs.remove(connection_id) {
                 let _ = cancel_tx.send(());
                 println!(
                     "Cancellation signal sent for subscription: {}",

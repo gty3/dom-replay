@@ -90,6 +90,7 @@ const useWebSocketConnection = (
   useEffect(() => {
     // console.log('lastJsonMessage', lastJsonMessage)
     if (isMBP10(lastJsonMessage)) {
+      console.log("isMBP10", lastJsonMessage)
       const mbp10 = lastJsonMessage
       // console.log(mbp10)
       // const datasetTime = new Date(convertDateString(mbp10.dataset_time))
@@ -108,7 +109,7 @@ const useWebSocketConnection = (
     }
     else if (isPriceArrayMessage(lastJsonMessage)) {
       const { price_array, time, bids, offers } = lastJsonMessage
-      console.log("update price array:", price_array, bids, offers)
+      // console.log("update price array:", price_array, bids, offers)
       dispatch({
         type: "UPDATE_PRICE_ARRAY",
         payload: {

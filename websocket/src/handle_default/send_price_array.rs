@@ -66,7 +66,8 @@ pub async fn send_price_array(
             }).collect::<Vec<_>>(),
         });
         let message_json = serde_json::to_string(&modified_mbp)?;
-
+        println!("connection_id send_price_array: {}", connection_id);
+        
         let res = apigateway_client
             .post_to_connection()
             .connection_id(connection_id)
