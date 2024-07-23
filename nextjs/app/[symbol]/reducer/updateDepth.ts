@@ -1,5 +1,5 @@
-import { Level, MBP10, State } from "@/app/types"
-import executeTrade from "./executeTrade"
+import { MBP10, State } from "@/app/types"
+// import executeTrade from "./executeTrade"
 
 const updateDepth = (
   state: State,
@@ -56,8 +56,8 @@ const updateDepth = (
     highest: "" + mbp10.levels[0].bid_px,
   }
 
-  const bidLimitPrice = "" + state.bidLimitOrder
-  const offerLimitPrice = "" + state.offerLimitOrder
+  // const bidLimitPrice = "" + state.bidLimitOrder
+  // const offerLimitPrice = "" + state.offerLimitOrder
 
   // if (bidLimitPrice) {
   //   mbp10.levels.forEach((level: Level) => {

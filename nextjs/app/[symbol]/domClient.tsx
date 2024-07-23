@@ -1,7 +1,7 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
-import { useCallback, useMemo, useReducer } from "react"
+import { useCallback, useReducer } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
@@ -24,7 +24,7 @@ export default function Dom({
 
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const memoizedDispatch = useCallback(dispatch, []);
+  const memoizedDispatch = useCallback(dispatch, [dispatch]);
 
   useWebSocketConnection(exchange, instrument, start, memoizedDispatch);
   useDomScroll(initialState.increment, memoizedDispatch);

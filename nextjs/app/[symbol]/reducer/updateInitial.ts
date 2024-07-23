@@ -21,9 +21,6 @@ const updateInitial = (
     return acc
   }, {} as Record<string, number>)
 
-  const allPrices = mbp10.levels.flatMap(level => [level.bid_px, level.ask_px]);
-  const lowest = Math.min(...allPrices);
-  const highest = Math.max(...allPrices);
   const priceArray = createCompleteArray(mbp10.levels)
 
   const priceArrayString = priceArray.map((price) => price.toString())
@@ -49,11 +46,11 @@ function createCompleteArray(mbpLevels: { bid_px: number; ask_px: number }[]): n
   const clIncrement = 10000000; // Assuming the increment is 0.0001 (converted from 10000000)
 
   // Create initial price array
-  let priceArray = mbpLevels.flatMap(level => [level.bid_px, level.ask_px]);
+  const priceArray = mbpLevels.flatMap(level => [level.bid_px, level.ask_px]);
   priceArray.sort((a, b) => b - a);
 
   // Create complete price array
-  let completePriceArray: number[] = [];
+  const completePriceArray: number[] = [];
   for (let i = 0; i < priceArray.length - 1; i++) {
     const current = priceArray[i];
     const next = priceArray[i + 1];
