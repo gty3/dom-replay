@@ -1,7 +1,7 @@
 
 import Depth from "./depth"
 import Price from "./price"
-import { useCallback } from "react"
+import React, { useCallback } from "react"
 import { ReducerAction, State } from "../../types"
 export const PriceRow = ({
   state,
@@ -75,4 +75,4 @@ export const PriceRow = ({
   )
 }
 
-export default PriceRow
+export default React.memo(PriceRow)

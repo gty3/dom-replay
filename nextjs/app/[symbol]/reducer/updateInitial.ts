@@ -24,7 +24,8 @@ const updateInitial = (
   const allPrices = mbp10.levels.flatMap(level => [level.bid_px, level.ask_px]);
   const lowest = Math.min(...allPrices);
   const highest = Math.max(...allPrices);
-  const priceArray = [1,2,3,4,5,6,7,8,9,10]
+  const priceArray = createCompleteArray(mbp10.levels)
+
   const priceArrayString = priceArray.map((price) => price.toString())
 
 
@@ -45,7 +46,7 @@ const updateInitial = (
 export default updateInitial
 
 function createCompleteArray(mbpLevels: { bid_px: number; ask_px: number }[]): number[] {
-  const clIncrement = 0.0001; // Assuming the increment is 0.0001 (converted from 10000000)
+  const clIncrement = 10000000; // Assuming the increment is 0.0001 (converted from 10000000)
 
   // Create initial price array
   let priceArray = mbpLevels.flatMap(level => [level.bid_px, level.ask_px]);

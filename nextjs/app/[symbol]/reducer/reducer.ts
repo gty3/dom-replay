@@ -11,7 +11,6 @@ const reducer = (state: State, action: ReducerAction): State => {
       return updateDepth(state, action)
 
     case "UPDATE_INITIAL":
-      console.log("UPDATE_INITIAL")
       return updateInitial(state, action)
 
     case "BID_LIMIT":

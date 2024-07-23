@@ -15,6 +15,15 @@ const useWebSocketConnection = (
     {
       share: false,
       shouldReconnect: () => false,
+      onOpen: () => {
+        sendJsonMessage({
+          event: "unsubscribe",
+          data: {
+            exchange: exchange,
+            instrument: instrument,
+          },
+        })
+      }
     }
   )
   const subscribeToData = useCallback(() => {
@@ -44,7 +53,7 @@ const useWebSocketConnection = (
     }
   }, [readyState, sendJsonMessage, instrument, exchange])
   
-  console.log("how many renders")
+  // console.log("how many renders")
   
   useEffect(() => {
     subscribeToData()

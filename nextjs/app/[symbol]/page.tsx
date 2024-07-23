@@ -10,6 +10,7 @@ async function Page({
   params: { symbol?: string }
   searchParams: { [key: string]: string | undefined }
 }) {
+  console.log("main page renders?")
   /* page should autoforward, this should not be possible? */
   if (!params.symbol) {
     return <div>No instrument</div>
@@ -24,6 +25,25 @@ async function Page({
 
   // const { min_price_increment } = definitions[instrument]
 
+  const initialState = {
+    PNL: 0,
+    trade: {
+      price: null as number | null,
+      side: "",
+    },
+    prices: [] as string[],
+    bids: {} as Record<string, number>,
+    offers: {} as Record<string, number>,
+    lowest: "",
+    highest: "",
+    marketBuys: {} as Record<string, number>,
+    marketSells: {} as Record<string, number>,
+    bidLimitOrder: null as number | null,
+    offerLimitOrder: null as number | null,
+    instrument: instrument,
+    increment: 10000000
+  }
+
   return (
     <div className="flex flex-col items-center mt-5">
       <div className="mb-4 ml-4">
@@ -34,7 +54,7 @@ async function Page({
           exchange="GLBX.MDP3"
           instrument={instrument}
           start={startTime}
-          increment={10000000}
+          initialState={initialState}
         />
       </div>
     </div>
