@@ -3,15 +3,15 @@ use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::{Duration, Instant};
-// use tokio::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 pub async fn send_data(
     apigateway_client: &Client,
     connection_id: &str,
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
-    // error_tx: Sender<()>,
-    // mut wait_for_initial: bool,
+    error_tx: Sender<()>,
+    mut wait_for_initial: bool,
 ) -> Result<(), Error> {
     let start_time = tokio::time::Instant::now();
     let mut message_count = 0;
@@ -39,35 +39,35 @@ pub async fn send_data(
 
         let client = apigateway_client.clone();
         let connection_id = connection_id.to_string();
-        // let error_tx = error_tx.clone(); 
+        let error_tx = error_tx.clone(); 
         
-        // if wait_for_initial {
-        //     if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
-        //         if message_value.get("initial") == Some(&serde_json::Value::Bool(true)) {
-        //             println!("INITIAL FFS");
-        //             match client
-        //                 .post_to_connection()
-        //                 .connection_id(connection_id)
-        //                 .data(Blob::new(message))
-        //                 .send()
-        //                 .await
-        //             {
-        //                 Ok(_) => {
-        //                     println!("INITIAL SENT SUCCESSFULLY");
-        //                     wait_for_initial = false;
-        //                 }
-        //                 Err(e) => {
-        //                     println!("Error sending initial message: {:?}", e);
-        //                     if let Err(send_err) = error_tx.send(()).await {
-        //                         eprintln!("Failed to send error signal: {:?}", send_err);
-        //                     }
-        //                     return Err(Error::from(e));
-        //                 }
-        //             }
-        //             continue;
-        //         }
-        //     }
-        // }
+        if wait_for_initial {
+            if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
+                if message_value.get("initial") == Some(&serde_json::Value::Bool(true)) {
+                    println!("INITIAL FFS");
+                    match client
+                        .post_to_connection()
+                        .connection_id(connection_id)
+                        .data(Blob::new(message))
+                        .send()
+                        .await
+                    {
+                        Ok(_) => {
+                            println!("INITIAL SENT SUCCESSFULLY");
+                            wait_for_initial = false;
+                        }
+                        Err(e) => {
+                            println!("Error sending initial message: {:?}", e);
+                            if let Err(send_err) = error_tx.send(()).await {
+                                eprintln!("Failed to send error signal: {:?}", send_err);
+                            }
+                            return Err(Error::from(e));
+                        }
+                    }
+                    continue;
+                }
+            }
+        }
 
         tokio::spawn(async move {
             // if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
@@ -83,9 +83,9 @@ pub async fn send_data(
                 .await
             {
                 println!("Error sending message: {:?}", e);
-                // if let Err(send_err) = error_tx.send(()).await {
-                //     eprintln!("Failed to send error signal: {:?}", send_err);
-                // }
+                if let Err(send_err) = error_tx.send(()).await {
+                    eprintln!("Failed to send error signal: {:?}", send_err);
+                }
             }
         });
     }
