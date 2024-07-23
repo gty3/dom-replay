@@ -10,7 +10,7 @@ mod send_data;
 use crate::utils;
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
-mod send_price_array;
+// mod send_price_array;
 // use tokio::sync::oneshot;
 // use tokio::sync::mpsc::Sender;
 
@@ -53,20 +53,6 @@ pub async fn handle_default(
             let replay_start = utils::parse_replay_time(&replay_time)?;
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
-            println!("before send price done");
-            match send_price_array::send_price_array(
-                &apigateway_client,
-                connection_id,
-                replay_start,
-                &instrument_with_suffix,
-                &exchange,
-            )
-            .await
-            {
-                Ok(_) => println!("send_price_array completed successfully"),
-                Err(e) => eprintln!("Error in send_price_array: {:?}", e),
-            };
-            println!("send_price_array done");
             let (message_tx, message_rx) = mpsc::channel(20000);
             // let (cancel_tx, cancel_rx) = oneshot::channel::<()>();
             // let send_data_cancel_tx = cancel_tx.clone();
@@ -79,8 +65,8 @@ pub async fn handle_default(
 
             let data_handle = tokio::spawn(async move {
                 let mut current_time = replay_start;
-                let end_time = replay_start + Duration::seconds(10); // Adjust as needed
-                let chunk_duration = Duration::seconds(5);
+                let end_time = replay_start + Duration::seconds(6);
+                let chunk_duration = Duration::seconds(3);
                 let mut iteration = 0;
 
                 while current_time < end_time {
@@ -93,6 +79,7 @@ pub async fn handle_default(
                         &instrument_with_suffix,
                         &exchange,
                         message_tx.clone(),
+                        iteration == 0,
                     )
                     .await
                     {
@@ -124,6 +111,7 @@ pub async fn handle_default(
                     message_rx,
                     replay_start,
                     error_tx,
+                    true,
                 )
                 .await
                 {

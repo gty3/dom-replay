@@ -14,11 +14,13 @@ const useWebSocketConnection = (
     process.env.NEXT_PUBLIC_WS_URL ?? "",
     {
       share: false,
-      shouldReconnect: () => true,
+      shouldReconnect: () => false,
     }
   )
   const subscribeToData = useCallback(() => {
+    console.log("readyState", readyState)
     if (readyState === ReadyState.OPEN && instrument) {
+      "send subscribe"
       sendJsonMessage({
         event: "subscribe",
         data: {
@@ -42,44 +44,8 @@ const useWebSocketConnection = (
     }
   }, [readyState, sendJsonMessage, instrument, exchange])
   
-  interface PriceArrayMessage {
-    price_array: number[];
-    time: number;
-    bids: BidOffer[];
-    offers: BidOffer[];
-  }
+  console.log("how many renders")
   
-  function isPriceArrayMessage(message: unknown): message is PriceArrayMessage {
-    if (typeof message !== "object" || message === null) return false;
-    const msg = message as PriceArrayMessage;
-    return (
-      Array.isArray(msg.price_array) &&
-      msg.price_array.every((item) => typeof item === "number") &&
-      typeof msg.time === "number" &&
-      Array.isArray(msg.bids) &&
-      msg.bids.every(
-        (item) =>
-          typeof item === "object" &&
-          item !== null &&
-          typeof item.price === "number" &&
-          typeof item.size === "number"
-      ) &&
-      Array.isArray(msg.offers) &&
-      msg.offers.every(
-        (item) =>
-          typeof item === "object" &&
-          item !== null &&
-          typeof item.price === "number" &&
-          typeof item.size === "number"
-      )
-    );
-  }
-
-  function isMBP10(message: unknown): message is MBP10 {
-    if (!message) return false
-    return (message as MBP10).hd?.rtype === 10
-  }
-
   useEffect(() => {
     subscribeToData()
     return () => {
@@ -88,44 +54,37 @@ const useWebSocketConnection = (
   }, [readyState, sendJsonMessage, subscribeToData, unsubscribeToData])
 
   useEffect(() => {
+    if (!lastJsonMessage) return
+    function isMBP10(message: unknown): message is MBP10 {
+      if (!message) return false
+      return (message as MBP10).hd?.rtype === 10
+    }
+  
     // console.log('lastJsonMessage', lastJsonMessage)
     if (isMBP10(lastJsonMessage)) {
-      console.log("isMBP10", lastJsonMessage)
+      // console.log("isMBP10", lastJsonMessage)
       const mbp10 = lastJsonMessage
-      // console.log(mbp10)
-      // const datasetTime = new Date(convertDateString(mbp10.dataset_time))
+      if (mbp10.initial) {
+        console.log('dispatch calla')
+        dispatch({
+          type: "UPDATE_INITIAL",
+          payload: mbp10
+        })
+        // console.log("initial MBP10", mbp10)
+      } else {
 
-      // if (datasetTime.getTime() !== start.getTime()) {
-      //   // console.log("wrong dataset time", datasetTime, start)
-      //   return
-      // } else {
         dispatch({
           type: "UPDATE_DEPTH",
           payload: {
             MBP10: mbp10,
           },
         })
-      // }
+      }
+
     }
-    else if (isPriceArrayMessage(lastJsonMessage)) {
-      const { price_array, time, bids, offers } = lastJsonMessage
-      // console.log("update price array:", price_array, bids, offers)
-      dispatch({
-        type: "UPDATE_PRICE_ARRAY",
-        payload: {
-          priceArray: price_array,
-          time: time,
-          bids,
-          offers
-        },
-      })
-    }
-  }, [lastJsonMessage, dispatch, start])
+
+  }, [lastJsonMessage, dispatch])
 }
 
-// function convertDateString(dateString: string): string {
-//   // Remove the extra ":00" from the timezone offset
-//   return dateString.replace(/(\+\d{2}:\d{2}):\d{2}$/, "$1")
-// }
-
 export default useWebSocketConnection
+

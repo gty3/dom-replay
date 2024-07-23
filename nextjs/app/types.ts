@@ -7,8 +7,8 @@ interface Header {
 }
 
 export interface Level {
-  bid_px: string
-  ask_px: string
+  bid_px: number
+  ask_px: number
   bid_sz: number
   ask_sz: number
   bid_ct: number
@@ -27,7 +27,7 @@ export interface MBP10 {
   ts_in_delta: number
   sequence: number
   levels: Level[]
-  isFirstMessage?: boolean
+  initial?: boolean
   dataset_time: string
 }
 
@@ -63,6 +63,10 @@ export type ReducerAction =
       payload: {
         MBP10: MBP10
       }
+    }
+  | {
+      type: "UPDATE_INITIAL"
+      payload: MBP10
     }
   | { type: "BID_LIMIT"; payload: number }
   | { type: "SELL_LIMIT"; payload: number }
@@ -103,6 +107,6 @@ export interface State {
 }
 
 export interface BidOffer {
-  price: number;
-  size: number;
+  price: number
+  size: number
 }

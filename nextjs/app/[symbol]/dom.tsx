@@ -39,9 +39,19 @@ export default function Dom({
 
   const memoizedDispatch = useCallback(dispatch, []);
 
-  useWebSocketConnection(exchange, instrument, start, memoizedDispatch)
+  const memoizedWebSocketConnection = useCallback(() => {
+    useWebSocketConnection(exchange, instrument, start, dispatch)
+  }, [exchange, instrument, start, dispatch]);
+  
+  memoizedWebSocketConnection();
+  
+  // useWebSocketConnection(exchange, instrument, start, memoizedDispatch)
 
-  useDomScroll(increment, memoizedDispatch)
+  const memoizedDomScroll = useCallback(() => {
+    useDomScroll(increment, memoizedDispatch)
+  }, [increment, memoizedDispatch]);
+
+  memoizedDomScroll();
 
   // const profit = getProfit({
   //   bids: state.bids,

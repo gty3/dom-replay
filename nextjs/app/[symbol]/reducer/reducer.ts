@@ -2,12 +2,17 @@ import { ReducerAction, State } from "../../types"
 import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
 import updateDepth from "./updateDepth"
+import updateInitial from "./updateInitial"
 import updatePriceArray from "./updatePriceArray"
 
 const reducer = (state: State, action: ReducerAction): State => {
   switch (action.type) {
     case "UPDATE_DEPTH":
       return updateDepth(state, action)
+
+    case "UPDATE_INITIAL":
+      console.log("UPDATE_INITIAL")
+      return updateInitial(state, action)
 
     case "BID_LIMIT":
       return bidLimit(state, action)
