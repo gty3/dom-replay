@@ -41,7 +41,7 @@ async fn function_handler(
             }
             Ok(utils::create_response())
         }
-        _ => handle_default::handle_default(event, subscriptions.clone()).await,
+        _ => handle_default::handle_default(event).await, //subscriptions.clone()
     }
 }
 

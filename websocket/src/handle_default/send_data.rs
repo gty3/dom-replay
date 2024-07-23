@@ -3,12 +3,14 @@ use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::{Duration, Instant};
+use tokio::sync::mpsc::Sender;
 
 pub async fn send_data(
     apigateway_client: &Client,
     connection_id: &str,
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
+    cancel_tx: Sender<()>,
 ) -> Result<(), Error> {
     let start_time = tokio::time::Instant::now();
     let mut message_count = 0;
@@ -36,6 +38,7 @@ pub async fn send_data(
 
         let client = apigateway_client.clone();
         let connection_id = connection_id.to_string();
+        let cancel_tx = cancel_tx.clone(); 
         println!("send_data connection_id: {}", connection_id);
         tokio::spawn(async move {
             if let Err(e) = client
@@ -46,6 +49,9 @@ pub async fn send_data(
                 .await
             {
                 println!("Error sending message: {:?}", e);
+                if let Err(send_err) = cancel_tx.send(()).await {
+                    eprintln!("Failed to send error signal: {:?}", send_err);
+                }
             }
         });
     }
