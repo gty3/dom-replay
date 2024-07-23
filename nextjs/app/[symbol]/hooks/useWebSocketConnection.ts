@@ -14,7 +14,7 @@ const useWebSocketConnection = (
     process.env.NEXT_PUBLIC_WS_URL ?? "",
     {
       share: false,
-      shouldReconnect: () => false,
+      shouldReconnect: () => true,
       onOpen: () => {
         sendJsonMessage({
           event: "unsubscribe",
@@ -69,9 +69,9 @@ const useWebSocketConnection = (
       return (message as MBP10).hd?.rtype === 10
     }
   
-    // console.log('lastJsonMessage', lastJsonMessage)
+    console.log('lastJsonMessage', lastJsonMessage)
     if (isMBP10(lastJsonMessage)) {
-      // console.log("isMBP10", lastJsonMessage)
+      console.log("isMBP10", lastJsonMessage)
       const mbp10 = lastJsonMessage
       if (mbp10.initial) {
         console.log('dispatch calla')

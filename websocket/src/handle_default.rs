@@ -61,9 +61,10 @@ pub async fn handle_default(
             //     let mut subs = subscriptions.lock().unwrap();
             //     subs.insert(connection_id.to_string(), cancel_tx);
             // }
-            let (error_tx, mut error_rx) = mpsc::channel(1);
+            // let (error_tx, mut error_rx) = mpsc::channel(1);
 
-            let data_handle = tokio::spawn(async move {
+            // let data_handle = 
+            tokio::spawn(async move {
                 let mut current_time = replay_start;
                 let end_time = replay_start + Duration::seconds(6);
                 let chunk_duration = Duration::seconds(3);
@@ -104,30 +105,31 @@ pub async fn handle_default(
 
             println!("connection_id handle_default: {}", connection_id);
             let connection_id = connection_id.to_string(); // Clone once for the new task
-            let send_handle = tokio::spawn(async move {
+            println!(":(");
+            tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
                     &apigateway_client,
                     &connection_id,
                     message_rx,
                     replay_start,
-                    error_tx,
-                    true,
+                    // error_tx,
+                    // true,
                 )
                 .await
                 {
                     log::error!("Error in send_data: {:?}", e);
                 }
             });
-            tokio::select! {
-                // _ = cancel_rx => {
-                //     println!("Subscription cancelled");
-                // }
-                _ = error_rx.recv() => {
-                    println!("Error occurred, stopping subscription");
-                }
-            }
-            data_handle.abort();
-            send_handle.abort();
+            // tokio::select! {
+            //     // _ = cancel_rx => {
+            //     //     println!("Subscription cancelled");
+            //     // }
+            //     _ = error_rx.recv() => {
+            //         println!("wtf");
+            //     }
+            // }
+            // data_handle.abort();
+            // send_handle.abort();
         }
 
         WebSocketMessage::Unsubscribe { data } => {
