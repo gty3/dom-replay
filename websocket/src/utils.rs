@@ -9,7 +9,7 @@ use databento::{
     HistoricalClient,
 };
 use http::HeaderMap;
-use lambda_http::Body;
+// use lambda_http::Body;
 use lambda_runtime::Error;
 use time::OffsetDateTime;
 use tokio::io::AsyncReadExt;
@@ -78,12 +78,12 @@ pub async fn get_mbp_decoder(
     Ok(mbp_decoder)
 }
 
-pub fn create_response_with_error(error_message: &str) -> ApiGatewayProxyResponse {
-    ApiGatewayProxyResponse {
-        status_code: 500,
-        headers: HeaderMap::new(),
-        body: Some(Body::from(error_message.to_string())),
-        is_base64_encoded: false,
-        multi_value_headers: HeaderMap::new(),
-    }
-}
+// pub fn create_response_with_error(error_message: &str) -> ApiGatewayProxyResponse {
+//     ApiGatewayProxyResponse {
+//         status_code: 500,
+//         headers: HeaderMap::new(),
+//         body: Some(Body::from(error_message.to_string())),
+//         is_base64_encoded: false,
+//         multi_value_headers: HeaderMap::new(),
+//     }
+// }

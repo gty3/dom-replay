@@ -49,7 +49,7 @@ pub async fn handle_default(
         WebSocketMessage::Subscribe { data } => {
             let (replay_time, instrument, exchange) =
                 (data.replay_time, data.instrument, data.exchange);
-            let instrument_with_suffix = format!("{}.C.0", instrument);
+            let instrument_with_suffix = format!("{}.v.0", instrument);
             let replay_start = utils::parse_replay_time(&replay_time)?;
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
@@ -65,8 +65,8 @@ pub async fn handle_default(
 
             let data_handle = tokio::spawn(async move {
                 let mut current_time = replay_start;
-                let end_time = replay_start + Duration::seconds(6);
-                let chunk_duration = Duration::seconds(3);
+                let end_time = replay_start + Duration::seconds(30);
+                let chunk_duration = Duration::seconds(5);
                 let mut iteration = 0;
 
                 while current_time < end_time {

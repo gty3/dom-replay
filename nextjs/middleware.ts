@@ -8,6 +8,11 @@ function getPreviousWeekdayDate() {
   previousDate.setUTCDate(currentDate.getUTCDate() - 1)
   previousDate.setUTCHours(13, 30, 0, 0)
 
+  // Check if the previous date is within 24 hours
+  if (currentDate.getTime() - previousDate.getTime() < 24 * 60 * 60 * 1000) {
+    previousDate.setUTCDate(previousDate.getUTCDate() - 1)
+  }
+
   // Check if the previous date is a weekday (Monday to Friday)
   while (previousDate.getUTCDay() === 0 || previousDate.getUTCDay() === 6) {
     previousDate.setUTCDate(previousDate.getUTCDate() - 1)

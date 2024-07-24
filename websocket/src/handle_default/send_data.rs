@@ -18,10 +18,8 @@ pub async fn send_data(
     let mut last_log_time = Instant::now();
 
     let replay_start_nanos = replay_start.unix_timestamp_nanos() as u64;
-    println!("send_data, not in loop");
     while let Some((current_ts, message)) = message_rx.recv().await {
         let target_time = current_ts.saturating_sub(replay_start_nanos);
-        println!("message: {:?}", message);
         let elapsed = start_time.elapsed().as_nanos() as u64;
         message_count += 1;
 
@@ -44,7 +42,6 @@ pub async fn send_data(
         if wait_for_initial {
             if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
                 if message_value.get("initial") == Some(&serde_json::Value::Bool(true)) {
-                    println!("INITIAL FFS");
                     match client
                         .post_to_connection()
                         .connection_id(connection_id)
