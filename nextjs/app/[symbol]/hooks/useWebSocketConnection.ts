@@ -14,16 +14,16 @@ const useWebSocketConnection = (
     process.env.NEXT_PUBLIC_WS_URL ?? "",
     {
       share: false,
-      shouldReconnect: () => true,
-      onOpen: () => {
-        sendJsonMessage({
-          event: "unsubscribe",
-          data: {
-            exchange: exchange,
-            instrument: instrument,
-          },
-        })
-      }
+      shouldReconnect: () => false,
+      // onOpen: () => {
+      //   sendJsonMessage({
+      //     event: "unsubscribe",
+      //     data: {
+      //       exchange: exchange,
+      //       instrument: instrument,
+      //     },
+      //   })
+      // }
     }
   )
   const subscribeToData = useCallback(() => {

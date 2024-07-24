@@ -14,5 +14,6 @@ const DomClient = dynamic(() => import('./domClient'), {
 })
 
 export default function Dom(props: DomProps) {
-  return <DomClient {...props} />
+  const key = `${props.instrument}-${props.start.toISOString()}`
+  return <DomClient {...props} key={key} />
 }
