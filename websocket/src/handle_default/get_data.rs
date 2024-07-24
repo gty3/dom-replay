@@ -42,7 +42,7 @@ pub async fn get_data(
         }
     }
 
-    let duration = start_time.elapsed(); // Calculate the duration
-    println!("get_data duration: {:?}", duration); // Print the duration
+    // let duration = start_time.elapsed(); // Calculate the duration
+    // println!("get_data duration: {:?}", duration); // Print the duration
     Ok(())
 }

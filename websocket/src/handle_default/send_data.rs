@@ -24,7 +24,7 @@ pub async fn send_data(
         message_count += 1;
 
         if last_log_time.elapsed() >= Duration::from_secs(5) {
-            println!("Messages sent in the last 5 seconds: {}", message_count);
+            // println!("Messages sent in the last 5 seconds: {}", message_count);
             message_count = 0;
             last_log_time = Instant::now();
         }

@@ -23,26 +23,53 @@ async fn function_handler(
         .unwrap_or_default()
         .to_string();
 
-    match route_key {
-        "$connect" => {
-            println!("Connecting: {}", connection_id);
-            Ok(utils::create_response())
-        },
-        "$disconnect" => {
-            println!("Disconnecting: {}", connection_id);
-            let mut subs = subscriptions.lock().unwrap();
-            if let Some(cancel_tx) = subs.remove(&connection_id) {
-                match cancel_tx.send(()) {
-                    Ok(_) => println!("Disconnected: {}", connection_id),
-                    Err(e) => println!("Failed to send disconnect signal: {:?}", e),
+        match route_key {
+            "$connect" => {
+                println!("Connecting: {}", connection_id);
+
+               
+                Ok(utils::create_response())
+            },
+            "$disconnect" => {
+                println!("Disconnecting: {}", connection_id);
+                let mut subs = subscriptions.lock().unwrap();
+                if let Some(cancel_tx) = subs.remove(&connection_id) {
+                    match cancel_tx.send(()) {
+                        Ok(_) => println!("Disconnected: {}", connection_id),
+                        Err(e) => println!("Failed to send disconnect signal: {:?}", e),
+                    }
+                } else {
+                    println!("No subscription found for connection: {}", connection_id);
                 }
-            } else {
-                println!("No subscription found for connection_id: {}", connection_id);
+                Ok(utils::create_response())
             }
-            Ok(utils::create_response())
+            _ => {
+                let cancel_rx = {
+                    let mut subs = subscriptions.lock().unwrap();
+                    
+                    // Cancel all existing subscriptions
+                    for (_, cancel_tx) in subs.drain() {
+                        let _ = cancel_tx.send(());
+                    }
+                    
+                    // Create a new cancellation channel for this connection
+                    let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
+                    subs.insert(connection_id.clone(), cancel_tx);
+            
+                    println!("Active connections: {:?}", subs.keys().collect::<Vec<_>>());
+            
+                    cancel_rx
+                }; // MutexGuard is dropped here
+            
+                match handle_default::handle_default(event, cancel_rx).await {
+                    Ok(response) => Ok(response),
+                    Err(e) => {
+                        eprintln!("Error in handle_default: {:?}", e);
+                        Ok(utils::create_response())
+                    }
+                }
+            }
         }
-        _ => handle_default::handle_default(event).await, //subscriptions.clone()
-    }
 }
 
 #[tokio::main]

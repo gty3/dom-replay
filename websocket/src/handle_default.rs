@@ -9,7 +9,7 @@ mod get_data;
 mod send_data;
 use crate::utils;
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
-use websocket::WebSocketMessage;
+use websocket:: WebSocketMessage;
 // mod send_price_array;
 // use tokio::sync::oneshot;
 // use tokio::sync::mpsc::Sender;
@@ -27,7 +27,7 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    // subscriptions: SubscriptionMap,
+    cancel_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let domain_name = event
         .request_context
@@ -42,6 +42,7 @@ pub async fn handle_default(
     // .to_string();
     // println!("Default: {:?}", connection_id);
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
+    println!("Raw request body: {:?}", event.body);
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
 
@@ -98,7 +99,7 @@ pub async fn handle_default(
                     iteration += 1;
 
                     let elapsed = iteration_start.elapsed();
-                    println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
+                    // println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
             });
 
@@ -118,16 +119,28 @@ pub async fn handle_default(
                     log::error!("Error in send_data: {:?}", e);
                 }
             });
+
+            let data_abort_handle = data_handle.abort_handle();
+            let send_abort_handle = send_handle.abort_handle();
+
             tokio::select! {
-                // _ = cancel_rx => {
-                //     println!("Subscription cancelled");
-                // }
+                _ = cancel_rx => {
+                    println!("Subscription cancelled");
+                    data_abort_handle.abort();
+                    send_abort_handle.abort();
+                }
                 _ = error_rx.recv() => {
                     println!("Error occurred, stopping subscription");
+                    data_abort_handle.abort();
+                    send_abort_handle.abort();
+                }
+                _ = data_handle => {
+                    println!("Data handling completed");
+                }
+                _ = send_handle => {
+                    println!("Send handling completed");
                 }
             }
-            data_handle.abort();
-            send_handle.abort();
         }
 
         WebSocketMessage::Unsubscribe { data } => {
