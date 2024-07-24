@@ -40,9 +40,8 @@ pub async fn handle_default(
         .as_deref()
         .unwrap_or_default();
     // .to_string();
-    // println!("Default: {:?}", connection_id);
+
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
-    println!("Raw request body: {:?}", event.body);
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
 
@@ -64,7 +63,7 @@ pub async fn handle_default(
             // }
             let (error_tx, mut error_rx) = mpsc::channel(1);
 
-            let data_handle = tokio::spawn(async move {
+            tokio::spawn(async move {
                 let mut current_time = replay_start;
                 let end_time = replay_start + Duration::seconds(30);
                 let chunk_duration = Duration::seconds(5);
@@ -98,14 +97,14 @@ pub async fn handle_default(
                     current_time = chunk_end;
                     iteration += 1;
 
-                    let elapsed = iteration_start.elapsed();
+                    // let elapsed = iteration_start.elapsed();
                     // println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
             });
 
             println!("connection_id handle_default: {}", connection_id);
             let connection_id = connection_id.to_string(); // Clone once for the new task
-            let send_handle = tokio::spawn(async move {
+            tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
                     &apigateway_client,
                     &connection_id,
@@ -113,6 +112,7 @@ pub async fn handle_default(
                     replay_start,
                     error_tx,
                     true,
+                    cancel_rx,
                 )
                 .await
                 {
@@ -120,43 +120,26 @@ pub async fn handle_default(
                 }
             });
 
-            let data_abort_handle = data_handle.abort_handle();
-            let send_abort_handle = send_handle.abort_handle();
+            // let data_abort_handle = data_handle.abort_handle();
+            // let send_abort_handle = send_handle.abort_handle();
 
-            tokio::select! {
-                _ = cancel_rx => {
-                    println!("Subscription cancelled");
-                    data_abort_handle.abort();
-                    send_abort_handle.abort();
-                }
-                _ = error_rx.recv() => {
-                    println!("Error occurred, stopping subscription");
-                    data_abort_handle.abort();
-                    send_abort_handle.abort();
-                }
-                _ = data_handle => {
-                    println!("Data handling completed");
-                }
-                _ = send_handle => {
-                    println!("Send handling completed");
-                }
-            }
-        }
-
-        WebSocketMessage::Unsubscribe { data } => {
-            println!(
-                "Unsubscribe request received for instrument: {}",
-                data.instrument
-            );
-            // let mut subs = subscriptions.lock().unwrap();
-            // if let Some(cancel_tx) = subs.remove(connection_id) {
-            //     let _ = cancel_tx.send(());
-            //     println!(
-            //         "Cancellation signal sent for subscription: {}",
-            //         connection_id
-            //     );
-            // } else {
-            //     println!("No active subscription found for id: {}", connection_id);
+            // tokio::select! {
+            //     _ = cancel_rx => {
+            //         println!("Subscription cancelled");
+            //         data_abort_handle.abort();
+            //         send_abort_handle.abort();
+            //     }
+            //     _ = error_rx.recv() => {
+            //         println!("Error occurred, stopping subscription");
+            //         data_abort_handle.abort();
+            //         send_abort_handle.abort();
+            //     }
+            //     _ = data_handle => {
+            //         println!("Data handling completed");
+            //     }
+            //     _ = send_handle => {
+            //         println!("Send handling completed");
+            //     }
             // }
         }
     }

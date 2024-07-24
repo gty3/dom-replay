@@ -6,7 +6,6 @@ use tokio::sync::oneshot;
 #[serde(untagged)]
 pub enum WebSocketMessage {
     Subscribe { data: BodyData },
-    Unsubscribe { data: BodyData },
 }
 
 #[derive(serde::Deserialize)]
