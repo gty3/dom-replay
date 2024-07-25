@@ -20,7 +20,7 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    // cancel_rx: tokio::sync::oneshot::Receiver<()>,
+    cancel_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let domain_name = event
         .request_context
@@ -94,7 +94,7 @@ pub async fn handle_default(
                     replay_start,
                     // error_tx,
                     true,
-                    // cancel_rx,
+                    cancel_rx,
                 )
                 .await
                 {

@@ -23,7 +23,6 @@ pub async fn get_data(
     loop {
         match mbp_decoder.decode_record::<Mbp10Msg>().await {
             Ok(Some(mbp)) => {
-                println!("Got message in get_data");
                 let mut mbp_json = serde_json::to_value(mbp)?;
 
                 if initial && first_mbp {

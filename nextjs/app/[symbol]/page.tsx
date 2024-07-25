@@ -1,3 +1,4 @@
+"use client"
 import Dom from "./dom"
 import ModalButton from "./modal"
 import definitions from "./definitions"
