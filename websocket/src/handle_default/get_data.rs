@@ -1,10 +1,6 @@
 use databento::dbn::Mbp10Msg;
 use lambda_runtime::Error;
-// use log::{info, error};
 use crate::utils;
-// use std::cmp::Reverse;
-// use std::collections::BinaryHeap;
-// use std::time::Instant;
 use tokio::sync::mpsc::Sender;
 
 pub async fn get_data(
@@ -15,7 +11,6 @@ pub async fn get_data(
     message_tx: Sender<(u64, String)>,
     initial: bool,
 ) -> Result<(), Error> {
-    // let start_time = Instant::now();
     let mut mbp_decoder =
         utils::get_mbp_decoder(replay_start, replay_end, instrument, dataset).await?;
 
@@ -41,8 +36,5 @@ pub async fn get_data(
             }
         }
     }
-
-    // let duration = start_time.elapsed(); // Calculate the duration
-    // println!("get_data duration: {:?}", duration); // Print the duration
     Ok(())
 }

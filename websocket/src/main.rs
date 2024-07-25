@@ -52,7 +52,7 @@ async fn function_handler(
                     let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
                     subs.insert(connection_id.clone(), cancel_tx);
             
-                    // println!("New connections: {:?}", subs.keys().collect::<Vec<_>>());
+                    println!("New connections: {:?}", subs.keys().collect::<Vec<_>>());
             
                     cancel_rx
                 }; // MutexGuard is dropped here
