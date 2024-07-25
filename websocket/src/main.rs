@@ -47,20 +47,22 @@ async fn function_handler(
                 let cancel_rx = {
                     let mut subs = subscriptions.lock().unwrap();
                     println!("Existing connections: {:?}", subs.keys().collect::<Vec<_>>());
-                    // Cancel all existing subscriptions
-                    for (_, cancel_tx) in subs.drain() {
-                        let _ = cancel_tx.send(());
+                    
+                    if let Some(old_cancel_tx) = subs.remove(&connection_id) {
+                        let _ = old_cancel_tx.send(());
+                        println!("Removed existing connection: {}", connection_id);
                     }
                     
                     // Create a new cancellation channel for this connection
                     let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
                     subs.insert(connection_id.clone(), cancel_tx);
             
-                    println!("New connections: {:?}", subs.keys().collect::<Vec<_>>());
+                    // println!("New connections: {:?}", subs.keys().collect::<Vec<_>>());
             
                     cancel_rx
                 }; // MutexGuard is dropped here
 
+                // Wait a short time for previous tasks to cancel
                 tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
             
                 match handle_default::handle_default(event, cancel_rx).await {

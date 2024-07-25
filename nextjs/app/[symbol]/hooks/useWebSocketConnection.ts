@@ -41,26 +41,26 @@ const useWebSocketConnection = (
     }
   }, [readyState, sendJsonMessage, start, instrument, exchange])
   
-  const unsubscribeToData = useCallback(() => {
-    if (readyState === ReadyState.OPEN && instrument) {
-      sendJsonMessage({
-        event: "unsubscribe",
-        data: {
-          exchange: exchange,
-          instrument: instrument,
-        },
-      })
-    }
-  }, [readyState, sendJsonMessage, instrument, exchange])
+  // const unsubscribeToData = useCallback(() => {
+  //   if (readyState === ReadyState.OPEN && instrument) {
+  //     sendJsonMessage({
+  //       event: "unsubscribe",
+  //       data: {
+  //         exchange: exchange,
+  //         instrument: instrument,
+  //       },
+  //     })
+  //   }
+  // }, [readyState, sendJsonMessage, instrument, exchange])
   
   // console.log("how many renders")
   
   useEffect(() => {
     subscribeToData()
-    return () => {
-      unsubscribeToData()
-    }
-  }, [readyState, sendJsonMessage, subscribeToData, unsubscribeToData])
+    // return () => {
+    //   unsubscribeToData()
+    // }
+  }, [readyState, sendJsonMessage, subscribeToData])
 
   useEffect(() => {
     if (!lastJsonMessage) return
