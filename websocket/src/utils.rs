@@ -9,13 +9,9 @@ use databento::{
     HistoricalClient,
 };
 use http::HeaderMap;
-// use lambda_http::Body;
 use lambda_runtime::Error;
 use time::OffsetDateTime;
 use tokio::io::AsyncReadExt;
-
-
-
 
 pub fn create_response() -> ApiGatewayProxyResponse {
     ApiGatewayProxyResponse {
@@ -26,8 +22,6 @@ pub fn create_response() -> ApiGatewayProxyResponse {
         multi_value_headers: HeaderMap::new(),
     }
 }
-
-
 
 pub async fn create_apigateway_client(domain_name: &str, stage: &str) -> Result<Client, Error> {
     let endpoint_url = format!("https://{}/{}", domain_name, stage);
@@ -45,8 +39,6 @@ pub fn parse_replay_time(replay_time: &str) -> Result<OffsetDateTime, Error> {
     OffsetDateTime::parse(replay_time, &time::format_description::well_known::Rfc3339)
         .map_err(Error::from)
 }
-
-
 
 pub async fn get_mbp_decoder(
     replay_start: time::OffsetDateTime,
@@ -77,13 +69,3 @@ pub async fn get_mbp_decoder(
 
     Ok(mbp_decoder)
 }
-
-// pub fn create_response_with_error(error_message: &str) -> ApiGatewayProxyResponse {
-//     ApiGatewayProxyResponse {
-//         status_code: 500,
-//         headers: HeaderMap::new(),
-//         body: Some(Body::from(error_message.to_string())),
-//         is_base64_encoded: false,
-//         multi_value_headers: HeaderMap::new(),
-//     }
-// }

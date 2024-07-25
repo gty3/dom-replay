@@ -56,7 +56,7 @@ pub async fn handle_default(
                 while current_time < end_time {
                     let iteration_start = Instant::now();
                     let chunk_end = current_time + chunk_duration;
-
+                    println!("Getting data");
                     if let Err(e) = get_data::get_data(
                         current_time,
                         chunk_end,
