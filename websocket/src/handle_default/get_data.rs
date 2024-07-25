@@ -4,7 +4,7 @@ use lambda_runtime::Error;
 use crate::utils;
 // use std::cmp::Reverse;
 // use std::collections::BinaryHeap;
-use std::time::Instant;
+// use std::time::Instant;
 use tokio::sync::mpsc::Sender;
 
 pub async fn get_data(
@@ -15,7 +15,7 @@ pub async fn get_data(
     message_tx: Sender<(u64, String)>,
     initial: bool,
 ) -> Result<(), Error> {
-    let start_time = Instant::now();
+    // let start_time = Instant::now();
     let mut mbp_decoder =
         utils::get_mbp_decoder(replay_start, replay_end, instrument, dataset).await?;
 

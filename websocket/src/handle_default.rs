@@ -54,14 +54,7 @@ pub async fn handle_default(
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
-            // let (cancel_tx, cancel_rx) = oneshot::channel::<()>();
-            // let send_data_cancel_tx = cancel_tx.clone();
-
-            // {
-            //     let mut subs = subscriptions.lock().unwrap();
-            //     subs.insert(connection_id.to_string(), cancel_tx);
-            // }
-            let (error_tx, mut error_rx) = mpsc::channel(1);
+            // let (error_tx, mut error_rx) = mpsc::channel(1);
 
             tokio::spawn(async move {
                 let mut current_time = replay_start;
@@ -110,7 +103,7 @@ pub async fn handle_default(
                     &connection_id,
                     message_rx,
                     replay_start,
-                    error_tx,
+                    // error_tx,
                     true,
                     cancel_rx,
                 )

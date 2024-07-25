@@ -48,11 +48,6 @@ async fn function_handler(
                     let mut subs = subscriptions.lock().unwrap();
                     println!("Existing connections: {:?}", subs.keys().collect::<Vec<_>>());
                     
-                    if let Some(old_cancel_tx) = subs.remove(&connection_id) {
-                        let _ = old_cancel_tx.send(());
-                        println!("Removed existing connection: {}", connection_id);
-                    }
-                    
                     // Create a new cancellation channel for this connection
                     let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
                     subs.insert(connection_id.clone(), cancel_tx);
