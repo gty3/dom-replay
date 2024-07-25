@@ -16,9 +16,10 @@ pub async fn send_data(
     let mut last_log_time = Instant::now();
 
     let replay_start_nanos = replay_start.unix_timestamp_nanos() as u64;
-
+    println!("hello, in send_data");
     loop {
         tokio::select! { Some((current_ts, message)) = message_rx.recv() => {
+            println!("Received message in tokio select: {:?}", message);
                 let target_time = current_ts.saturating_sub(replay_start_nanos);
                 let elapsed = start_time.elapsed().as_nanos() as u64;
 
@@ -34,7 +35,6 @@ pub async fn send_data(
 
                 let client = apigateway_client.clone();
                 let connection_id = connection_id.to_string();
-                // let error_tx = error_tx.clone();
 
                 if wait_for_initial {
                     if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
@@ -52,9 +52,6 @@ pub async fn send_data(
                                 }
                                 Err(e) => {
                                     println!("Error sending initial message: {:?}", e);
-                                    // if let Err(send_err) = error_tx.send(()).await {
-                                    //     eprintln!("Failed to send error signal: {:?}", send_err);
-                                    // }
                                     return Err(Error::from(e));
                                 }
                             }
