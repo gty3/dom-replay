@@ -6,9 +6,8 @@ use time::Duration;
 mod get_data;
 mod send_data;
 use crate::utils;
-use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::{broadcast, Mutex};
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
 
@@ -19,7 +18,8 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
         None => Err(Error::from("Missing body in the request")),
     }
 }
-type SubscriptionMap = Arc<Mutex<HashMap<String, tokio::task::JoinHandle<()>>>>;
+type CancelChannel = broadcast::Sender<()>;
+static CANCEL_CHANNEL: tokio::sync::OnceCell<Arc<Mutex<CancelChannel>>> = tokio::sync::OnceCell::const_new();
 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
@@ -38,26 +38,25 @@ pub async fn handle_default(
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
 
-    static SUBSCRIPTIONS: tokio::sync::OnceCell<SubscriptionMap> =
-        tokio::sync::OnceCell::const_new();
-    let subscriptions = SUBSCRIPTIONS
-        .get_or_init(|| async { Arc::new(Mutex::new(HashMap::new())) })
+    let cancel_sender = CANCEL_CHANNEL
+        .get_or_init(|| async { 
+            let (sender, _) = broadcast::channel::<()>(1);
+            Arc::new(Mutex::new(sender))
+        })
         .await;
 
     match message {
         WebSocketMessage::Subscribe { data } => {
-            let mut subscriptions_guard = subscriptions.lock().await;
+            let _ = cancel_sender.lock().await.send(());
+
+            let (new_cancel_sender, mut cancel_receiver) = broadcast::channel::<()>(1);
+            *cancel_sender.lock().await = new_cancel_sender;
+
 
             let (replay_time, instrument, exchange) =
                 (data.replay_time, data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.v.0", instrument);
             let replay_start = utils::parse_replay_time(&replay_time)?;
-
-            // Cancel previous subscription if it exists
-            let subscription_key = format!("{}_{}", instrument, replay_start);
-            if let Some(handle) = subscriptions_guard.remove(&subscription_key) {
-                handle.abort();
-            }
             
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
@@ -100,9 +99,6 @@ pub async fn handle_default(
                     println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
             });
-            let subscriptions_clone = Arc::clone(subscriptions);
-            println!("connection_id handle_default: {}", connection_id);
-            let subscription_key_clone = subscription_key.clone();
             let connection_id_clone = connection_id.to_string();
             let send_task = tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
@@ -111,21 +107,23 @@ pub async fn handle_default(
                     message_rx,
                     replay_start,
                     true,
-                    subscriptions_clone,
-                    &subscription_key_clone
                 )
                 .await
                 {
                     log::error!("Error in send_data: {:?}", e);
                 }
             });
-            let combined_task = tokio::spawn(async move {
+            tokio::spawn(async move {
                 tokio::select! {
                     _ = data_task => {},
                     _ = send_task => {},
+                    _ = cancel_receiver.recv() => {
+                        // Subscription cancelled, exit the combined task
+                        println!("Combined task cancelled");
+                    }
                 }
             });
-            subscriptions_guard.insert(subscription_key, combined_task);
+            // subscriptions_guard.insert(subscription_key, combined_task);
         }
     }
 

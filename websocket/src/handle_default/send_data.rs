@@ -1,11 +1,7 @@
 use aws_sdk_apigatewaymanagement::primitives::Blob;
 use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
-use std::collections::HashMap;
-use std::sync::Arc;
 use tokio::sync::mpsc::Receiver;
-use tokio::sync::Mutex;
-use tokio::task::JoinHandle;
 use tokio::time::{Duration, Instant};
 
 pub async fn send_data(
@@ -14,8 +10,6 @@ pub async fn send_data(
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
     mut wait_for_initial: bool,
-    subscriptions: Arc<Mutex<HashMap<String, JoinHandle<()>>>>,
-    subscription_key_clone: &String
 ) -> Result<(), Error> {
     let start_time = tokio::time::Instant::now();
     let mut message_count = 0;
@@ -27,13 +21,6 @@ pub async fn send_data(
         let elapsed = start_time.elapsed().as_nanos() as u64;
         message_count += 1;
 
-        if !subscriptions.lock().await.contains_key(subscription_key_clone) {
-            println!(
-                "Subscription cancelled for connection_id: {}",
-                subscription_key_clone
-            );
-            break;
-        }
 
         if last_log_time.elapsed() >= Duration::from_secs(5) {
             println!("Messages sent in the last 5 seconds: {}", message_count);
@@ -73,13 +60,7 @@ pub async fn send_data(
             }
         }
 
-        let subscriptions_clone = Arc::clone(&subscriptions);
-        let subscription_key = subscription_key_clone.clone();
         tokio::spawn(async move {
-            if !subscriptions_clone.lock().await.contains_key(&subscription_key) {
-                println!(   "Subscription cancelled for connection_id: {}", subscription_key);
-                return;
-            }
             if let Err(e) = client
                 .post_to_connection()
                 .connection_id(connection_id)
