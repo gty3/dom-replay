@@ -3,14 +3,14 @@ use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
 use tokio::sync::mpsc::Receiver;
 use tokio::time::{Duration, Instant};
-use tokio::sync::mpsc::Sender;
+// use tokio::sync::mpsc::Sender;
 
 pub async fn send_data(
     apigateway_client: &Client,
     connection_id: &str,
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
-    error_tx: Sender<()>,
+    // error_tx: Sender<()>,
     mut wait_for_initial: bool,
 ) -> Result<(), Error> {
     let start_time = tokio::time::Instant::now();
@@ -37,7 +37,7 @@ pub async fn send_data(
 
         let client = apigateway_client.clone();
         let connection_id = connection_id.to_string();
-        let error_tx = error_tx.clone(); 
+        // let error_tx = error_tx.clone(); 
         
         if wait_for_initial {
             if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
@@ -55,9 +55,9 @@ pub async fn send_data(
                         }
                         Err(e) => {
                             println!("Error sending initial message: {:?}", e);
-                            if let Err(send_err) = error_tx.send(()).await {
-                                eprintln!("Failed to send error signal: {:?}", send_err);
-                            }
+                            // if let Err(send_err) = error_tx.send(()).await {
+                            //     eprintln!("Failed to send error signal: {:?}", send_err);
+                            // }
                             return Err(Error::from(e));
                         }
                     }

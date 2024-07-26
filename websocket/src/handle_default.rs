@@ -54,9 +54,9 @@ pub async fn handle_default(
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
-            let (error_tx, mut error_rx) = mpsc::channel(1);
+            // let (error_tx, mut error_rx) = mpsc::channel(1);
 
-            tokio::spawn(async move {
+            let data_task = tokio::spawn(async move {
                 let mut current_time = replay_start;
                 let end_time = replay_start + Duration::seconds(30);
                 let chunk_duration = Duration::seconds(5);
@@ -97,13 +97,13 @@ pub async fn handle_default(
 
             println!("connection_id handle_default: {}", connection_id);
             let connection_id = connection_id.to_string(); // Clone once for the new task
-            tokio::spawn(async move {
+            let send_task = tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
                     &apigateway_client,
                     &connection_id,
                     message_rx,
                     replay_start,
-                    error_tx,
+                    // error_tx,
                     true,
                 )
                 .await
@@ -111,16 +111,12 @@ pub async fn handle_default(
                     log::error!("Error in send_data: {:?}", e);
                 }
             });
-            tokio::select! {
-                // _ = cancel_rx => {
-                //     println!("Subscription cancelled");
-                // }
-                _ = error_rx.recv() => {
-                    println!("Error occurred, stopping subscription");
-                }
-            }
-            // data_handle.abort();
-            // send_handle.abort();
+            tokio::try_join!(data_task, send_task)?;
+            // tokio::select! {
+            //     _ = error_rx.recv() => {
+            //         println!("Error occurred, stopping subscription");
+            //     }
+            // }
         }
     }
 
