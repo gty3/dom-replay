@@ -10,15 +10,16 @@ pub async fn send_data(
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
     mut wait_for_initial: bool,
-    mut cancel_rx: tokio::sync::oneshot::Receiver<()>,
+    cancel_rx: tokio::sync::oneshot::Receiver<()>,
 ) -> Result<(), Error> {
     let start_time = tokio::time::Instant::now();
     let mut last_log_time = Instant::now();
 
     let replay_start_nanos = replay_start.unix_timestamp_nanos() as u64;
-    println!("hello, in send_data");
-    loop {
-        tokio::select! { Some((current_ts, message)) = message_rx.recv() => {
+    println!("hello, in send_data {:?}", cancel_rx);
+    // loop {
+    //     tokio::select! {
+        while let Some((current_ts, message)) = message_rx.recv().await {
             println!("Received message in tokio select: {:?}", message);
                 let target_time = current_ts.saturating_sub(replay_start_nanos);
                 let elapsed = start_time.elapsed().as_nanos() as u64;
@@ -41,8 +42,8 @@ pub async fn send_data(
                         if message_value.get("initial") == Some(&serde_json::Value::Bool(true)) {
                             match client
                                 .post_to_connection()
-                                .connection_id(connection_id)
-                                .data(Blob::new(message))
+                                .connection_id(connection_id.clone())
+                                .data(Blob::new(message.clone()))
                                 .send()
                                 .await
                             {
@@ -54,9 +55,9 @@ pub async fn send_data(
                                     println!("Error sending initial message: {:?}", e);
                                     return Err(Error::from(e));
                                 }
-                            }
-                            continue;
-                        }
+                        //     }
+                        //     continue;
+                        // }
                     }
                 }
 
@@ -72,10 +73,10 @@ pub async fn send_data(
                     }
                 });
             }
-            _ = &mut cancel_rx => {
-                println!("Cancellation received, stopping send_data");
-                break;
-            }
+            // _ = &mut cancel_rx => {
+            //     println!("Cancellation received, stopping send_data");
+            //     break;
+            // }
         }
     }
 
