@@ -54,7 +54,7 @@ pub async fn handle_default(
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
-            // let (error_tx, mut error_rx) = mpsc::channel(1);
+            let (error_tx, mut error_rx) = mpsc::channel(1);
 
             tokio::spawn(async move {
                 let mut current_time = replay_start;
@@ -103,7 +103,7 @@ pub async fn handle_default(
                     &connection_id,
                     message_rx,
                     replay_start,
-                    // error_tx,
+                    error_tx,
                     true,
                 )
                 .await
@@ -111,14 +111,14 @@ pub async fn handle_default(
                     log::error!("Error in send_data: {:?}", e);
                 }
             });
-            // tokio::select! {
-            //     // _ = cancel_rx => {
-            //     //     println!("Subscription cancelled");
-            //     // }
-            //     _ = error_rx.recv() => {
-            //         println!("Error occurred, stopping subscription");
-            //     }
-            // }
+            tokio::select! {
+                // _ = cancel_rx => {
+                //     println!("Subscription cancelled");
+                // }
+                _ = error_rx.recv() => {
+                    println!("Error occurred, stopping subscription");
+                }
+            }
             // data_handle.abort();
             // send_handle.abort();
         }
