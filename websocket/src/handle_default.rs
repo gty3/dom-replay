@@ -1,4 +1,5 @@
-
+// use std::collections::HashMap;
+// use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
@@ -8,7 +9,10 @@ mod get_data;
 mod send_data;
 use crate::utils;
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
-use websocket:: WebSocketMessage;
+use websocket::WebSocketMessage;
+// mod send_price_array;
+// use tokio::sync::oneshot;
+// use tokio::sync::mpsc::Sender;
 
 fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> {
     match body {
@@ -18,9 +22,12 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
     }
 }
 
+// type CancellationSender = Sender<()>;
+// type SubscriptionMap = Arc<Mutex<HashMap<String, CancellationSender>>>;
+
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    cancel_rx: tokio::sync::oneshot::Receiver<()>,
+    // subscriptions: SubscriptionMap,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let domain_name = event
         .request_context
@@ -32,7 +39,8 @@ pub async fn handle_default(
         .connection_id
         .as_deref()
         .unwrap_or_default();
-
+    // .to_string();
+    // println!("Default: {:?}", connection_id);
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
@@ -46,6 +54,7 @@ pub async fn handle_default(
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
+            // let (error_tx, mut error_rx) = mpsc::channel(1);
 
             tokio::spawn(async move {
                 let mut current_time = replay_start;
@@ -56,7 +65,7 @@ pub async fn handle_default(
                 while current_time < end_time {
                     let iteration_start = Instant::now();
                     let chunk_end = current_time + chunk_duration;
-                    println!("Getting data");
+
                     if let Err(e) = get_data::get_data(
                         current_time,
                         chunk_end,
@@ -67,10 +76,9 @@ pub async fn handle_default(
                     )
                     .await
                     {
-                        println!("Error in get_data: {:?}", e);
+                        log::error!("Error in get_data: {:?}", e);
                         break;
                     }
-                    println!("ths sucks");
 
                     let elapsed = iteration_start.elapsed();
                     let sleep_duration = if iteration < 2 {
@@ -82,6 +90,8 @@ pub async fn handle_default(
                     current_time = chunk_end;
                     iteration += 1;
 
+                    let elapsed = iteration_start.elapsed();
+                    println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
             });
 
@@ -95,14 +105,22 @@ pub async fn handle_default(
                     replay_start,
                     // error_tx,
                     true,
-                    cancel_rx,
                 )
                 .await
                 {
-                    println!("Error in send_data: {:?}", e);
+                    log::error!("Error in send_data: {:?}", e);
                 }
             });
-
+            // tokio::select! {
+            //     // _ = cancel_rx => {
+            //     //     println!("Subscription cancelled");
+            //     // }
+            //     _ = error_rx.recv() => {
+            //         println!("Error occurred, stopping subscription");
+            //     }
+            // }
+            // data_handle.abort();
+            // send_handle.abort();
         }
     }
 

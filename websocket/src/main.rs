@@ -3,8 +3,8 @@ use lambda_runtime::{service_fn, Error, LambdaEvent};
 use websocket::SubscriptionMap;
 mod handle_default;
 mod utils;
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 
 async fn function_handler(
     event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
@@ -26,11 +26,10 @@ async fn function_handler(
     match route_key {
         "$connect" => {
             println!("Connecting: {}", connection_id);
-
             Ok(utils::create_response())
-        }
+        },
         "$disconnect" => {
-            println!("Disconnect Route hit: {}", connection_id);
+            println!("Disconnecting: {}", connection_id);
             let mut subs = subscriptions.lock().unwrap();
             if let Some(cancel_tx) = subs.remove(&connection_id) {
                 match cancel_tx.send(()) {
@@ -38,54 +37,11 @@ async fn function_handler(
                     Err(e) => println!("Failed to send disconnect signal: {:?}", e),
                 }
             } else {
-                println!("No subscription found for connection: {}", connection_id);
+                println!("No subscription found for connection_id: {}", connection_id);
             }
             Ok(utils::create_response())
         }
-        // _ => {
-        //     let cancel_rx = {
-        //         let mut subs = subscriptions.lock().unwrap();
-        //         println!(
-        //             "Existing connections: {:?}",
-        //             subs.keys().collect::<Vec<_>>()
-        //         );
-        //         // Remove existing connection if it exists
-        //         // if let Some(old_cancel_tx) = subs.remove(&connection_id) {
-        //         //     let _ = old_cancel_tx.send(());
-        //         //     println!("Removed existing connection: {}", connection_id);
-        //         // }
-        //         // Create a new cancellation channel for this connection
-        //         let (cancel_tx, cancel_rx) = tokio::sync::oneshot::channel();
-        //         subs.insert(connection_id.clone(), cancel_tx);
-
-        //         println!("New connections: {:?}", subs.keys().collect::<Vec<_>>());
-
-        //         cancel_rx
-        //     };
-
-        //     // Wait a short time for previous tasks to cancel, random ass ai shit
-        //     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
-
-        //     match handle_default::handle_default(event, cancel_rx).await {
-        //         Ok(response) => Ok(response),
-        //         Err(e) => {
-        //             eprintln!("Error in handle_default: {:?}", e);
-        //             Ok(utils::create_response())
-        //         }
-        //     }
-            
-        // }
-        _ => {
-            let cancel_rx = {
-                // ... existing code ...
-
-                // Create a blank cancel_rx for debugging
-                let (_, blank_cancel_rx) = tokio::sync::oneshot::channel();
-                blank_cancel_rx
-            };
-
-            handle_default::handle_default(event, cancel_rx).await
-        }
+        _ => handle_default::handle_default(event).await, //subscriptions.clone()
     }
 }
 
