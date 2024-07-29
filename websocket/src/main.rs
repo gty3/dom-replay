@@ -1,14 +1,21 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
+// use futures::channel::oneshot;
 use lambda_runtime::{service_fn, Error, LambdaEvent};
-use websocket::SubscriptionMap;
+use tokio::sync::oneshot;
 mod handle_default;
 mod utils;
-use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+pub struct ConnectionState {
+    cancel_tx: Option<oneshot::Sender<()>>,
+    cancel_flag: Arc<AtomicBool>,
+}
 
 async fn function_handler(
     event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
-    subscriptions: SubscriptionMap,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let (event, _context) = event.into_parts();
     let route_key = event
@@ -27,31 +34,19 @@ async fn function_handler(
         "$connect" => {
             println!("Connecting: {}", connection_id);
             Ok(utils::create_response())
-        },
+        }
         "$disconnect" => {
-            println!("Disconnecting: {}", connection_id);
-            let mut subs = subscriptions.lock().unwrap();
-            if let Some(cancel_tx) = subs.remove(&connection_id) {
-                match cancel_tx.send(()) {
-                    Ok(_) => println!("Disconnected: {}", connection_id),
-                    Err(e) => println!("Failed to send disconnect signal: {:?}", e),
-                }
-            } else {
-                println!("No subscription found for connection_id: {}", connection_id);
-            }
             Ok(utils::create_response())
         }
-        _ => handle_default::handle_default(event).await, //subscriptions.clone()
+        _ => handle_default::handle_default(event).await,
     }
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let subscriptions: SubscriptionMap = Arc::new(Mutex::new(HashMap::new()));
 
     lambda_runtime::run(service_fn(|event| {
-        let subscriptions_clone = subscriptions.clone();
-        function_handler(event, subscriptions_clone)
+        async move { function_handler(event).await }
     }))
     .await?;
 

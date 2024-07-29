@@ -7,12 +7,13 @@ use lambda_runtime::Error;
 use time::Duration;
 mod get_data;
 mod send_data;
-use crate::utils;
+use crate::{utils, ConnectionState};
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
-// mod send_price_array;
-// use tokio::sync::oneshot;
-// use tokio::sync::mpsc::Sender;
+use tokio::sync::oneshot;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use std::collections::HashMap;
 
 fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> {
     match body {
@@ -22,12 +23,8 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
     }
 }
 
-// type CancellationSender = Sender<()>;
-// type SubscriptionMap = Arc<Mutex<HashMap<String, CancellationSender>>>;
-
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
-    // subscriptions: SubscriptionMap,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let domain_name = event
         .request_context
@@ -39,8 +36,7 @@ pub async fn handle_default(
         .connection_id
         .as_deref()
         .unwrap_or_default();
-    // .to_string();
-    // println!("Default: {:?}", connection_id);
+
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
@@ -95,6 +91,15 @@ pub async fn handle_default(
                 }
             });
 
+            let (cancel_tx, cancel_rx) = oneshot::channel();
+    
+            {
+                let mut connections = connections.lock().await;
+                if let Some(state) = connections.get_mut(connection_id) {
+                    state.cancel_tx = Some(cancel_tx);
+                }
+            }
+
             println!("connection_id handle_default: {}", connection_id);
             let connection_id = connection_id.to_string(); // Clone once for the new task
             let send_task = tokio::spawn(async move {
@@ -103,8 +108,9 @@ pub async fn handle_default(
                     &connection_id,
                     message_rx,
                     replay_start,
-                    // error_tx,
+                    cancel_rx,
                     true,
+                    cancel_flag
                 )
                 .await
                 {
@@ -112,11 +118,6 @@ pub async fn handle_default(
                 }
             });
             tokio::try_join!(data_task, send_task)?;
-            // tokio::select! {
-            //     _ = error_rx.recv() => {
-            //         println!("Error occurred, stopping subscription");
-            //     }
-            // }
         }
     }
 
