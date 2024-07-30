@@ -42,7 +42,8 @@ async function Page({
     bidLimitOrder: null as number | null,
     offerLimitOrder: null as number | null,
     instrument: instrument,
-    increment: 10000000
+    increment: 10000000,
+    websocket: true
   }
 
   return (

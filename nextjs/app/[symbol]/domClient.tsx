@@ -1,24 +1,27 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
 // import AccountValue from "./accountValue"
-import { useCallback, useReducer } from "react"
+import { useCallback, useEffect, useReducer, useState } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 import { State } from "../types"
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function Dom({
   instrument,
   start,
   exchange,
   // increment,
-  initialState
+  initialState,
+  socketState
 }: {
   instrument: string
   start: Date
   exchange: string
   // increment: number
   initialState: State
+  socketState: boolean
 }) {
 
 
@@ -26,7 +29,27 @@ export default function Dom({
 
   const memoizedDispatch = useCallback(dispatch, [dispatch]);
 
-  useWebSocketConnection(exchange, instrument, start, memoizedDispatch);
+  const pathname = usePathname();
+  const queryParams = useSearchParams();
+  const startParam = queryParams.get('start');
+
+  const [currentSocketState, setCurrentSocketState] = useState(socketState);
+  useEffect(() => {
+    console.log('pathname???????????', pathname)
+    // Disconnect WebSocket
+    setCurrentSocketState(false);
+    // Reconnect WebSocket after a short delay
+    const timer = setTimeout(() => {
+      setCurrentSocketState(true);
+    }, 1000); // Adjust the delay as needed
+
+    // return () => clearTimeout(timer);
+  }, [pathname, startParam]);
+
+  console.log('currentSocketState', currentSocketState)
+
+  useWebSocketConnection(exchange, instrument, start, memoizedDispatch, currentSocketState);
+
   useDomScroll(initialState.increment, memoizedDispatch);
 
   // const profit = getProfit({
