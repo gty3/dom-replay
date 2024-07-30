@@ -35,7 +35,7 @@ export default function Dom({
 
   const [currentSocketState, setCurrentSocketState] = useState(socketState);
   useEffect(() => {
-    console.log('pathname???????????', pathname)
+
     // Disconnect WebSocket
     setCurrentSocketState(false);
     // Reconnect WebSocket after a short delay
@@ -46,7 +46,6 @@ export default function Dom({
     // return () => clearTimeout(timer);
   }, [pathname, startParam]);
 
-  console.log('currentSocketState', currentSocketState)
 
   useWebSocketConnection(exchange, instrument, start, memoizedDispatch, currentSocketState);
 

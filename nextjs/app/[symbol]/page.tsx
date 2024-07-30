@@ -11,7 +11,6 @@ async function Page({
   params: { symbol?: string }
   searchParams: { [key: string]: string | undefined }
 }) {
-  console.log("main page renders?")
   /* page should autoforward, this should not be possible? */
   if (!params.symbol) {
     return <div>No instrument</div>
