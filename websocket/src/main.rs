@@ -34,6 +34,7 @@ async fn function_handler(
             Ok(utils::create_response())
         }
         "$disconnect" => {
+            println!("Disconnect hit");
             Ok(utils::create_response())
         }
         _ => handle_default::handle_default(event, state.cancel_sender.clone()).await,

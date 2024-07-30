@@ -2353,6 +2353,7 @@ dependencies = [
  "http 1.1.0",
  "lambda_http",
  "lambda_runtime",
+ "lazy_static",
  "log",
  "openssl",
  "serde",

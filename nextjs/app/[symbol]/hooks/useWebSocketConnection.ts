@@ -1,8 +1,9 @@
 "use client"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Dispatch } from "react"
 import { ReducerAction, MBP10 } from "../../types"
 import useWebSocket, { ReadyState } from "react-use-websocket"
+
 
 const useWebSocketConnection = (
   exchange: string,
@@ -10,24 +11,18 @@ const useWebSocketConnection = (
   start: Date,
   dispatch: Dispatch<ReducerAction>
 ) => {
+  const [socketState, setSocketState] = useState(true)
+  
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
     process.env.NEXT_PUBLIC_WS_URL ?? "",
     {
       share: false,
       shouldReconnect: () => false,
-      // onOpen: () => {
-      //   sendJsonMessage({
-      //     event: "unsubscribe",
-      //     data: {
-      //       exchange: exchange,
-      //       instrument: instrument,
-      //     },
-      //   })
-      // }
-    }
+    },
+    // set 3rd arg to false to disconnect
+    socketState
   )
-  const subscribeToData = useCallback(() => {
-    console.log("readyState", readyState)
+  const subscribeToData = useCallback((socketState: boolean) => {
     if (readyState === ReadyState.OPEN && instrument) {
       "send subscribe"
       sendJsonMessage({
@@ -56,11 +51,11 @@ const useWebSocketConnection = (
   // console.log("how many renders")
   
   useEffect(() => {
-    subscribeToData()
-    // return () => {
-    //   unsubscribeToData()
-    // }
-  }, [readyState, sendJsonMessage, subscribeToData])
+    subscribeToData(true)
+    return () => {
+      subscribeToData(socketState)
+    }
+  }, [readyState, sendJsonMessage, subscribeToData, socketState])
 
   useEffect(() => {
     if (!lastJsonMessage) return

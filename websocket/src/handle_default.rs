@@ -1,4 +1,4 @@
-
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
@@ -11,6 +11,16 @@ use tokio::sync::oneshot;
 use tokio::sync::Mutex;
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
+
+lazy_static::lazy_static! {
+    static ref GLOBAL_STATE: Arc<Mutex<GlobalState>> = Arc::new(Mutex::new(GlobalState {
+        replay_times: Vec::new(),
+    }));
+}
+
+struct GlobalState {
+    replay_times: Vec<String>,
+}
 
 fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> {
     match body {
@@ -41,11 +51,11 @@ pub async fn handle_default(
 
     match message {
         WebSocketMessage::Subscribe { data } => {
-            // let cancel_flag = Arc::new(AtomicBool::new(false));
             println!("Subscribe Hit");
 
             let sender_exists = cancel_sender.lock().await.is_some();
             println!("Sender exists before take: {}", sender_exists);
+            
             // Cancel the previous send task if it exists
             if let Some(sender) = cancel_sender.lock().await.take() {
                 println!("previous sender SEND");
@@ -62,18 +72,20 @@ pub async fn handle_default(
             let sender_exists_after = cancel_sender.lock().await.is_some();
             println!("Sender exists after storing: {}", sender_exists_after);
 
-            // Set the cancel flag and wait
-            // cancel_flag.store(true, Ordering::SeqCst);
-            // tokio::time::sleep(TokioDuration::from_millis(2)).await;
-            // cancel_flag.store(false, Ordering::SeqCst);
-
             let (replay_time, instrument, exchange) =
-                (data.replay_time, data.instrument, data.exchange);
+                (data.replay_time.clone(), data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.v.0", instrument);
             let replay_start = utils::parse_replay_time(&replay_time)?;
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
+
+            // Update the global state with the replay time
+            {
+                let mut global_state = GLOBAL_STATE.lock().await;
+                global_state.replay_times.push(replay_time.clone());
+            }
+            println!("global state: {:?}", GLOBAL_STATE.lock().await.replay_times);
 
             let data_task = tokio::spawn(async move {
                 let mut current_time = replay_start;
