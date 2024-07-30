@@ -1,19 +1,16 @@
-// use std::collections::HashMap;
-// use std::sync::{Arc, Mutex};
-use std::time::Instant;
 
+use std::sync::Arc;
+use std::time::Instant;
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
 use lambda_runtime::Error;
 use time::Duration;
 mod get_data;
 mod send_data;
-use crate::{utils, ConnectionState};
+use crate::utils;
+use tokio::sync::oneshot;
+use tokio::sync::Mutex;
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
-use tokio::sync::oneshot;
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use std::collections::HashMap;
 
 fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> {
     match body {
@@ -25,6 +22,7 @@ fn parse_request_body(body: &Option<String>) -> Result<WebSocketMessage, Error> 
 
 pub async fn handle_default(
     event: ApiGatewayWebsocketProxyRequest,
+    cancel_sender: Arc<Mutex<Option<oneshot::Sender<()>>>>,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let domain_name = event
         .request_context
@@ -43,6 +41,32 @@ pub async fn handle_default(
 
     match message {
         WebSocketMessage::Subscribe { data } => {
+            // let cancel_flag = Arc::new(AtomicBool::new(false));
+            println!("Subscribe Hit");
+
+            let sender_exists = cancel_sender.lock().await.is_some();
+            println!("Sender exists before take: {}", sender_exists);
+            // Cancel the previous send task if it exists
+            if let Some(sender) = cancel_sender.lock().await.take() {
+                println!("previous sender SEND");
+                let _ = sender.send(());
+                tokio::time::sleep(TokioDuration::from_millis(50)).await;
+            }
+
+            // Create a new cancel channel
+            let (tx, rx) = oneshot::channel();
+            *cancel_sender.lock().await = Some(tx);
+            println!("New sender created and stored");
+
+            // Verify that the sender was actually stored
+            let sender_exists_after = cancel_sender.lock().await.is_some();
+            println!("Sender exists after storing: {}", sender_exists_after);
+
+            // Set the cancel flag and wait
+            // cancel_flag.store(true, Ordering::SeqCst);
+            // tokio::time::sleep(TokioDuration::from_millis(2)).await;
+            // cancel_flag.store(false, Ordering::SeqCst);
+
             let (replay_time, instrument, exchange) =
                 (data.replay_time, data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.v.0", instrument);
@@ -50,7 +74,6 @@ pub async fn handle_default(
 
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
-            // let (error_tx, mut error_rx) = mpsc::channel(1);
 
             let data_task = tokio::spawn(async move {
                 let mut current_time = replay_start;
@@ -91,15 +114,6 @@ pub async fn handle_default(
                 }
             });
 
-            let (cancel_tx, cancel_rx) = oneshot::channel();
-    
-            {
-                let mut connections = connections.lock().await;
-                if let Some(state) = connections.get_mut(connection_id) {
-                    state.cancel_tx = Some(cancel_tx);
-                }
-            }
-
             println!("connection_id handle_default: {}", connection_id);
             let connection_id = connection_id.to_string(); // Clone once for the new task
             let send_task = tokio::spawn(async move {
@@ -108,9 +122,8 @@ pub async fn handle_default(
                     &connection_id,
                     message_rx,
                     replay_start,
-                    cancel_rx,
                     true,
-                    cancel_flag
+                    rx
                 )
                 .await
                 {

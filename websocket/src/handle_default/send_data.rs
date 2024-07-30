@@ -1,10 +1,8 @@
 use aws_sdk_apigatewaymanagement::primitives::Blob;
 use aws_sdk_apigatewaymanagement::Client;
 use lambda_runtime::Error;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use tokio::sync::mpsc::Receiver;
 use tokio::sync::oneshot;
+use tokio::sync::mpsc::Receiver;
 use tokio::time::{Duration, Instant};
 
 pub async fn send_data(
@@ -12,9 +10,9 @@ pub async fn send_data(
     connection_id: &str,
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
-    mut cancel_rx: oneshot::Receiver<()>,
     mut wait_for_initial: bool,
-    cancel_flag: Arc<AtomicBool>,
+    // cancel_flag: Arc<AtomicBool>,
+    mut cancel_rx: oneshot::Receiver<()>,
 ) -> Result<(), Error> {
     let start_time = tokio::time::Instant::now();
     let mut message_count = 0;
@@ -35,21 +33,32 @@ pub async fn send_data(
                     last_log_time = Instant::now();
                 }
 
-                if cancel_flag.load(Ordering::SeqCst) {
-                    println!("Cancellation flag set, stopping send_data");
-                    break;
+                // Check for cancellation before sleep
+                if cancel_rx.try_recv().is_ok() {
+                    println!("Received cancellation signal for connection: {}", connection_id);
+                    return Ok(());
                 }
 
-                // artificial sleep to mitigate max update depth error
-                tokio::time::sleep(Duration::from_millis(2)).await;
-
-                // sleep for the duration
+                // Sleep if not behind schedule
                 if elapsed < target_time {
-                    tokio::time::sleep(Duration::from_nanos(target_time - elapsed)).await;
+                    tokio::select! {
+                        _ = tokio::time::sleep(Duration::from_nanos(target_time - elapsed)) => {}
+                        _ = &mut cancel_rx => {
+                            println!("Received cancellation signal during sleep for connection: {}", connection_id);
+                            return Ok(());
+                        }
+                    }
+                }
+
+                // Check for cancellation after sleep
+                if cancel_rx.try_recv().is_ok() {
+                    println!("Received cancellation signal after sleep for connection: {}", connection_id);
+                    return Ok(());
                 }
 
                 let client = apigateway_client.clone();
                 let connection_id = connection_id.to_string();
+                // let cancel_flag = cancel_flag.clone();
 
                 if wait_for_initial {
                     if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
@@ -76,9 +85,9 @@ pub async fn send_data(
                 }
 
                 tokio::spawn(async move {
-                    if cancel_flag.load(Ordering::SeqCst) {
-                        return;
-                    }
+                    // if cancel_flag.load(Ordering::SeqCst) {
+                    //     return;
+                    // }
     
                     if let Err(e) = client
                         .post_to_connection()
@@ -93,6 +102,10 @@ pub async fn send_data(
             }
             _ = &mut cancel_rx => {
                 println!("Received cancellation signal for connection: {}", connection_id);
+                break;
+            }
+            else => {
+                println!("No more messages to process, exiting loop");
                 break;
             }
         }
