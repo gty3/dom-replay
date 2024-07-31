@@ -35,6 +35,7 @@ const updateInitial = (
     prices: priceArrayString,
     highest: mbp10.levels[0].bid_px.toString(),
     lowest: mbp10.levels[0].ask_px.toString(),
+    loading: false
   }
 
   // return newState

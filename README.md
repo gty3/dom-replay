@@ -50,6 +50,8 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
 
 ![Product Screenshot](https://raw.githubusercontent.com/gty3/dom-img/main/dom-wide2.png)
 
+`<br/>`
+
 Replay currently runs for 5 minutes then stops, select a new time to continue.
 
 ### Built With

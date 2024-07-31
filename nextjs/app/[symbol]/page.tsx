@@ -43,7 +43,8 @@ async function Page({
     offerLimitOrder: null as number | null,
     instrument: instrument,
     increment: instruments[instrument].increment,
-    websocket: true
+    websocket: true,
+    loading: true
   }
 
   return (

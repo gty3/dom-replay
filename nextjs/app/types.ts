@@ -95,6 +95,7 @@ export interface State {
   offerLimitOrder: number | null
   instrument: string
   increment: number
+  loading: boolean
 }
 
 export interface BidOffer {

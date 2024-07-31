@@ -24,7 +24,7 @@ const useDomScroll = (increment: number, dispatch: React.Dispatch<ReducerAction>
       const touchEndY = event.touches[0].clientY;
       const deltaY = touchEndY - touchStartY.current;
 
-      if (Math.abs(deltaY) >= 32) {
+      if (Math.abs(deltaY) >= 12) {
         if (deltaY < 0) {
           dispatch({ type: "SCROLL_DOWN", payload: increment });
         } else {
