@@ -37,6 +37,7 @@ pub async fn send_data(
         }
 
         let target_time = current_ts.saturating_sub(replay_start_nanos);
+        
         let elapsed = start_time.elapsed().as_nanos() as u64;
         message_count += 1;
 
@@ -47,6 +48,7 @@ pub async fn send_data(
         }
 
         if elapsed < target_time {
+            println!("Sleeping for {:?}", target_time - elapsed);
             let sleep_duration = Duration::from_nanos(target_time - elapsed);
             if sleep_duration < Duration::from_millis(2) {
                 tokio::time::sleep(Duration::from_millis(2)).await;
