@@ -1,14 +1,13 @@
-<a name="readme-top"></a>
-
+`<a name="readme-top"></a>`
 
 <!-- PROJECT LOGO -->
+
 <br />
 <div align="center">
 
-
 <h3 align="center">DOM Replay</h3>
 
-  <p align="center">
+<p align="center">
 A depth of market tool to provide a replay of buy and sell orders for a specific financial instrument at particular times.
     <br />
     <a href="https://github.com/gty3/dom-replay"><strong>Read the guide »</strong></a>
@@ -22,9 +21,8 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
   </p>
 </div>
 
-
-
 <!-- TABLE OF CONTENTS -->
+
 <details>
   <summary>Table of Contents</summary>
   <ol>
@@ -50,30 +48,23 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 ![Product Screenshot](https://raw.githubusercontent.com/gty3/dom-img/main/dom-wide2.png)
 
-This project exists as a guide to getting into Rust
-
-
-
-
 ### Built With
+
 * [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 * [![AWS](https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazon-aws)](https://aws.amazon.com/)
 * [![Rust](https://img.shields.io/badge/Rust-DEA584?style=for-the-badge&logo=rust)](https://www.rust-lang.org/)
-* [![Vite](https://img.shields.io/badge/Vite-42b883?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+* [![Nextjs](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 * [![SST](https://img.shields.io/badge/SST-4A90E2?style=for-the-badge&logo=serverless-stack)](https://sst.dev/)
 * [![Databento](https://img.shields.io/badge/Databento-DEA584?style=for-the-badge&logo=custom&logoColor=white)](https://databento.com/)
 
-
-
-
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 This project is built with SST.
@@ -82,56 +73,52 @@ This project is built with SST.
 
 This is an example of how to list things you need to use the software and how to install them.
 
-
 ### Installation
-You can 
+
+You can
+
 1. Get an API Key at [https://databento.com/](https://databento.com/)
 2. Clone the repo
+
    ```sh
    git clone https://github.com/gty3/dom-replay.git
    ```
 3. Install backend and frontend NPM packages
+
    ```sh
    pnpm install
    ```
 4. Rename `env.example` to `.env` and add your DATABENTO_API_KEY
-
 5. Run the backend locally
-    ```sh
-    npx sst dev
-    ```
 
+   ```sh
+   npx sst dev
+   ```
 6. Run the frontend
-    ```sh
-    cd frontend
-    pnpm dev
-    ```
 
-
-
+   ```sh
+   cd frontend
+   pnpm dev
+   ```
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
-
-
-
 <!-- ROADMAP -->
+
 ## Roadmap
 
-- [ ] Move mbo and mbp10 value conversions from JS to Rust.
-- [ ] Add an instrument/dataset/time modal to frontend to send to websocket. 
-- [ ] Aggregate data to 1ms increments.
-
-
-
-
+- [X] Move mbo and mbp10 value conversions from JS to Rust.
+- [X] Add an instrument/dataset/time modal to frontend to send to websocket.
+- [ ] Add GC instrument
 
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -145,26 +132,22 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
-
-
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Geoff Young - [@_gty__](https://x.com/_gty__)
 
 Project Link: [https://github.com/gty3/dom-replay](https://github.com/gty3/dom-replay)
 
-
 <!-- MARKDOWN LINKS & IMAGES -->
+
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [contributors-shield]: https://img.shields.io/github/contributors/gty3/dom-replay.svg?style=for-the-badge
@@ -195,4 +178,4 @@ Project Link: [https://github.com/gty3/dom-replay](https://github.com/gty3/dom-r
 [Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[JQuery-url]: https://jquery.com
