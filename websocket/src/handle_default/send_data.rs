@@ -15,7 +15,7 @@ pub async fn send_data(
     replay_start: time::OffsetDateTime,
 ) -> Result<(), Error> {
     println!("send_data triggered");
-    // let start_time = tokio::time::Instant::now();
+
     let mut start_time = None;
     let mut message_count = 0;
     let mut last_log_time = Instant::now();
@@ -59,30 +59,6 @@ pub async fn send_data(
         let client = apigateway_client.clone();
         let connection_id = connection_id.to_string();
 
-        // if wait_for_initial {
-        //     if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
-        //         if message_value.get("initial") == Some(&serde_json::Value::Bool(true)) {
-        //             match client
-        //                 .post_to_connection()
-        //                 .connection_id(connection_id)
-        //                 .data(Blob::new(message))
-        //                 .send()
-        //                 .await
-        //             {
-        //                 Ok(_) => {
-        //                     println!("INITIAL SENT SUCCESSFULLY");
-        //                     wait_for_initial = false;
-        //                 }
-        //                 Err(e) => {
-        //                     println!("Error sending initial message: {:?}", e);
-        //                     return Err(Error::from(e));
-        //                 }
-        //             }
-        //             continue;
-        //         }
-        //     }
-        // }
-
         let error_flag_clone = error_flag.clone();
         // let send_start = Instant::now();
         tokio::spawn(async move {
@@ -94,14 +70,6 @@ pub async fn send_data(
                 .send()
                 .await
             {
-                // Ok(_) => {
-                //     // let send_duration = send_start.elapsed();
-                //     // println!("Message sent in {:?}", send_duration);
-                // },
-                // Err(e) => {
-                //     println!("Error sending message: {:?}", e);
-                //     error_flag_clone.store(true, Ordering::Relaxed);
-                // }
                 println!("Error sending message: {:?}", e);
                 error_flag_clone.store(true, Ordering::Relaxed);
             }

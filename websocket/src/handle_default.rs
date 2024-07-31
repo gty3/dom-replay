@@ -97,9 +97,7 @@ pub async fn handle_default(
                     &apigateway_client,
                     &connection_id_clone,
                     message_rx,
-                    replay_start,
-                    true,
-                    // rx
+                    replay_start
                 )
                 .await
                 {
