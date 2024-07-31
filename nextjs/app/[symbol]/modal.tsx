@@ -43,6 +43,16 @@ export function ModalButton({
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]
 
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      // Preserve the time from the current date
+      newDate.setHours(date.getHours());
+      newDate.setMinutes(date.getMinutes());
+      newDate.setSeconds(date.getSeconds());
+      setDate(newDate);
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -90,9 +100,7 @@ export function ModalButton({
                   disabled={disabledDays}
                   mode="single"
                   selected={date}
-                  onSelect={(date) => {
-                    date && setDate(date)
-                  }}
+                  onSelect={handleDateSelect}
                   initialFocus
                 />
                 <div className="p-3 border-t border-border">
