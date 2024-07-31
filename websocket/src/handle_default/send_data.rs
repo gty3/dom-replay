@@ -13,7 +13,6 @@ pub async fn send_data(
     connection_id: &str,
     mut message_rx: Receiver<(u64, String)>,
     replay_start: time::OffsetDateTime,
-    mut wait_for_initial: bool,
 ) -> Result<(), Error> {
     println!("send_data triggered");
     // let start_time = tokio::time::Instant::now();
@@ -26,7 +25,6 @@ pub async fn send_data(
 
     while let Some((current_ts, message)) = message_rx.recv().await {
         if start_time.is_none() {
-            println!("{:?},", message);
             start_time = Some(tokio::time::Instant::now()); // Set on first message
         }
         let start_time = start_time.unwrap();
@@ -48,16 +46,14 @@ pub async fn send_data(
         }
 
         if elapsed < target_time {
-            println!("Sleeping for {:?}", target_time - elapsed);
             let sleep_duration = Duration::from_nanos(target_time - elapsed);
-            if sleep_duration < Duration::from_millis(1) {
-                tokio::time::sleep(Duration::from_millis(1)).await;
+            if sleep_duration < Duration::from_millis(2) {
+                tokio::time::sleep(Duration::from_millis(2)).await;
             } else {
                 tokio::time::sleep(sleep_duration).await;
             }
         } else {
-            println!("{:?}, {:?}", elapsed / 1000000, target_time / 1000000);
-            tokio::time::sleep(Duration::from_millis(1)).await;
+            tokio::time::sleep(Duration::from_millis(2)).await;
         }
 
         let client = apigateway_client.clone();
