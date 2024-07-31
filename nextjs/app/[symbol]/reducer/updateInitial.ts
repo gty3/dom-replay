@@ -1,4 +1,5 @@
 import { MBP10, State } from "@/app/types"
+import instruments from "@/app/[symbol]/instruments"
 
 const updateInitial = (
   state: State,
@@ -21,10 +22,9 @@ const updateInitial = (
     return acc
   }, {} as Record<string, number>)
 
-  const priceArray = createCompleteArray(mbp10.levels)
+  const priceArray = createCompleteArray(mbp10.levels, state)
 
   const priceArrayString = priceArray.map((price) => price.toString())
-
 
   return {
     ...state,
@@ -42,30 +42,38 @@ const updateInitial = (
 
 export default updateInitial
 
-function createCompleteArray(mbpLevels: { bid_px: number; ask_px: number }[]): number[] {
-  const clIncrement = 10000000; // Assuming the increment is 0.0001 (converted from 10000000)
-
-  // Create initial price array
-  const priceArray = mbpLevels.flatMap(level => [level.bid_px, level.ask_px]);
-  priceArray.sort((a, b) => b - a);
+function createCompleteArray(
+  mbpLevels: { bid_px: number; ask_px: number }[],
+  state: State
+): number[] {
+  const increment = instruments[state.instrument].increment
+  
+  // Create initial price array and remove duplicates
+  const priceArray = Array.from(new Set(mbpLevels.flatMap((level) => [level.bid_px, level.ask_px])))
+  priceArray.sort((a, b) => b - a)
 
   // Create complete price array
-  const completePriceArray: number[] = [];
+  const completePriceArray: number[] = []
   for (let i = 0; i < priceArray.length - 1; i++) {
-    const current = priceArray[i];
-    const next = priceArray[i + 1];
-    completePriceArray.push(current);
+    const current = priceArray[i]
+    const next = priceArray[i + 1]
+    completePriceArray.push(current)
 
-    const expectedNext = current - clIncrement;
-    if (next < expectedNext) {
-      let missing = expectedNext;
-      while (missing > next) {
-        completePriceArray.push(missing);
-        missing -= clIncrement;
-      }
+    let missing = current - increment
+    while (missing > next) {
+      completePriceArray.push(missing)
+      missing -= increment
     }
   }
-  completePriceArray.push(priceArray[priceArray.length - 1]);
+  completePriceArray.push(priceArray[priceArray.length - 1])
 
-  return completePriceArray;
+  // Limit the array to 20 elements
+  if (completePriceArray.length > 20) {
+    const middleIndex = Math.floor(completePriceArray.length / 2)
+    const start = middleIndex - 10
+    const end = middleIndex + 10
+    return completePriceArray.slice(start, end)
+  }
+
+  return completePriceArray
 }

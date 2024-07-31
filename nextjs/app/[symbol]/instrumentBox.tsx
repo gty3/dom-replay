@@ -4,6 +4,7 @@ import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import instruments from "@/app/[symbol]/instruments"
 import {
   Command,
   CommandEmpty,
@@ -17,8 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-
-const frameworks = ["CL"]
 
 export function InstrumentBox({
   instrumentValue,
@@ -48,7 +47,7 @@ export function InstrumentBox({
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {Object.keys(instruments).map((framework) => (
                 <CommandItem
                   key={framework}
                   value={framework}

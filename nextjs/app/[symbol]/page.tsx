@@ -2,6 +2,7 @@
 import Dom from "./dom"
 import ModalButton from "./modal"
 import definitions from "./definitions"
+import instruments from "./instruments"
 
 
 async function Page({
@@ -41,7 +42,7 @@ async function Page({
     bidLimitOrder: null as number | null,
     offerLimitOrder: null as number | null,
     instrument: instrument,
-    increment: 10000000,
+    increment: instruments[instrument].increment,
     websocket: true
   }
 
