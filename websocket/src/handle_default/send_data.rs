@@ -47,13 +47,13 @@ pub async fn send_data(
 
         if elapsed < target_time {
             let sleep_duration = Duration::from_nanos(target_time - elapsed);
-            if sleep_duration < Duration::from_millis(2) {
-                tokio::time::sleep(Duration::from_millis(2)).await;
+            if sleep_duration < Duration::from_millis(1) {
+                tokio::time::sleep(Duration::from_millis(1)).await;
             } else {
                 tokio::time::sleep(sleep_duration).await;
             }
         } else {
-            tokio::time::sleep(Duration::from_millis(2)).await;
+            tokio::time::sleep(Duration::from_millis(1)).await;
         }
 
         let client = apigateway_client.clone();

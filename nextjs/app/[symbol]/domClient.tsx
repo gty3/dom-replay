@@ -14,14 +14,12 @@ export default function Dom({
   exchange,
   // increment,
   initialState,
-  socketState
 }: {
   instrument: string
   start: Date
   exchange: string
   // increment: number
   initialState: State
-  socketState: boolean
 }) {
 
 
@@ -33,7 +31,7 @@ export default function Dom({
   const queryParams = useSearchParams();
   const startParam = queryParams.get('start');
 
-  const [currentSocketState, setCurrentSocketState] = useState(socketState);
+  const [currentSocketState, setCurrentSocketState] = useState(true);
   useEffect(() => {
 
     // Disconnect WebSocket
@@ -43,7 +41,7 @@ export default function Dom({
       setCurrentSocketState(true);
     }, 1000); // Adjust the delay as needed
 
-    // return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [pathname, startParam]);
 
 
