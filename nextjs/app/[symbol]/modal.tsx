@@ -38,7 +38,9 @@ export function ModalButton({
 
   const handleSaveChanges = () => {
     const formattedDate = date.toISOString()
-    router.push("/" + instrumentValue + "?start=" + formattedDate)
+    const params = new URLSearchParams({ start: formattedDate })
+    const url = `/${instrumentValue}?${params.toString()}`
+    router.push(url)
   }
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]

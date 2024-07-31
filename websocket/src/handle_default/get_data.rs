@@ -20,7 +20,6 @@ pub async fn get_data(
             return Err(Error::from(e));
         }
     };
-    println!("MBP decoder created successfully");
     let mut first_mbp = true;
     loop {
         match mbp_decoder.decode_record::<Mbp10Msg>().await {

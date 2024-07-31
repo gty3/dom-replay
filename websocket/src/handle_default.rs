@@ -34,13 +34,6 @@ pub async fn handle_default(
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
 
-    // let cancel_sender = CANCEL_CHANNEL
-    //     .get_or_init(|| async { 
-    //         let (sender, _) = broadcast::channel::<()>(1);
-    //         Arc::new(Mutex::new(sender))
-    //     })
-    //     .await;
-
     match message {
         WebSocketMessage::Subscribe { data } => {
             println!("Subscribe Hit");

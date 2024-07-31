@@ -1,8 +1,5 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
 use lambda_runtime::{service_fn, Error, LambdaEvent};
-// use std::sync::Arc;
-// use tokio::sync::oneshot;
-// use tokio::sync::Mutex;
 
 mod handle_default;
 mod utils;

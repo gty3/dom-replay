@@ -60,10 +60,8 @@ pub async fn send_data(
         let connection_id = connection_id.to_string();
 
         let error_flag_clone = error_flag.clone();
-        // let send_start = Instant::now();
         tokio::spawn(async move {
             if let Err(e) = client
-                // match client
                 .post_to_connection()
                 .connection_id(connection_id)
                 .data(Blob::new(message))

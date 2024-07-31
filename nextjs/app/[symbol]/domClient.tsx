@@ -6,7 +6,7 @@ import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 import { State } from "../types"
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from "next/navigation"
 
 export default function Dom({
   instrument,
@@ -21,33 +21,35 @@ export default function Dom({
   // increment: number
   initialState: State
 }) {
-
-
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [currentSocketState, setCurrentSocketState] = useState(true)
+  const memoizedDispatch = useCallback(dispatch, [dispatch])
 
-  const memoizedDispatch = useCallback(dispatch, [dispatch]);
+  const pathname = usePathname()
+  const queryParams = useSearchParams()
+  const startParamEncoded = queryParams.get("start") ?? ""
+  const startParam = decodeURI(startParamEncoded)
 
-  const pathname = usePathname();
-  const queryParams = useSearchParams();
-  const startParam = queryParams.get('start');
-
-  const [currentSocketState, setCurrentSocketState] = useState(true);
   useEffect(() => {
-
     // Disconnect WebSocket
-    setCurrentSocketState(false);
+    setCurrentSocketState(false)
     // Reconnect WebSocket after a short delay
     const timer = setTimeout(() => {
-      setCurrentSocketState(true);
-    }, 1000); // Adjust the delay as needed
+      setCurrentSocketState(true)
+    }, 1000) // Adjust the delay as needed
 
-    return () => clearTimeout(timer);
-  }, [pathname, startParam]);
+    return () => clearTimeout(timer)
+  }, [pathname, startParam])
 
+  useWebSocketConnection(
+    exchange,
+    instrument,
+    start,
+    memoizedDispatch,
+    currentSocketState
+  )
 
-  useWebSocketConnection(exchange, instrument, start, memoizedDispatch, currentSocketState);
-
-  useDomScroll(initialState.increment, memoizedDispatch);
+  useDomScroll(initialState.increment, memoizedDispatch)
 
   // const profit = getProfit({
   //   bids: state.bids,
@@ -60,7 +62,12 @@ export default function Dom({
     <>
       <div className="w-80">
         {state.prices.map((number: string, i: number) => (
-          <PriceRow state={state} dispatch={memoizedDispatch} key={i} number={number} />
+          <PriceRow
+            state={state}
+            dispatch={memoizedDispatch}
+            key={i}
+            number={number}
+          />
         ))}
         {/* <AccountValue
           side={state.trade.side}
@@ -96,7 +103,7 @@ export default function Dom({
 
 //   let profitTimesTick = 0
 //   let profit: number | null = 0
-  
+
 //   if (trades.side === "S" && lowestOffer) {
 //     profit = trades.price - lowestOffer
 //     const profitTick = profit / calculateIncrements(bids)[1]

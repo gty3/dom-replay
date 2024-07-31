@@ -1,4 +1,3 @@
-
 <!-- PROJECT LOGO -->
 
 <br />
@@ -50,7 +49,9 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
 ## About The Project
 
 ![Product Screenshot](https://raw.githubusercontent.com/gty3/dom-img/main/dom-wide2.png)
+
 Replay currently runs for 5 minutes then stops, select a new time to continue.
+
 ### Built With
 
 * [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -68,7 +69,8 @@ This project is built with SST.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
+AWS account
+Databento account
 
 ### Installation
 
@@ -109,7 +111,6 @@ You can
 
 Select the top button to change replay instrument and start time.
 Symbols are currently "continuous", the contract month with the highest volume is selected.
-
 
 <!-- ROADMAP -->
 

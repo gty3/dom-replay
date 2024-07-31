@@ -6,7 +6,6 @@ use tokio::sync::oneshot;
 #[serde(untagged)]
 pub enum WebSocketMessage {
     Subscribe { data: BodyData },
-    // Unsubscribe { data: BodyData },
 }
 
 #[derive(serde::Deserialize)]
@@ -15,12 +14,6 @@ pub struct BodyData {
     pub instrument: String,
     pub exchange: String,
 }
-
-// pub struct UnsubscriptionData {
-//     pub replay_time: String,
-//     pub instrument: String,
-//     pub exchange: String,
-// }
 
 pub type CancellationSender = oneshot::Sender<()>;
 pub type SubscriptionMap = Arc<Mutex<HashMap<String, CancellationSender>>>;

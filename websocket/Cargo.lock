@@ -2349,18 +2349,15 @@ dependencies = [
  "aws-sdk-apigatewaymanagement",
  "aws_lambda_events",
  "databento",
- "futures",
  "http 1.1.0",
  "lambda_http",
  "lambda_runtime",
- "lazy_static",
  "log",
  "openssl",
  "serde",
  "serde_json",
  "time",
  "tokio",
- "tokio-stream",
 ]
 
 [[package]]

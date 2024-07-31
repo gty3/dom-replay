@@ -48,15 +48,15 @@ const TimePickerInput = React.forwardRef<
      * allow the user to enter the second digit within 2 seconds
      * otherwise start again with entering first digit
      */
-    React.useEffect(() => {
-      if (flag) {
-        const timer = setTimeout(() => {
-          setFlag(false);
-        }, 2000);
+    // React.useEffect(() => {
+    //   if (flag) {
+    //     const timer = setTimeout(() => {
+    //       setFlag(false);
+    //     }, 2000);
  
-        return () => clearTimeout(timer);
-      }
-    }, [flag]);
+    //     return () => clearTimeout(timer);
+    //   }
+    // }, [flag]);
  
     const calculatedValue = React.useMemo(
       () => getDateByType(date, picker),
