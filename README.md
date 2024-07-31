@@ -1,4 +1,3 @@
-`<a name="readme-top"></a>`
 
 <!-- PROJECT LOGO -->
 
@@ -51,7 +50,7 @@ A depth of market tool to provide a replay of buy and sell orders for a specific
 ## About The Project
 
 ![Product Screenshot](https://raw.githubusercontent.com/gty3/dom-img/main/dom-wide2.png)
-
+Replay currently runs for 5 minutes then stops, select a new time to continue.
 ### Built With
 
 * [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -86,6 +85,7 @@ You can
    ```sh
    pnpm install
    ```
+
    ```sh
    cd nextjs
    pnpm install
@@ -108,8 +108,8 @@ You can
 ## Usage
 
 Select the top button to change replay instrument and start time.
-Symbols are currently "coninuous", the contract month with the highest volume is selected.
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Symbols are currently "continuous", the contract month with the highest volume is selected.
+
 
 <!-- ROADMAP -->
 
