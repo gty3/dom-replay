@@ -1,19 +1,14 @@
 use aws_lambda_events::event::apigw::{ApiGatewayProxyResponse, ApiGatewayWebsocketProxyRequest};
 use lambda_runtime::{service_fn, Error, LambdaEvent};
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use tokio::sync::oneshot;
+// use std::sync::Arc;
+// use tokio::sync::oneshot;
+// use tokio::sync::Mutex;
 
 mod handle_default;
 mod utils;
 
-struct AppState {
-    cancel_sender: Arc<Mutex<Option<oneshot::Sender<()>>>>,
-}
-
 async fn function_handler(
     event: LambdaEvent<ApiGatewayWebsocketProxyRequest>,
-    state: Arc<AppState>,
 ) -> Result<ApiGatewayProxyResponse, Error> {
     let (event, _context) = event.into_parts();
     let route_key = event
@@ -37,20 +32,15 @@ async fn function_handler(
             println!("Disconnect hit");
             Ok(utils::create_response())
         }
-        _ => handle_default::handle_default(event, state.cancel_sender.clone()).await,
+        _ => handle_default::handle_default(event).await,
     }
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let state = Arc::new(AppState {
-        cancel_sender: Arc::new(Mutex::new(None)),
-    });
-
-    lambda_runtime::run(service_fn(|event| {
-        let state = state.clone();
-        async move { function_handler(event, state).await }
-    }))
+    lambda_runtime::run(service_fn(
+        |event| async move { function_handler(event).await },
+    ))
     .await?;
 
     Ok(())

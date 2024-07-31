@@ -1,7 +1,7 @@
 use crate::utils;
 use databento::dbn::Mbp10Msg;
 use lambda_runtime::Error;
-use tokio::sync::mpsc::Sender;
+use tokio::{sync::mpsc::Sender, time::Instant};
 
 pub async fn get_data(
     replay_start: time::OffsetDateTime,
@@ -11,6 +11,8 @@ pub async fn get_data(
     message_tx: Sender<(u64, String)>,
     initial: bool,
 ) -> Result<(), Error> {
+    
+    let start_time = Instant::now();
     let mut mbp_decoder = match utils::get_mbp_decoder(replay_start, replay_end, instrument, dataset).await {
         Ok(decoder) => decoder,
         Err(e) => {
@@ -44,5 +46,7 @@ pub async fn get_data(
             }
         }
     }
+    let elapsed_time = start_time.elapsed(); // Calculate elapsed time
+    println!("MBP decoder run time: {:?}", elapsed_time);
     Ok(())
 }
