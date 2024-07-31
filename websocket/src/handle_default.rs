@@ -6,7 +6,6 @@ use time::Duration;
 mod get_data;
 mod send_data;
 use crate::utils;
-
 use tokio::{sync::mpsc, time::Duration as TokioDuration};
 use websocket::WebSocketMessage;
 
@@ -31,10 +30,16 @@ pub async fn handle_default(
         .connection_id
         .as_deref()
         .unwrap_or_default();
-
     let stage = event.request_context.stage.as_deref().unwrap_or_default();
 
     let message: WebSocketMessage = parse_request_body(&event.body)?;
+
+    // let cancel_sender = CANCEL_CHANNEL
+    //     .get_or_init(|| async { 
+    //         let (sender, _) = broadcast::channel::<()>(1);
+    //         Arc::new(Mutex::new(sender))
+    //     })
+    //     .await;
 
     match message {
         WebSocketMessage::Subscribe { data } => {
@@ -44,7 +49,7 @@ pub async fn handle_default(
                 (data.replay_time.clone(), data.instrument, data.exchange);
             let instrument_with_suffix = format!("{}.v.0", instrument);
             let replay_start = utils::parse_replay_time(&replay_time)?;
-
+            
             let apigateway_client = utils::create_apigateway_client(domain_name, stage).await?;
             let (message_tx, message_rx) = mpsc::channel(20000);
 
@@ -86,13 +91,11 @@ pub async fn handle_default(
                     println!("Iteration {} elapsed time: {:?}", iteration, elapsed);
                 }
             });
-
-            println!("connection_id handle_default: {}", connection_id);
-            let connection_id = connection_id.to_string(); // Clone once for the new task
+            let connection_id_clone = connection_id.to_string();
             let send_task = tokio::spawn(async move {
                 if let Err(e) = send_data::send_data(
                     &apigateway_client,
-                    &connection_id,
+                    &connection_id_clone,
                     message_rx,
                     replay_start,
                     true,

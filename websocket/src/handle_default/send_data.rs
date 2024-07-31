@@ -41,6 +41,7 @@ pub async fn send_data(
         let elapsed = start_time.elapsed().as_nanos() as u64;
         message_count += 1;
 
+
         if last_log_time.elapsed() >= Duration::from_secs(5) {
             println!("Messages sent in the last 5 seconds: {}", message_count);
             message_count = 0;
@@ -62,6 +63,7 @@ pub async fn send_data(
 
         let client = apigateway_client.clone();
         let connection_id = connection_id.to_string();
+
 
         if wait_for_initial {
             if let Ok(message_value) = serde_json::from_str::<serde_json::Value>(&message) {
