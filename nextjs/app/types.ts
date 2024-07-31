@@ -72,15 +72,6 @@ export type ReducerAction =
   | { type: "SELL_LIMIT"; payload: number }
   | { type: "SCROLL_DOWN"; payload: number }
   | { type: "SCROLL_UP"; payload: number }
-  | {
-      type: "UPDATE_PRICE_ARRAY"
-      payload: {
-        priceArray: number[]
-        time: number
-        bids: BidOffer[]
-        offers: BidOffer[]
-      }
-    }
 
 export interface NowAggRecords {
   now: Record<string, number>

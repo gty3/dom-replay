@@ -55,14 +55,13 @@ export function ModalButton({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 gap-4 items-center">
-            <Label htmlFor="name" className="text-right">
+            <Label htmlFor="name" className="">
               Exchange
             </Label>
             CMEGLOBEX
-            {/* <ComboboxDemo value={start} /> */}
           </div>
           <div className="grid grid-cols-4 gap-4 items-center">
-            <Label htmlFor="username" className="text-right">
+            <Label htmlFor="username" className="">
               Instrument
             </Label>
             
@@ -86,7 +85,7 @@ export function ModalButton({
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="p-0 w-auto">
+              <PopoverContent className="p-0 w-auto mt-4">
                 <Calendar
                   disabled={disabledDays}
                   mode="single"

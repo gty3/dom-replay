@@ -3,7 +3,6 @@ import bidLimit from "./bidLimit"
 import sellLimit from "./sellLimit"
 import updateDepth from "./updateDepth"
 import updateInitial from "./updateInitial"
-import updatePriceArray from "./updatePriceArray"
 
 const reducer = (state: State, action: ReducerAction): State => {
   switch (action.type) {
@@ -18,9 +17,6 @@ const reducer = (state: State, action: ReducerAction): State => {
 
     case "SELL_LIMIT":
       return sellLimit(state, action)
-
-    case "UPDATE_PRICE_ARRAY":
-      return updatePriceArray(state, action)
 
     case "SCROLL_DOWN":
     case "SCROLL_UP": {

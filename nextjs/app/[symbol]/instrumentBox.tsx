@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-const frameworks = ["CL", "NQ"]
+const frameworks = ["CL"]
 
 export function InstrumentBox({
   instrumentValue,
@@ -44,7 +44,7 @@ export function InstrumentBox({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Search symbol..." />
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
