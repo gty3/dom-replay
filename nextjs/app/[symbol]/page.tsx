@@ -44,7 +44,8 @@ async function Page({
     instrument: instrument,
     increment: instruments[instrument].increment,
     websocket: true,
-    loading: true
+    loading: true,
+    minPrice: instruments[instrument].minPrice,
   }
 
   return (

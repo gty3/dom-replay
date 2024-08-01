@@ -1,1 +1,0 @@
-export const initialPrices: string[] = Array.from({ length: 18 })

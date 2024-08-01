@@ -1,5 +1,5 @@
-import { MBP10, State } from "@/app/types"
-// import executeTrade from "./executeTrade"
+import { Level, MBP10, State } from "@/app/types"
+import executeTrade from "./executeTrade"
 
 const updateDepth = (
   state: State,
@@ -56,29 +56,29 @@ const updateDepth = (
     highest: "" + mbp10.levels[0].bid_px,
   }
 
-  // const bidLimitPrice = "" + state.bidLimitOrder
-  // const offerLimitPrice = "" + state.offerLimitOrder
+  const bidLimitPrice = "" + state.bidLimitOrder
+  const offerLimitPrice = "" + state.offerLimitOrder
 
-  // if (bidLimitPrice) {
-  //   mbp10.levels.forEach((level: Level) => {
-  //     if (level.ask_px === bidLimitPrice) {
-  //       newState = {
-  //         ...state,
-  //         ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
-  //       }
-  //     }
-  //   })
-  // } else if (offerLimitPrice) {
-  //   mbp10.levels.forEach((level: Level) => {
-  //     /* if there is an bid that exists at the same price i have an open offer */
-  //     if (level.bid_px === offerLimitPrice) {
-  //       newState = {
-  //         ...state,
-  //         ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
-  //       }
-  //     }
-  //   })
-  // }
+  if (bidLimitPrice) {
+    mbp10.levels.forEach((level: Level) => {
+      if (level.ask_px === parseFloat(bidLimitPrice)) {
+        newState = {
+          ...state,
+          ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
+        }
+      }
+    })
+  } else if (offerLimitPrice) {
+    mbp10.levels.forEach((level: Level) => {
+      /* if there is an bid that exists at the same price i have an open offer */
+      if (level.bid_px === parseFloat(offerLimitPrice)) {
+        newState = {
+          ...state,
+          ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
+        }
+      }
+    })
+  }
 
   return newState
 }

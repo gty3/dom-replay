@@ -1,5 +1,7 @@
 
-import { State } from "../../types"
+import { ProfitProps, State } from "../../types"
+import getHighestValue from "../utils/highest"
+import getLowestValue from "../utils/lowest"
 
 type PartialState = Partial<State>
 
@@ -12,12 +14,12 @@ const executeTrade = (
   const isClosingTrade = state.trade.side === (tradeType === "B" ? "S" : "B")
   const orderType = tradeType === "B" ? "bidLimitOrder" : "offerLimitOrder"
 
-  // const PNLChange = getProfit({
-  //   bids: state.bids,
-  //   offers: state.offers,
-  //   trades: state.trade,
-  //   increment: 10000000,
-  // })
+  const PNLChange = getProfit({
+    bids: state.bids,
+    offers: state.offers,
+    trades: state.trade,
+    increment: 10000000,
+  })
   if (isNotInMarket) {
     return {
       trade: {
@@ -34,7 +36,7 @@ const executeTrade = (
         price: null,
         side: "",
       },
-      // PNL: state.PNL + PNLChange,
+      PNL: state.PNL + PNLChange,
       [orderType]: null,
     }
   }
@@ -44,39 +46,31 @@ const executeTrade = (
 
 export default executeTrade
 
-// interface ProfitProps {
-//   bids: typeof state.bids
-//   offers: typeof state.offers
-//   trades: typeof state.trade
-//   increment: number | null
-// }
+const getProfit = ({
+  bids,
+  offers,
+  trades,
+  increment,
+}: ProfitProps): number => {
+  if (!increment) {
+    return 0
+  }
+  if (!trades.price || !bids || !offers || trades.side === "") {
+    return 0
+  }
 
-// const getProfit = ({
-//   bids,
-//   offers,
-//   trades,
-//   increment,
-// }: ProfitProps): number => {
-//   if (!increment) {
-//     return 0
-//   }
-//   if (!trades.price || !bids || !offers || trades.side === "") {
-//     return 0
-//   }
-//   const { lowest: lowestOffer } = getLowestHighest(offers)
-//   const { highest: highestBid } = getLowestHighest(bids)
+  const lowest = getLowestValue(offers)
+  const highest = getHighestValue(bids)
 
-//   let profitTimesTick = 0
-//   let profit: number | null = 0
-  
-//   if (trades.side === "S" && lowestOffer) {
-//     profit = trades.price - lowestOffer
-//     const profitTick = profit / calculateIncrements(bids)[1]
-//     profitTimesTick = profitTick * increment
-//   } else if (trades.side === "B" && highestBid) {
-//     profit = highestBid - trades.price
-//     const profitTick = profit / calculateIncrements(bids)[1]
-//     profitTimesTick = profitTick * increment
-//   }
-//   return profitTimesTick
-// }
+  if (trades.side === "S" && lowest) {
+    const profit = trades.price - lowest
+    const profitTick = profit / increment
+    return profitTick * increment
+  } else if (trades.side === "B" && highest) {
+    const profit = highest - trades.price
+    const profitTick = profit / increment
+    return profitTick * increment
+  } else {
+    return 0
+  }
+}
