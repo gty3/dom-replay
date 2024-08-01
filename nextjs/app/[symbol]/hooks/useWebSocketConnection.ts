@@ -53,7 +53,6 @@ const useWebSocketConnection = (
     if (isMBP10(lastJsonMessage)) {
       const mbp10 = lastJsonMessage
       if (mbp10.initial) {
-        console.log('dispatch calla')
         dispatch({
           type: "UPDATE_INITIAL",
           payload: mbp10

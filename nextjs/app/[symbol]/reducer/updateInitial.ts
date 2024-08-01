@@ -10,8 +10,6 @@ const updateInitial = (
 ): State => {
   const mbp10 = action.payload
 
-  console.log(mbp10)
-
   const offers = mbp10.levels.reduce((acc, level) => {
     acc[level.ask_px] = level.ask_sz
     return acc
