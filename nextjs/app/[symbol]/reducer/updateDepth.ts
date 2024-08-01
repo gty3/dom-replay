@@ -59,26 +59,21 @@ const updateDepth = (
   const bidLimitPrice = "" + state.bidLimitOrder
   const offerLimitPrice = "" + state.offerLimitOrder
 
-  if (bidLimitPrice) {
-    mbp10.levels.forEach((level: Level) => {
-      if (level.ask_px === parseFloat(bidLimitPrice)) {
-        newState = {
-          ...state,
-          ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
-        }
-      }
-    })
-  } else if (offerLimitPrice) {
-    mbp10.levels.forEach((level: Level) => {
-      /* if there is an bid that exists at the same price i have an open offer */
-      if (level.bid_px === parseFloat(offerLimitPrice)) {
-        newState = {
-          ...state,
-          ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
-        }
-      }
-    })
-  }
+  mbp10.levels.forEach((level: Level) => {
+    if (bidLimitPrice && level.ask_px === parseFloat(bidLimitPrice)) {
+      console.log('Executing buy trade');
+      newState = {
+        ...state,
+        ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
+      };
+    } else if (offerLimitPrice && level.bid_px === parseFloat(offerLimitPrice)) {
+      console.log('Executing sell trade');
+      newState = {
+        ...state,
+        ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
+      };
+    }
+  });
 
   return newState
 }

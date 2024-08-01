@@ -82,7 +82,7 @@ export interface State {
   PNL: number
   trade: {
     price: number | null
-    side: string
+    side: number
   }
   prices: string[]
   bids: Record<string, number>

@@ -8,17 +8,18 @@ type PartialState = Partial<State>
 const executeTrade = (
   state: State,
   tradePrice: number,
-  tradeType: "B" | "S"
+  tradeType: 65 | 66
 ): PartialState => {
-  const isNotInMarket = state.trade.side === ""
-  const isClosingTrade = state.trade.side === (tradeType === "B" ? "S" : "B")
-  const orderType = tradeType === "B" ? "bidLimitOrder" : "offerLimitOrder"
+  const isNotInMarket = !state.trade.side
+  const isClosingTrade = state.trade.side === (tradeType === 65 ? 66 : 65)
+  const orderType = tradeType === 65 ? "bidLimitOrder" : "offerLimitOrder"
 
   const PNLChange = getProfit({
     bids: state.bids,
     offers: state.offers,
     trades: state.trade,
-    increment: 10000000,
+    increment: state.increment,
+    minPrice: state.minPrice,
   })
   if (isNotInMarket) {
     return {
@@ -31,6 +32,7 @@ const executeTrade = (
   }
 
   if (isClosingTrade) {
+    console.log(state.PNL + PNLChange)
     return {
       trade: {
         price: null,
@@ -51,6 +53,7 @@ const getProfit = ({
   offers,
   trades,
   increment,
+  minPrice,
 }: ProfitProps): number => {
   if (!increment) {
     return 0
@@ -65,11 +68,11 @@ const getProfit = ({
   if (trades.side === "S" && lowest) {
     const profit = trades.price - lowest
     const profitTick = profit / increment
-    return profitTick * increment
+    return profitTick * minPrice
   } else if (trades.side === "B" && highest) {
     const profit = highest - trades.price
     const profitTick = profit / increment
-    return profitTick * increment
+    return profitTick * minPrice
   } else {
     return 0
   }
