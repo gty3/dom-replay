@@ -16,6 +16,12 @@ const instruments: { [key: string]: { increment: number } } = {
   },
   "ES": {
     increment: 250000000
+  },
+  "ZN": {
+    increment: 15625000
+  },
+  "UB": {
+    increment: 31250000
   }
 }
 
