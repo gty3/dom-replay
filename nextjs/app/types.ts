@@ -96,7 +96,7 @@ export interface State {
   instrument: string
   increment: number
   loading: boolean
-  minPrice: number
+  // minPrice: number
 }
 
 export interface BidOffer {

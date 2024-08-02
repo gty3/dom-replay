@@ -13,7 +13,7 @@ const bidLimit = (
     }
   } else if (
     /* if account is already long || price selected is above market || preexisting bid*/
-    state.trade.side === "B" ||
+    state.trade.side === 66 ||
     !state.bids ||
     !state.offers 
     // ||
@@ -29,7 +29,7 @@ const bidLimit = (
       ...state,
       trade: {
         price: state.trade.price ? null : action.payload,
-        side: state.trade.price ? "" : "B",
+        side: state.trade.price ? 0 : 66,
       },
     }
   } else {

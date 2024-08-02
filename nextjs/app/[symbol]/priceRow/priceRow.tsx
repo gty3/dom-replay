@@ -33,7 +33,7 @@ export const PriceRow = ({
   }, [dispatch, priceNumber])
 
   const borderColor =
-    state.trade.side === "B" ? "border-blue-500" : "border-red-500"
+    state.trade.side === 66 ? "border-blue-500" : "border-red-500"
   const tradeBorder =
     priceNumber === Number(state.trade.price)
       ? `border-[3px] -ml-2.5 pl-5 -mr-1.5 relative z-20 ${borderColor}`

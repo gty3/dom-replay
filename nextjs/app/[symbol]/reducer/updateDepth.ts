@@ -1,5 +1,5 @@
-import { Level, MBP10, State } from "@/app/types"
-import executeTrade from "./executeTrade"
+import { MBP10, State } from "@/app/types"
+// import executeTrade from "./executeTrade"
 
 const updateDepth = (
   state: State,
@@ -56,24 +56,24 @@ const updateDepth = (
     highest: "" + mbp10.levels[0].bid_px,
   }
 
-  const bidLimitPrice = "" + state.bidLimitOrder
-  const offerLimitPrice = "" + state.offerLimitOrder
+  // const bidLimitPrice = "" + state.bidLimitOrder
+  // const offerLimitPrice = "" + state.offerLimitOrder
 
-  mbp10.levels.forEach((level: Level) => {
-    if (bidLimitPrice && level.ask_px === parseFloat(bidLimitPrice)) {
-      console.log('Executing buy trade');
-      newState = {
-        ...state,
-        ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
-      };
-    } else if (offerLimitPrice && level.bid_px === parseFloat(offerLimitPrice)) {
-      console.log('Executing sell trade');
-      newState = {
-        ...state,
-        ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
-      };
-    }
-  });
+  // mbp10.levels.forEach((level: Level) => {
+  //   if (bidLimitPrice && level.ask_px === parseFloat(bidLimitPrice)) {
+  //     console.log('Executing buy trade');
+  //     newState = {
+  //       ...state,
+  //       ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
+  //     };
+  //   } else if (offerLimitPrice && level.bid_px === parseFloat(offerLimitPrice)) {
+  //     console.log('Executing sell trade');
+  //     newState = {
+  //       ...state,
+  //       ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
+  //     };
+  //   }
+  // });
 
   return newState
 }

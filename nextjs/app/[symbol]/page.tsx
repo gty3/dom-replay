@@ -30,7 +30,7 @@ async function Page({
     PNL: 0,
     trade: {
       price: null as number | null,
-      side: "",
+      side: 0,
     },
     prices: [] as string[],
     bids: {} as Record<string, number>,
@@ -45,7 +45,7 @@ async function Page({
     increment: instruments[instrument].increment,
     websocket: true,
     loading: true,
-    minPrice: instruments[instrument].minPrice,
+    // minPrice: instruments[instrument].minPrice,
   }
 
   return (

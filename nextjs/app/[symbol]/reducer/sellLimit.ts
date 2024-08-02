@@ -14,7 +14,7 @@ const sellLimit = (
     }
   } else if (
     /* if account is already short || price selected is below market || offer already exists*/
-    state.trade.side === "S" ||
+    state.trade.side === 65 ||
     !state.offers ||
     !state.bids 
     // ||
@@ -30,7 +30,7 @@ const sellLimit = (
       ...state,
       trade: {
         price: state.trade.price ? null : action.payload,
-        side: state.trade.price ? "" : "S",
+        side: state.trade.price ? 0 : 65,
       },
     }
   } else {

@@ -45,10 +45,10 @@ export default {
         environment: {
           NEXT_PUBLIC_WS_URL: websocket.url,
         },
-        customDomain: {
+        customDomain: app.stage === "prod" ? {
           domainName: "orderflowreplay.com",
           domainAlias: "www.orderflowreplay.com",
-        },
+        }: undefined,
         cdk: {
           distribution: {
             additionalBehaviors: {
