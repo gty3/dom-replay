@@ -49,6 +49,7 @@ export default {
           domainName: "orderflowreplay.com",
           domainAlias: "www.orderflowreplay.com",
         }: undefined,
+        
         cdk: {
           distribution: {
             additionalBehaviors: {
