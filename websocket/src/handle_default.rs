@@ -48,7 +48,7 @@ pub async fn handle_default(
 
             let data_task = tokio::spawn(async move {
                 let mut current_time = replay_start;
-                let end_time = replay_start + Duration::seconds(300);
+                let end_time = replay_start + Duration::seconds(600);
                 let chunk_duration = Duration::seconds(5);
                 let mut iteration = 0;
 
