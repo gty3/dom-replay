@@ -7,6 +7,7 @@ import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 import { State } from "../types"
 import { usePathname, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 // import getLowestValue from "./utils/lowest"
 // import getHighestValue from "./utils/highest"
 
@@ -31,17 +32,20 @@ export default function Dom({
   const queryParams = useSearchParams()
   const startParamEncoded = queryParams.get("start") ?? ""
   const startParam = decodeURI(startParamEncoded)
+  const router = useRouter()
 
   // useEffect(() => {
-  //   // Disconnect WebSocket
-  //   setCurrentSocketState(false)
-  //   // Reconnect WebSocket after a short delay
-  //   const timer = setTimeout(() => {
-  //     setCurrentSocketState(true)
-  //   }, 1000) // Adjust the delay as needed
+  //   const interval = setInterval(() => {
+  //     const currentStart = new Date(startParam)
+  //     const newStart = new Date(currentStart.getTime() + 1000)
+  //     const newStartParam = encodeURI(newStart.toISOString())
+  //     const newQueryParams = new URLSearchParams(queryParams.toString())
+  //     newQueryParams.set("start", newStartParam)
+  //     router.replace(`${pathname}?${newQueryParams.toString()}`)
+  //   }, 1000)
 
-  //   return () => clearTimeout(timer)
-  // }, [pathname, startParam])
+  //   return () => clearInterval(interval)
+  // }, [pathname, queryParams, startParam, router])
 
   useWebSocketConnection(
     exchange,

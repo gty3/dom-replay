@@ -18,7 +18,7 @@ export function WebsocketStack({ stack }: StackContext) {
         function: {
           handler: "websocket/src/main.rs",
           runtime: "rust",
-          timeout: 310,
+          timeout: 610,
           environment: {
             DATABENTO_API_KEY: DATABENTO_API_KEY,
           },
