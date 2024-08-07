@@ -32,6 +32,7 @@ export function ModalButton({
   start: Date
 }) {
   const [date, setDate] = useState(start)
+  const [month, setMonth] = useState<Date>(start)
   const [instrumentValue, setInstrumentValue] = useState(symbol)
 
   const router = useRouter()
@@ -52,6 +53,7 @@ export function ModalButton({
       newDate.setMinutes(date.getMinutes());
       newDate.setSeconds(date.getSeconds());
       setDate(newDate);
+      setMonth(newDate);
     }
   };
 
@@ -104,6 +106,8 @@ export function ModalButton({
                   selected={date}
                   onSelect={handleDateSelect}
                   initialFocus
+                  month={month}
+                  onMonthChange={setMonth}
                 />
                 <div className="p-3 border-t border-border">
                   <TimePickerDemo

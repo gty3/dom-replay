@@ -32,16 +32,16 @@ export default function Dom({
   const startParamEncoded = queryParams.get("start") ?? ""
   const startParam = decodeURI(startParamEncoded)
 
-  useEffect(() => {
-    // Disconnect WebSocket
-    setCurrentSocketState(false)
-    // Reconnect WebSocket after a short delay
-    const timer = setTimeout(() => {
-      setCurrentSocketState(true)
-    }, 1000) // Adjust the delay as needed
+  // useEffect(() => {
+  //   // Disconnect WebSocket
+  //   setCurrentSocketState(false)
+  //   // Reconnect WebSocket after a short delay
+  //   const timer = setTimeout(() => {
+  //     setCurrentSocketState(true)
+  //   }, 1000) // Adjust the delay as needed
 
-    return () => clearTimeout(timer)
-  }, [pathname, startParam])
+  //   return () => clearTimeout(timer)
+  // }, [pathname, startParam])
 
   useWebSocketConnection(
     exchange,
