@@ -27,9 +27,11 @@ import { InstrumentBox } from "./instrumentBox"
 export function ModalButton({
   symbol,
   start,
+  setCurrentSocketState,
 }: {
   symbol: string
   start: Date
+  setCurrentSocketState: (state: boolean) => void
 }) {
   const [date, setDate] = useState(start)
   const [month, setMonth] = useState<Date>(start)
@@ -42,6 +44,10 @@ export function ModalButton({
     const params = new URLSearchParams({ start: formattedDate })
     const url = `/${instrumentValue}?${params.toString()}`
     router.push(url)
+    setCurrentSocketState(false)
+    setTimeout(() => {
+      setCurrentSocketState(true)
+    }, 1000)
   }
 
   const disabledDays = [{ from: new Date(), to: new Date(2099, 11, 31) }]
@@ -49,13 +55,13 @@ export function ModalButton({
   const handleDateSelect = (newDate: Date | undefined) => {
     if (newDate) {
       // Preserve the time from the current date
-      newDate.setHours(date.getHours());
-      newDate.setMinutes(date.getMinutes());
-      newDate.setSeconds(date.getSeconds());
-      setDate(newDate);
-      setMonth(newDate);
+      newDate.setHours(date.getHours())
+      newDate.setMinutes(date.getMinutes())
+      newDate.setSeconds(date.getSeconds())
+      setDate(newDate)
+      setMonth(newDate)
     }
-  };
+  }
 
   return (
     <Dialog>
@@ -78,8 +84,11 @@ export function ModalButton({
             <Label htmlFor="username" className="">
               Instrument
             </Label>
-            
-            <InstrumentBox instrumentValue={instrumentValue} setInstrumentValue={setInstrumentValue} />
+
+            <InstrumentBox
+              instrumentValue={instrumentValue}
+              setInstrumentValue={setInstrumentValue}
+            />
           </div>
           <div>
             <Popover>

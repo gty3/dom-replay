@@ -50,17 +50,12 @@ async function Page({
 
   return (
     <div className="flex flex-col items-center mt-5">
-      <div className="mb-4 ml-4">
-        <ModalButton symbol={instrument} start={startTime} />
-      </div>
-      <div>
         <Dom
           exchange="GLBX.MDP3"
           instrument={instrument}
           start={startTime}
           initialState={initialState}
         />
-      </div>
     </div>
   )
 }

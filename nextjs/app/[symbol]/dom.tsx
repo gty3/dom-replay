@@ -1,5 +1,8 @@
+"use client"
 import dynamic from 'next/dynamic'
 import { State } from '../types'
+import ModalButton from './modal'
+import { useState } from 'react'
 
 interface DomProps {
   instrument: string
@@ -14,6 +17,21 @@ const DomClient = dynamic(() => import('./domClient'), {
 })
 
 export default function Dom(props: DomProps) {
+
+  const [currentSocketState, setCurrentSocketState] = useState(true)
+
   const key = `${props.instrument}-${props.start.toISOString()}`
-  return <DomClient {...props} key={key} />
+  return (
+    <>
+      {" "}
+      <div className="mb-4 ml-4">
+        <ModalButton
+          symbol={props.instrument}
+          start={props.start}
+          setCurrentSocketState={setCurrentSocketState}
+        />
+      </div>
+      <DomClient {...props} currentSocketState={currentSocketState} key={key} />
+    </>
+  )
 }

@@ -1,13 +1,11 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
 import AccountValue from "./accountValue"
-import { useCallback, useEffect, useReducer, useState } from "react"
+import { useCallback, useReducer} from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 import { ProfitProps, State } from "../types"
-import { usePathname, useSearchParams } from "next/navigation"
-// import { useRouter } from "next/navigation"
 import getLowestValue from "./utils/lowest"
 import getHighestValue from "./utils/highest"
 
@@ -15,49 +13,19 @@ export default function Dom({
   instrument,
   start,
   exchange,
-  // increment,
   initialState,
+  currentSocketState,
 }: {
   instrument: string
   start: Date
   exchange: string
-  // increment: number
   initialState: State
+  currentSocketState: boolean
+  
 }) {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const [currentSocketState, setCurrentSocketState] = useState(true)
+
   const memoizedDispatch = useCallback(dispatch, [dispatch])
-
-  const pathname = usePathname()
-  const queryParams = useSearchParams()
-  const startParamEncoded = queryParams.get("start") ?? ""
-  const startParam = decodeURI(startParamEncoded)
-  // const router = useRouter()
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const currentStart = new Date(startParam)
-  //     const newStart = new Date(currentStart.getTime() + 1000)
-  //     const newStartParam = encodeURI(newStart.toISOString())
-  //     const newQueryParams = new URLSearchParams(queryParams.toString())
-  //     newQueryParams.set("start", newStartParam)
-  //     router.replace(`${pathname}?${newQueryParams.toString()}`)
-  //   }, 1000)
-
-  //   return () => clearInterval(interval)
-  // }, [pathname, queryParams, startParam, router])
-
-  // instead of listening for a change in url, have the state modified by modal
-    useEffect(() => {
-      // Disconnect WebSocket
-      setCurrentSocketState(false)
-      // Reconnect WebSocket after a short delay
-      const timer = setTimeout(() => {
-        setCurrentSocketState(true)
-      }, 2000) // Adjust the delay as needed
-
-      return () => clearTimeout(timer)
-    }, [pathname, startParam])
 
   useWebSocketConnection(
     exchange,
@@ -74,7 +42,7 @@ export default function Dom({
     offers: state.offers,
     trades: state.trade,
     increment: state.increment,
-    minPrice: state.minPrice
+    minPrice: state.minPrice,
   })
 
   return (
