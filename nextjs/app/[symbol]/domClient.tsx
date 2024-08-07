@@ -7,7 +7,7 @@ import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
 import { ProfitProps, State } from "../types"
 import { usePathname, useSearchParams } from "next/navigation"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 import getLowestValue from "./utils/lowest"
 import getHighestValue from "./utils/highest"
 
@@ -32,7 +32,7 @@ export default function Dom({
   const queryParams = useSearchParams()
   const startParamEncoded = queryParams.get("start") ?? ""
   const startParam = decodeURI(startParamEncoded)
-  const router = useRouter()
+  // const router = useRouter()
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -46,6 +46,18 @@ export default function Dom({
 
   //   return () => clearInterval(interval)
   // }, [pathname, queryParams, startParam, router])
+
+  // instead of listening for a change in url, have the state modified by modal
+    useEffect(() => {
+      // Disconnect WebSocket
+      setCurrentSocketState(false)
+      // Reconnect WebSocket after a short delay
+      const timer = setTimeout(() => {
+        setCurrentSocketState(true)
+      }, 2000) // Adjust the delay as needed
+
+      return () => clearTimeout(timer)
+    }, [pathname, startParam])
 
   useWebSocketConnection(
     exchange,
