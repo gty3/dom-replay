@@ -1,15 +1,15 @@
 "use client"
 import PriceRow from "./priceRow/priceRow"
-// import AccountValue from "./accountValue"
+import AccountValue from "./accountValue"
 import { useCallback, useEffect, useReducer, useState } from "react"
 import reducer from "./reducer/reducer"
 import useWebSocketConnection from "./hooks/useWebSocketConnection"
 import useDomScroll from "./hooks/useDomScroll"
-import { State } from "../types"
+import { ProfitProps, State } from "../types"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
-// import getLowestValue from "./utils/lowest"
-// import getHighestValue from "./utils/highest"
+import getLowestValue from "./utils/lowest"
+import getHighestValue from "./utils/highest"
 
 export default function Dom({
   instrument,
@@ -57,13 +57,13 @@ export default function Dom({
 
   useDomScroll(initialState.increment, memoizedDispatch)
 
-  // const profit = getProfit({
-  //   bids: state.bids,
-  //   offers: state.offers,
-  //   trades: state.trade,
-  //   increment: state.increment,
-  //   minPrice: state.minPrice
-  // })
+  const profit = getProfit({
+    bids: state.bids,
+    offers: state.offers,
+    trades: state.trade,
+    increment: state.increment,
+    minPrice: state.minPrice
+  })
 
   return (
     <>
@@ -76,43 +76,42 @@ export default function Dom({
             number={number}
           />
         ))}
-        {/* <AccountValue
+        <AccountValue
           side={state.trade.side}
           profit={profit}
           accountValue={state.PNL}
-        ></AccountValue> */}
+        ></AccountValue>
       </div>
     </>
   )
 }
 
-// const getProfit = ({
-//   bids,
-//   offers,
-//   trades,
-//   increment,
-//   minPrice
-// }: ProfitProps): number => {
-//   if (!increment) {
-//     return 0
-//   }
-//   if (!trades.price || !bids || !offers || trades.side === "") {
-//     return 0
-//   }
+const getProfit = ({
+  bids,
+  offers,
+  trades,
+  increment,
+  minPrice
+}: ProfitProps): number => {
+  if (!increment) {
+    return 0
+  }
+  if (!trades.price || !bids || !offers || !trades.side) {
+    return 0
+  }
 
-//   const lowest = getLowestValue(offers)
-//   const highest = getHighestValue(bids)
+  const lowest = getLowestValue(offers)
+  const highest = getHighestValue(bids)
 
-//   if (trades.side === "S" && lowest) {
-//     console.log(trades.price, lowest)
-//     const profit = trades.price - lowest
-//     const profitTick = profit / increment
-//     return profitTick * minPrice
-//   } else if (trades.side === "B" && highest) {
-//     const profit = highest - trades.price
-//     const profitTick = profit / increment
-//     return profitTick * minPrice
-//   } else {
-//     return 0
-//   }
-// }
+  if (trades.side === 65 && lowest) {
+    const profit = trades.price - lowest
+    const profitTick = profit / increment
+    return profitTick * minPrice
+  } else if (trades.side === 66 && highest) {
+    const profit = highest - trades.price
+    const profitTick = profit / increment
+    return profitTick * minPrice
+  } else {
+    return 0
+  }
+}

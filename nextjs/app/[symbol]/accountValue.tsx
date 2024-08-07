@@ -7,10 +7,10 @@ const AccountValue = ({
 }: {
   accountValue: number
   profit: number
-  side: string
+  side: number
 }) => {
   const accountProfit = profit / 10000  + ( accountValue / 10000)
-  const position = side === "B" ? "LONG" : side === "S" ? "SHORT" : ""
+  const position = side === 66 ? "LONG" : side === 65 ? "SHORT" : ""
 
   return (
     <div className="flex flex-row">

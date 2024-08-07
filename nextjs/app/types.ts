@@ -96,7 +96,7 @@ export interface State {
   instrument: string
   increment: number
   loading: boolean
-  // minPrice: number
+  minPrice: number
 }
 
 export interface BidOffer {
@@ -108,7 +108,7 @@ export interface ProfitProps {
   offers: Record<string, number>
   trades: {
     price: number | null
-    side: string
+    side: number
   }
   increment: number | null
   minPrice: number

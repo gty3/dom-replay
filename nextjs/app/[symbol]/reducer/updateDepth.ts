@@ -1,5 +1,5 @@
-import { MBP10, State } from "@/app/types"
-// import executeTrade from "./executeTrade"
+import { Level, MBP10, State } from "@/app/types"
+import executeTrade from "./executeTrade"
 
 const updateDepth = (
   state: State,
@@ -24,6 +24,7 @@ const updateDepth = (
     return acc
   }, {} as Record<string, number>)
 
+  /* If incoming data is a trade mbp10, update the market buy/sell size */
   if (mbp10.action === 84) {
     if (mbp10.side === 65) {
       newState = {
@@ -48,6 +49,7 @@ const updateDepth = (
     }
   }
 
+  /* all else, update the limit order price */
   newState = {
     ...(newState || state),
     offers: offers,
@@ -56,24 +58,19 @@ const updateDepth = (
     highest: "" + mbp10.levels[0].bid_px,
   }
 
-  // const bidLimitPrice = "" + state.bidLimitOrder
-  // const offerLimitPrice = "" + state.offerLimitOrder
-
-  // mbp10.levels.forEach((level: Level) => {
-  //   if (bidLimitPrice && level.ask_px === parseFloat(bidLimitPrice)) {
-  //     console.log('Executing buy trade');
-  //     newState = {
-  //       ...state,
-  //       ...executeTrade(state, parseFloat(bidLimitPrice), "B"),
-  //     };
-  //   } else if (offerLimitPrice && level.bid_px === parseFloat(offerLimitPrice)) {
-  //     console.log('Executing sell trade');
-  //     newState = {
-  //       ...state,
-  //       ...executeTrade(state, parseFloat(offerLimitPrice), "S"),
-  //     };
-  //   }
-  // });
+  if (mbp10.levels[0].ask_px === state.bidLimitOrder) {
+    console.log("Executing buy trade")
+    newState = {
+      ...newState,
+      ...executeTrade(state, state.bidLimitOrder, 66),
+    }
+  } else if (mbp10.levels[0].bid_px === state.offerLimitOrder) {
+    console.log("Executing sell trade")
+    newState = {
+      ...newState,
+      ...executeTrade(state, state.offerLimitOrder, 65),
+    }
+  }
 
   return newState
 }
