@@ -1,5 +1,5 @@
 import { SSTConfig } from "sst"
-import { Api, NextjsSite, use, WebSocketApi } from "sst/constructs"
+import { Api, NextjsSite, use } from "sst/constructs"
 
 const DATABENTO_API_KEY = process.env.DATABENTO_API_KEY ?? "db-key-error"
 

@@ -1,4 +1,4 @@
-import { Level, MBP10, State } from "@/app/types"
+import { MBP10, State } from "@/app/types"
 import executeTrade from "./executeTrade"
 
 const updateDepth = (
